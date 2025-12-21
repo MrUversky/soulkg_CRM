@@ -22,6 +22,9 @@ const nextConfig: NextConfig = {
   // Output configuration
   output: 'standalone',
   
+  // Transpile packages from monorepo
+  transpilePackages: ['@soul-kg-crm/shared'],
+  
   // Experimental features
   experimental: {
     // Enable server components
