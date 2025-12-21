@@ -1,5 +1,6 @@
 # Multi-stage build for production
-FROM node:20-alpine AS base
+# Use Debian-based image for better Prisma compatibility
+FROM node:20-slim AS base
 
 # Build stage - install dependencies and build
 FROM base AS builder
