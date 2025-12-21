@@ -149,27 +149,54 @@ async function migrateData() {
 
     // Migrate messages
     console.log('\n📨 Migrating messages...');
-    const localMessages = await localPrisma.message.findMany();
+    const localMessages = await localPrisma.message.findMany({
+      include: {
+        conversation: {
+          select: {
+            organizationId: true,
+          },
+        },
+      },
+    });
     let migratedCount = 0;
     for (const msg of localMessages) {
       const existing = await productionPrisma.message.findUnique({
         where: { id: msg.id },
       });
       if (!existing) {
-        await productionPrisma.message.create({
-          data: {
-            id: msg.id,
-            conversationId: msg.conversationId,
-            content: msg.content,
-            direction: msg.direction,
-            sender: msg.sender,
-            status: msg.status,
-            timestamp: msg.timestamp,
-            createdAt: msg.createdAt,
-            updatedAt: msg.updatedAt,
+        const messageData: any = {
+          id: msg.id,
+          conversation: {
+            connect: { id: msg.conversationId },
           },
+          organization: {
+            connect: { id: msg.conversation.organizationId },
+          },
+          content: msg.content,
+          direction: msg.direction,
+          sender: msg.sender,
+          language: msg.language || null,
+          translatedContent: msg.translatedContent || null,
+          whatsappMessageId: msg.whatsappMessageId || null,
+          status: msg.status,
+          error: msg.error || null,
+          createdAt: msg.createdAt,
+        };
+        
+        // Only add sentByUser if senderId exists
+        if (msg.senderId) {
+          messageData.sentByUser = {
+            connect: { id: msg.senderId },
+          };
+        }
+        
+        await productionPrisma.message.create({
+          data: messageData,
         });
         migratedCount++;
+        if (migratedCount % 100 === 0) {
+          console.log(`   ... migrated ${migratedCount} messages`);
+        }
       }
     }
     console.log(`   ✅ Migrated ${migratedCount} messages`);
@@ -186,7 +213,7 @@ async function migrateData() {
           data: {
             id: agent.id,
             organizationId: agent.organizationId,
-            type: agent.type,
+            agentType: agent.agentType,
             name: agent.name,
             prompt: agent.prompt,
             settings: agent.settings as any,

@@ -6,11 +6,23 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useAuth } from '@/lib/contexts/auth-context';
+import { useClients } from '@/lib/hooks/useClients';
 import { Card, CardHeader, CardTitle, CardBody } from '@/components/ui/Card';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  
+  // Fetch clients for stats
+  const { data: clientsData } = useClients({ page: 1, limit: 1000 });
+  const clients = clientsData?.data || [];
+  
+  // Calculate stats
+  const totalClients = clients.length;
+  const newLeads = clients.filter(c => c.status === 'NEW_LEAD').length;
+  const qualified = clients.filter(c => c.status === 'QUALIFIED').length;
+  const sold = clients.filter(c => c.status === 'SOLD').length;
 
   return (
     <div className="space-y-6">
@@ -32,7 +44,7 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">0</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalClients}</p>
           </CardBody>
         </Card>
 
@@ -43,7 +55,7 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">0</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{newLeads}</p>
           </CardBody>
         </Card>
 
@@ -54,7 +66,7 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">0</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{qualified}</p>
           </CardBody>
         </Card>
 
@@ -65,7 +77,7 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">0</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{sold}</p>
           </CardBody>
         </Card>
       </div>
@@ -77,7 +89,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardBody>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a
+            <Link
               href="/dashboard/clients/new"
               className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
@@ -87,8 +99,8 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Create a new client record
               </p>
-            </a>
-            <a
+            </Link>
+            <Link
               href="/dashboard/clients"
               className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
@@ -98,9 +110,9 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Browse and manage clients
               </p>
-            </a>
+            </Link>
             {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
-              <a
+              <Link
                 href="/dashboard/users"
                 className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
@@ -110,7 +122,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   Add or edit users
                 </p>
-              </a>
+              </Link>
             )}
           </div>
         </CardBody>
