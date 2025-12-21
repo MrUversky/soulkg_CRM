@@ -115,13 +115,39 @@ You will receive:
    - SERVICE can occur at any point after SOLD
    - CLOSED is terminal (unless customer re-engages)
 
+# Additional Task: Cultural Context Analysis
+
+In addition to determining status, analyze the client's cultural context based on:
+- Language used in messages
+- Cultural markers (expressions like "Inshallah", "Namaste", mentions of countries)
+- Communication style observed
+- Phone country code (indicates CURRENT location, not origin)
+
+IMPORTANT: In UAE (+971), people from many countries live there. Try to determine ORIGIN, not just current location.
+
 # Output Format
 Respond ONLY with valid JSON:
 {
   "status": "ONE_OF_THE_STATUSES_ABOVE",
   "confidence": 0.0-1.0,
-  "reasoning": "Brief explanation of your decision, including who sent the last message and why this status was chosen"
+  "reasoning": "Brief explanation of your decision, including who sent the last message and why this status was chosen",
+  "culturalContext": {
+    "likelyOrigin": "country name (e.g., India, Pakistan, UK, Russia, UAE) - try to determine origin, not just location",
+    "region": "cultural region (e.g., South Asia, Middle East, Europe, Central Asia)",
+    "communicationStyle": "formal" | "informal" | "mixed",
+    "dietaryRestrictions": ["Halal", "Vegetarian"] or [],
+    "culturalNotes": ["note 1", "note 2"] or [],
+    "confidence": 0.0-1.0
+  }
 }
+
+Cultural Context Guidelines:
+- If Arabic language → likelyOrigin: Middle Eastern country, formal style, Halal
+- If Russian language → likelyOrigin: Russia/CIS country, mixed style
+- If English + UAE phone → analyze messages for origin markers (India, Pakistan, Philippines, Europe, etc.)
+- Look for cultural expressions: "Inshallah" (Arabic/Muslim), "Namaste" (India), etc.
+- Consider communication formality level in messages
+- If uncertain, use lower confidence and general region
 
 # Examples
 
@@ -188,7 +214,7 @@ async function main() {
       settings: {
         model: 'openai/gpt-4o-mini',
         temperature: 0.3,
-        maxTokens: 100,
+        maxTokens: 200, // Increased for cultural context in response
         timeout: 30000,
         retryAttempts: 3,
         retryDelay: 1000,
@@ -203,7 +229,7 @@ async function main() {
       settings: {
         model: 'openai/gpt-4o-mini',
         temperature: 0.3,
-        maxTokens: 100,
+        maxTokens: 200, // Increased for cultural context in response
         timeout: 30000,
         retryAttempts: 3,
         retryDelay: 1000,

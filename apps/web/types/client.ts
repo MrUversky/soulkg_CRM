@@ -5,13 +5,12 @@
 export type ClientStatus =
   | 'NEW_LEAD'
   | 'QUALIFIED'
-  | 'WARMING'
-  | 'PROPOSAL'
+  | 'WARMED'
+  | 'PROPOSAL_SENT'
   | 'NEGOTIATION'
   | 'SOLD'
   | 'SERVICE'
-  | 'LOST'
-  | 'ARCHIVED';
+  | 'CLOSED';
 
 export interface Client {
   id: string;

@@ -8,7 +8,8 @@ import { WhatsAppExtractor } from '../extractors/whatsapp-extractor';
 import { detectPrimaryLanguage } from '../parsers/language-detector';
 import { detectStatus } from '../parsers/status-detector';
 import { parseMessages } from '../parsers/message-parser';
-import { detectCulturalContext } from '../parsers/cultural-context-detector';
+import { detectCulturalContext, extractCountryCode } from '../parsers/cultural-context-detector';
+import { extractBestName } from '../parsers/name-extractor';
 import { validateClientData } from '../validators/data-validator';
 import { checkDuplicate } from '../validators/duplicate-detector';
 import { importClient } from '../importers/client-importer';
@@ -216,6 +217,7 @@ export class DataImportService {
     // Определяем статус: используем LLM если доступен, иначе эвристику
     let detectedStatus: ClientStatus;
     let detectionMethod: 'LLM' | 'heuristic' = 'heuristic';
+    let statusResult: any = null; // Store LLM result for cultural context
     
     if (
       importOptions.useLLMStatusDetection &&
@@ -224,7 +226,7 @@ export class DataImportService {
       try {
         console.log(`   🤖 Using LLM for status detection...`);
         detectionMethod = 'LLM';
-        const statusResult = await this.statusDetectionStrategy.detectStatus({
+        statusResult = await this.statusDetectionStrategy.detectStatus({
           organizationId: this.organizationId,
           messages,
           firstMessageDate,
@@ -235,6 +237,11 @@ export class DataImportService {
         });
         detectedStatus = statusResult.status;
         console.log(`   ✅ LLM detected status: ${detectedStatus} (confidence: ${statusResult.confidence})`);
+        
+        // Use LLM cultural context if available
+        if (statusResult.culturalContext) {
+          console.log(`   🌍 LLM detected cultural context: ${statusResult.culturalContext.likelyOrigin || 'unknown'} (${statusResult.culturalContext.region || 'unknown'})`);
+        }
       } catch (error) {
         console.warn(`   ⚠️  LLM status detection failed, falling back to heuristic:`, error);
         detectionMethod = 'heuristic';
@@ -249,7 +256,27 @@ export class DataImportService {
     }
 
     // Detect cultural context
-    const culturalContext = detectCulturalContext(primaryLanguage, contact.phone);
+    // Priority: LLM result > heuristic fallback
+    let culturalContext: any;
+    
+    if (detectionMethod === 'LLM' && statusResult?.culturalContext) {
+      // Use LLM-detected cultural context
+      const heuristicContext = detectCulturalContext(primaryLanguage, contact.phone);
+      culturalContext = {
+        ...statusResult.culturalContext,
+        language: primaryLanguage, // Always include detected language
+        // Add timezone from phone (LLM doesn't know current location)
+        timezone: heuristicContext.timezone,
+        countryCode: contact.phone ? extractCountryCode(contact.phone) : undefined,
+        country: heuristicContext.country, // Current location from phone
+      };
+    } else {
+      // Fallback to heuristic
+      culturalContext = detectCulturalContext(primaryLanguage, contact.phone);
+    }
+
+    // Extract best available name from multiple sources
+    const extractedName = extractBestName(contact.name, messages, contact.phone);
 
     // Prepare metadata
     const metadata = {
@@ -261,20 +288,12 @@ export class DataImportService {
       firstContactDate: firstMessageDate.toISOString(),
       lastContactDate: lastMessageDate.toISOString(),
       avatar: contact.avatar,
+      nameSource: extractedName ? (extractedName === contact.name ? 'whatsapp_contact' : 'message_extraction') : 'none',
     };
-
-    // Clean and validate name (don't use phone as fallback)
-    let cleanedName = contact.name?.trim();
-    if (!cleanedName || cleanedName.length === 0) {
-      cleanedName = undefined; // Don't use phone as name
-    } else if (cleanedName === contact.phone || cleanedName.match(/^\+?\d+$/)) {
-      // If name is actually a phone number, don't use it
-      cleanedName = undefined;
-    }
 
     return {
       phone: contact.phone,
-      name: cleanedName,
+      name: extractedName,
       preferredLanguage: primaryLanguage,
       detectedStatus,
       messages: parsedMessages,

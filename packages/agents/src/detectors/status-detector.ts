@@ -31,12 +31,25 @@ export interface DetectStatusOptions {
 }
 
 /**
+ * Культурный контекст клиента
+ */
+export interface CulturalContextInfo {
+  likelyOrigin?: string; // Страна происхождения (не локация)
+  region?: string; // Культурный регион
+  communicationStyle?: 'formal' | 'informal' | 'mixed';
+  dietaryRestrictions?: string[]; // Halal, Vegetarian, etc.
+  culturalNotes?: string[]; // Заметки для агентов
+  confidence?: number; // 0-1
+}
+
+/**
  * Результат детекции статуса
  */
 export interface StatusDetectionResult {
   status: ClientStatus;
   confidence: number; // 0-1
   reasoning?: string; // Объяснение решения (для отладки)
+  culturalContext?: CulturalContextInfo; // Культурный контекст (опционально)
 }
 
 /**
@@ -190,11 +203,30 @@ ${messageHistory}
 
 ${trimmedContext}
 
-Please analyze the conversation and determine the client's status. Respond ONLY with a JSON object in this format:
+Please analyze the conversation and determine:
+1. The client's status in the sales funnel
+2. The client's cultural context (origin, communication style, dietary preferences)
+
+IMPORTANT for cultural context:
+- Consider language used, but also look for cultural markers in messages
+- In UAE (+971), people from many countries live there - try to determine ORIGIN, not just location
+- Look for mentions of countries, cultural expressions (Inshallah, Namaste, etc.)
+- If English speaker in UAE, try to determine if they're from India, Pakistan, Philippines, Europe, etc.
+- Use phone country code only for timezone, not for cultural origin
+
+Respond ONLY with a JSON object in this format:
 {
   "status": "NEW_LEAD" | "QUALIFIED" | "WARMED" | "PROPOSAL_SENT" | "NEGOTIATION" | "SOLD" | "SERVICE" | "CLOSED",
   "confidence": 0.0-1.0,
-  "reasoning": "brief explanation"
+  "reasoning": "brief explanation",
+  "culturalContext": {
+    "likelyOrigin": "country name (e.g., India, Pakistan, UK, Russia) - NOT current location",
+    "region": "cultural region (e.g., South Asia, Middle East, Europe, Central Asia)",
+    "communicationStyle": "formal" | "informal" | "mixed",
+    "dietaryRestrictions": ["Halal", "Vegetarian"] or [],
+    "culturalNotes": ["note 1", "note 2"] or [],
+    "confidence": 0.0-1.0
+  }
 }`;
   }
 
@@ -217,11 +249,25 @@ Please analyze the conversation and determine the client's status. Respond ONLY 
         throw new Error(`Invalid status: ${parsed.status}`);
       }
 
-      return {
+      const result: StatusDetectionResult = {
         status: parsed.status as ClientStatus,
         confidence: Math.max(0, Math.min(1, parsed.confidence || 0.5)),
         reasoning: parsed.reasoning,
       };
+
+      // Extract cultural context if present
+      if (parsed.culturalContext) {
+        result.culturalContext = {
+          likelyOrigin: parsed.culturalContext.likelyOrigin,
+          region: parsed.culturalContext.region,
+          communicationStyle: parsed.culturalContext.communicationStyle,
+          dietaryRestrictions: parsed.culturalContext.dietaryRestrictions || [],
+          culturalNotes: parsed.culturalContext.culturalNotes || [],
+          confidence: Math.max(0, Math.min(1, parsed.culturalContext.confidence || 0.5)),
+        };
+      }
+
+      return result;
     } catch (error) {
       // Fallback: пытаемся определить статус по ключевым словам в ответе
       const responseLower = response.toLowerCase();
