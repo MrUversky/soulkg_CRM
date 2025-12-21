@@ -1,0 +1,40 @@
+{
+  "name": "soul-kg-crm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi-tenant CRM system with AI agents for tour sales automation",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
+    "db:studio": "turbo run db:studio",
+    "db:seed": "cd packages/database && npm run db:seed",
+    "import:whatsapp": "tsx scripts/import-whatsapp.ts",
+    "import:clear-sessions": "bash scripts/clear-whatsapp-sessions.sh",
+    "reclassify": "tsx scripts/reclassify-clients.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "prettier": "^3.1.0",
+    "tsx": "^4.21.0",
+    "turbo": "^1.11.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "packageManager": "npm@9.0.0",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
