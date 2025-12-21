@@ -14,6 +14,7 @@
 
 import { config } from 'dotenv';
 import { prisma } from '../packages/database/src/index';
+import { Prisma } from '@prisma/client';
 import { OpenRouterProvider } from '../packages/agents/src/providers/openrouter-provider';
 import { PromptLoader } from '../packages/agents/src/prompt-manager/prompt-loader';
 import { LLMStatusDetector } from '../packages/agents/src/detectors/status-detector';
@@ -144,12 +145,10 @@ async function main() {
 
   if (!options.force) {
     // Only clients without cultural context
-    // Note: Prisma doesn't support filtering JSON fields by nested values easily,
-    // so we'll filter in memory for low confidence
-    whereClause.culturalContext = null;
+    whereClause.culturalContext = { equals: Prisma.JsonNull };
   }
 
-  const clients = await prisma.client.findMany({
+  let clients = await prisma.client.findMany({
     where: whereClause,
     include: {
       conversations: {
@@ -160,8 +159,21 @@ async function main() {
         },
       },
     },
-    take: options.limit,
+    take: options.limit ? options.limit * 2 : undefined, // Get more to filter by confidence
   });
+
+  // Filter by confidence if not forcing (Prisma doesn't support JSON field filtering easily)
+  if (!options.force) {
+    clients = clients.filter((client) => {
+      const context = client.culturalContext as any;
+      return !context || (context.confidence && context.confidence < 0.6);
+    });
+    
+    // Apply limit after filtering
+    if (options.limit) {
+      clients = clients.slice(0, options.limit);
+    }
+  }
 
   console.log(`📊 Found ${clients.length} clients to update\n`);
   console.log('═'.repeat(80));

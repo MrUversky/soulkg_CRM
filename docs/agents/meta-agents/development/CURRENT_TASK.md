@@ -113,6 +113,11 @@
 - [x] Создать компонент OrganizationSettings для редактирования организации
 
 ### Этап 8: Тестирование и валидация
+- [x] Написать unit тесты для JWT utilities (generate/verify tokens)
+- [x] Написать unit тесты для password utilities (hash/verify)
+- [x] Написать unit тесты для auth middleware (authenticateToken, requireRole)
+- [ ] Написать integration тесты для auth routes
+- [ ] Написать integration тесты для CRUD routes
 - [ ] Написать E2E тесты для аутентификации (Playwright)
 - [ ] Написать E2E тесты для CRUD операций
 - [ ] Проверить мультитенантность (изоляция данных между организациями)

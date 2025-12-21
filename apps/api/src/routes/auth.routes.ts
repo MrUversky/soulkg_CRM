@@ -34,7 +34,24 @@ const refreshTokenSchema = z.object({
 
 /**
  * POST /api/auth/register
- * Register a new user (and optionally create organization)
+ * 
+ * Register a new user and optionally create a new organization.
+ * If organizationId is provided, user is added to existing organization.
+ * If organizationName is provided, a new organization is created.
+ * First user in organization automatically becomes ADMIN.
+ * 
+ * @route POST /api/auth/register
+ * @access Public
+ * @body {string} email - User email (required)
+ * @body {string} password - User password, min 8 characters (required)
+ * @body {string} [firstName] - User first name (optional)
+ * @body {string} [lastName] - User last name (optional)
+ * @body {string} [organizationId] - Existing organization ID (optional, requires organizationName if not provided)
+ * @body {string} [organizationName] - New organization name (required if organizationId not provided)
+ * @returns {Object} user - Created user object
+ * @returns {Object} tokens - Access and refresh tokens
+ * @throws {400} Validation error if input is invalid
+ * @throws {409} Conflict if user or organization already exists
  */
 router.post('/register', async (req: Request, res: Response) => {
   try {
@@ -165,7 +182,18 @@ router.post('/register', async (req: Request, res: Response) => {
 
 /**
  * POST /api/auth/login
- * Login user
+ * 
+ * Authenticate user and return access/refresh tokens.
+ * Updates lastLoginAt timestamp on successful login.
+ * 
+ * @route POST /api/auth/login
+ * @access Public
+ * @body {string} email - User email (required)
+ * @body {string} password - User password (required)
+ * @returns {Object} user - Authenticated user object (without passwordHash)
+ * @returns {Object} tokens - Access and refresh tokens
+ * @throws {400} Validation error if input is invalid
+ * @throws {401} Unauthorized if email/password is incorrect
  */
 router.post('/login', async (req: Request, res: Response) => {
   try {
@@ -242,7 +270,17 @@ router.post('/login', async (req: Request, res: Response) => {
 
 /**
  * POST /api/auth/refresh
- * Refresh access token
+ * 
+ * Refresh access token using refresh token.
+ * Verifies refresh token and returns new access token.
+ * User must still exist and be active.
+ * 
+ * @route POST /api/auth/refresh
+ * @access Public
+ * @body {string} refreshToken - Valid refresh token (required)
+ * @returns {Object} accessToken - New access token
+ * @throws {400} Validation error if input is invalid
+ * @throws {403} Forbidden if refresh token is invalid or user is inactive
  */
 router.post('/refresh', async (req: Request, res: Response) => {
   try {
@@ -300,7 +338,14 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
 /**
  * POST /api/auth/logout
- * Logout user (invalidate refresh token - client should remove tokens)
+ * 
+ * Logout user. Client should remove tokens from storage.
+ * In production, you might want to maintain a blacklist of refresh tokens.
+ * 
+ * @route POST /api/auth/logout
+ * @access Private (requires authentication)
+ * @returns {Object} message - Success message
+ * @throws {401} Unauthorized if not authenticated
  */
 router.post('/logout', authenticateToken, async (_req: Request, res: Response) => {
   // In a production system, you might want to maintain a blacklist of refresh tokens
