@@ -31,8 +31,15 @@ const updateUserSchema = z.object({
 
 /**
  * GET /api/users
- * Get list of users in the organization
- * Only ADMIN can access this endpoint
+ * 
+ * Get list of all users in the authenticated user's organization.
+ * Only ADMIN and SUPER_ADMIN roles can access this endpoint.
+ * 
+ * @route GET /api/users
+ * @access Private (requires ADMIN or SUPER_ADMIN role)
+ * @returns {Object} data - Array of user objects (without passwordHash)
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if user doesn't have ADMIN role
  */
 router.get('/', authenticateToken, requireRole('ADMIN', 'SUPER_ADMIN'), async (req: Request, res: Response) => {
   try {
@@ -80,8 +87,17 @@ router.get('/', authenticateToken, requireRole('ADMIN', 'SUPER_ADMIN'), async (r
 
 /**
  * GET /api/users/:id
- * Get user by ID
- * Users can view their own profile, ADMIN can view any user in organization
+ * 
+ * Get detailed information about a specific user by ID.
+ * Users can view their own profile, ADMIN can view any user in organization.
+ * 
+ * @route GET /api/users/:id
+ * @access Private (requires authentication)
+ * @param {string} id - User UUID
+ * @returns {Object} User object (without passwordHash)
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if user tries to access another user's profile (non-ADMIN)
+ * @throws {404} Not found if user doesn't exist or belongs to different organization
  */
 router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
   try {

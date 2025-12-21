@@ -129,7 +129,8 @@
 ### Этап 9: Документация
 - [x] Обновить README.md с инструкциями по запуску Frontend
 - [x] Добавить JSDoc комментарии к API routes (auth routes)
-- [ ] Добавить JSDoc комментарии к остальным routes (clients, users, organizations)
+- [x] Добавить JSDoc комментарии к clients routes
+- [ ] Добавить JSDoc комментарии к users и organizations routes
 - [ ] Обновить API контракты если изменились endpoints
 - [ ] Создать документацию по компонентам Frontend
 - [x] Обновить PROJECT_STATUS.md после завершения
