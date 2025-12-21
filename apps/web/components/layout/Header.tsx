@@ -28,7 +28,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm">
       <div className="flex h-16 items-center px-4 md:px-6">
         {/* Mobile menu button */}
         <button

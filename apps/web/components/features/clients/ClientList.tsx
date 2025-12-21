@@ -58,12 +58,12 @@ export default function ClientList() {
   const pagination = data?.pagination;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Clients</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Clients</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
             Manage your clients and track their journey through the sales funnel
           </p>
         </div>
@@ -168,8 +168,8 @@ export default function ClientList() {
                 href={`/dashboard/clients/${client.id}`}
                 className="block"
               >
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardBody>
+                <Card className="hover:shadow-xl transition-all duration-200 cursor-pointer hover:-translate-y-0.5 border-gray-200 dark:border-gray-700">
+                  <CardBody className="p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-start gap-3">

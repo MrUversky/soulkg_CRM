@@ -70,8 +70,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transform transition-transform duration-300 ease-in-out',
-          'md:translate-x-0 md:static md:z-auto',
+          'fixed top-0 left-0 z-50 h-full w-64 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-r border-gray-200 dark:border-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out',
+          'md:translate-x-0 md:static md:z-auto md:shadow-none',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -102,10 +102,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   href={item.href}
                   onClick={onClose}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 dark:bg-blue-600 dark:text-white'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm'
                   )}
                 >
                   <Icon className="h-5 w-5" />
