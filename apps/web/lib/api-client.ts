@@ -6,6 +6,7 @@
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
+// API URL should include /api suffix for backend routes
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 /**
@@ -56,7 +57,8 @@ apiClient.interceptors.response.use(
         // Try to refresh token
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await axios.post(`${API_URL}/auth/refresh`, {
+          // Use apiClient to maintain baseURL consistency
+          const response = await apiClient.post('/auth/refresh', {
             refreshToken,
           });
 
