@@ -34,12 +34,12 @@ export default function Home() {
           Multi-tenant CRM system with AI agents for tour sales automation
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/auth/login">
+          <Link href="/login">
             <Button variant="primary" size="lg">
               Sign In
             </Button>
           </Link>
-          <Link href="/auth/register">
+          <Link href="/register">
             <Button variant="secondary" size="lg">
               Get Started
             </Button>

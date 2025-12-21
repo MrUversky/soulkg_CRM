@@ -5,13 +5,21 @@
  */
 
 import { Router } from 'express';
-import { DataImportService } from '@soul-kg-crm/data-import';
 import { z } from 'zod';
+
+// Dynamic import to handle optional dependency
+let DataImportService: any = null;
+try {
+  const dataImportModule = require('@soul-kg-crm/data-import');
+  DataImportService = dataImportModule.DataImportService;
+} catch (error) {
+  console.warn('⚠️  Data import module not available:', (error as Error).message);
+}
 
 const router = Router();
 
 // Store active imports (in production, use Redis or database)
-const activeImports = new Map<string, DataImportService>();
+const activeImports = new Map<string, any>();
 
 // Validation schemas
 const startImportSchema = z.object({
@@ -28,6 +36,14 @@ const startImportSchema = z.object({
  * Start WhatsApp data import
  */
 router.post('/whatsapp/start', async (req, res) => {
+  if (!DataImportService) {
+    res.status(503).json({
+      error: 'Data import service not available',
+      message: 'The data import module is not installed or not available',
+    });
+    return;
+  }
+
   try {
     const body = startImportSchema.parse(req.body);
     const { organizationId } = body;
