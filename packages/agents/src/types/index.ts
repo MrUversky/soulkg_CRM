@@ -4,4 +4,5 @@
 
 export * from './agent.types';
 export * from './prompt.types';
+export type { CulturalContextInfo } from '../detectors/status-detector';
 

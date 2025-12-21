@@ -106,7 +106,7 @@ export class LLMStatusDetector {
     });
 
     // Парсим ответ LLM
-    const result = this.parseLLMResponse(response.content);
+    const result = this.parseLLMResponse(response.content, options);
     
     console.log(`   ✅ Detected status: ${result.status} (confidence: ${result.confidence})`);
     if (result.reasoning) {
@@ -233,7 +233,7 @@ Respond ONLY with a JSON object in this format:
   /**
    * Парсит ответ LLM в структурированный результат
    */
-  private parseLLMResponse(response: string): StatusDetectionResult {
+  private parseLLMResponse(response: string, options: DetectStatusOptions): StatusDetectionResult {
     try {
       // Пытаемся найти JSON в ответе
       const jsonMatch = response.match(/\{[\s\S]*\}/);
@@ -257,7 +257,7 @@ Respond ONLY with a JSON object in this format:
 
       // Extract cultural context if present
       if (parsed.culturalContext) {
-        result.culturalContext = {
+        const culturalContext = {
           likelyOrigin: parsed.culturalContext.likelyOrigin,
           region: parsed.culturalContext.region,
           communicationStyle: parsed.culturalContext.communicationStyle,
@@ -265,6 +265,28 @@ Respond ONLY with a JSON object in this format:
           culturalNotes: parsed.culturalContext.culturalNotes || [],
           confidence: Math.max(0, Math.min(1, parsed.culturalContext.confidence || 0.5)),
         };
+
+        // Validate cultural context: if confidence is low or no specific markers found,
+        // use more general classification (UAE/region instead of specific country)
+        // This prevents over-classification when there's insufficient evidence
+        // Note: messages are available from the outer scope (detectStatus method)
+        if (culturalContext.confidence && culturalContext.confidence < 0.7) {
+          // Low confidence - use general classification
+          const phoneCountryCode = this.extractCountryCodeFromMessages(options.messages);
+          if (phoneCountryCode === '971') {
+            // UAE phone but uncertain origin - use UAE as default
+            if (culturalContext.likelyOrigin && 
+                !culturalContext.likelyOrigin.toLowerCase().includes('uae') &&
+                !this.hasSpecificCulturalMarkers(options.messages, culturalContext.likelyOrigin)) {
+              console.log(`   ⚠️  Low confidence (${culturalContext.confidence}) without markers, using UAE as default`);
+              culturalContext.likelyOrigin = 'UAE';
+              culturalContext.region = 'Middle East';
+              culturalContext.confidence = 0.6; // Set to moderate confidence
+            }
+          }
+        }
+
+        result.culturalContext = culturalContext;
       }
 
       return result;
@@ -299,6 +321,64 @@ Respond ONLY with a JSON object in this format:
         reasoning: 'Failed to parse LLM response, defaulting to NEW_LEAD',
       };
     }
+  }
+
+  /**
+   * Extract country code from messages (look for phone numbers)
+   */
+  private extractCountryCodeFromMessages(messages: ExtractedMessage[]): string | null {
+    // Try to extract from message content (phone numbers)
+    for (const msg of messages) {
+      const phoneMatch = msg.content.match(/\+(\d{1,3})/);
+      if (phoneMatch) {
+        return phoneMatch[1];
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Check if messages contain specific cultural markers for a given origin
+   * Universal approach: check if origin or related terms are mentioned in messages
+   */
+  private hasSpecificCulturalMarkers(messages: ExtractedMessage[], origin: string): boolean {
+    if (!origin) return false;
+    
+    const allMessages = messages.map((m) => m.content.toLowerCase()).join(' ');
+    const originLower = origin.toLowerCase();
+
+    // Check if origin country name is explicitly mentioned
+    // Split origin into words and check if any significant word appears
+    const originWords = originLower.split(/[\s,]+/).filter(w => w.length > 3); // Only check words > 3 chars
+    
+    for (const word of originWords) {
+      if (allMessages.includes(word)) {
+        return true;
+      }
+    }
+
+    // Check for common cultural markers (universal approach)
+    const culturalMarkers = [
+      'namaste', 'inshallah', 'allah', 'salam', // South Asia / Middle East
+      'from', 'i\'m from', 'i am from', // Explicit origin mentions
+      'nationality', 'origin', 'born in', // Origin-related terms
+    ];
+
+    for (const marker of culturalMarkers) {
+      if (allMessages.includes(marker)) {
+        // If marker found, check if it's followed by origin-related content
+        const markerIndex = allMessages.indexOf(marker);
+        const contextAfter = allMessages.substring(markerIndex, markerIndex + 50);
+        // If origin word appears near marker, consider it evidence
+        for (const word of originWords) {
+          if (contextAfter.includes(word)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 }
 

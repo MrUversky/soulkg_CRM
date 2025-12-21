@@ -149,15 +149,23 @@ Cultural Context Guidelines:
 - Consider communication formality level in messages
 - If uncertain, use lower confidence and general region
 
-CRITICAL: Origin Detection Accuracy:
-- **DO NOT** automatically assume India for all English speakers in UAE
-- Many nationalities live/work in UAE: Europeans, Americans, Filipinos, Pakistanis, Arabs, etc.
-- **Only assign India if you have clear evidence**:
-  * Cultural markers: "Namaste", mentions of Indian cities/states, Indian names
-  * Language patterns typical of Indian English
-  * Explicit mentions of being from India
-- **If uncertain** → Use "UAE" or "unknown" with lower confidence (0.5-0.6)
-- **Be conservative** - it's better to be uncertain than wrong
+CRITICAL: Origin Detection Accuracy - Be Conservative!
+- **DO NOT** assign specific country origins without STRONG evidence
+- Many nationalities live/work in UAE: Europeans, Americans, Filipinos, Pakistanis, Arabs, Indians, etc.
+- **Only assign specific country (India, Pakistan, UK, etc.) if you have CLEAR evidence**:
+  * Explicit mentions: "I'm from [country]", "I'm [nationality]"
+  * Cultural markers: "Namaste" (India), "Inshallah" (Muslim countries), mentions of specific cities
+  * Language patterns that strongly indicate specific origin
+- **Default for English speakers in UAE without clear markers**: 
+  * Use "UAE" with confidence 0.6-0.7
+  * OR use regional classification: "South Asia", "Middle East", "Europe" (if more appropriate)
+  * DO NOT guess specific countries
+- **Confidence levels**:
+  * 0.8-0.9: Strong evidence (explicit mentions, clear markers)
+  * 0.6-0.7: Moderate evidence (some indicators, but not definitive)
+  * <0.6: Weak evidence - use general classification (UAE/region), NOT specific country
+- **If uncertain** → Use "UAE" or regional classification, NOT specific country
+- **Standard messages like "Hi! I'm in the UAE..." are NOT evidence of any specific origin**
 
 CRITICAL: Dietary Restrictions Accuracy:
 - **DO NOT** automatically assign Halal to everyone from UAE or India

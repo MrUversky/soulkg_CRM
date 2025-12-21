@@ -19,11 +19,14 @@ RUN npm ci
 # Copy source files
 COPY . .
 
+# Generate Prisma Client first (needed by other packages)
+RUN cd packages/database && npm run db:generate
+
 # Build packages (in order of dependencies)
 RUN npm run build --workspace=@soul-kg-crm/shared
 RUN npm run build --workspace=@soul-kg-crm/database
-RUN npm run build --workspace=@soul-kg-crm/data-import
 RUN npm run build --workspace=@soul-kg-crm/agents
+RUN npm run build --workspace=@soul-kg-crm/data-import
 RUN npm run build --workspace=@soul-kg-crm/api
 
 # Remove dev dependencies

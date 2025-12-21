@@ -192,7 +192,7 @@ export class DataImportService {
    * Parse chat data into structured format
    */
   private async parseChatData(
-    contact: { phone: string; name?: string },
+    contact: { phone: string; name?: string; avatar?: string },
     messages: any[],
     importOptions: Required<Omit<ImportOptions, 'limit'>> & { limit?: number }
   ): Promise<ParsedClientData> {

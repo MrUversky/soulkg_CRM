@@ -4,7 +4,6 @@
  * Determines when and how to update cultural context based on new messages
  */
 
-import type { ExtractedMessage } from '../types/import.types';
 import type { CulturalContextInfo } from '@soul-kg-crm/agents';
 
 /**

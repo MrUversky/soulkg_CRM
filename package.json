@@ -22,7 +22,9 @@
     "reclassify": "tsx scripts/reclassify-clients.ts",
     "update:cultural-context": "tsx scripts/update-cultural-context.ts",
     "fix:dietary-restrictions": "tsx scripts/fix-dietary-restrictions.ts",
-    "check:cultural-context": "tsx scripts/check-cultural-context.ts"
+    "check:cultural-context": "tsx scripts/check-cultural-context.ts",
+    "reclassify:india": "tsx scripts/reclassify-india-clients.ts",
+    "fix:india-overclassification": "tsx scripts/fix-india-overclassification.ts"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
