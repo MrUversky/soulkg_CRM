@@ -8,11 +8,11 @@ export interface User {
   id: string;
   organizationId: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
+  firstName?: string | null;
+  lastName?: string | null;
   role: UserRole;
   isActive: boolean;
-  lastLoginAt?: string;
+  lastLoginAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

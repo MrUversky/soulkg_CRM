@@ -19,7 +19,8 @@
     "db:seed": "cd packages/database && npm run db:seed",
     "import:whatsapp": "tsx scripts/import-whatsapp.ts",
     "import:clear-sessions": "bash scripts/clear-whatsapp-sessions.sh",
-    "reclassify": "tsx scripts/reclassify-clients.ts"
+    "reclassify": "tsx scripts/reclassify-clients.ts",
+    "update:cultural-context": "tsx scripts/update-cultural-context.ts"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
