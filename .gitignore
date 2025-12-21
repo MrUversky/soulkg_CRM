@@ -33,9 +33,14 @@ prisma/migrations/
 # IDE
 .vscode/
 .idea/
+.cursor/
+.ai/
 *.swp
 *.swo
 *~
+
+# WhatsApp Web.js cache
+.wwebjs_cache/
 
 # OS
 .DS_Store
