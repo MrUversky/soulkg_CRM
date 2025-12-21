@@ -68,7 +68,7 @@
    - Нажмите "..." → "Redeploy"
    - Или сделайте новый commit и push в main
 
-### Шаг 4: Проверка
+### Шаг 3: Проверка
 
 1. **Проверьте API health check**
    ```bash
@@ -141,5 +141,5 @@ DATABASE_URL="postgresql://neondb_owner:npg_ub80MEJLDyUd@ep-fancy-boat-agce4o8g-
 
 ---
 
-**Следующий шаг**: Выполните Шаг 1 (применение миграций) → Шаг 2 (деплой API на Railway)
+**Следующий шаг**: Развернуть API на Railway (Шаг 1) → Обновить Vercel (Шаг 2) → Проверить (Шаг 3)
 

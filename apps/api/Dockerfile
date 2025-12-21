@@ -1,36 +1,33 @@
 # Multi-stage build for production
 FROM node:20-alpine AS base
 
-# Install dependencies only when needed
-FROM base AS deps
-WORKDIR /app
-
-# Copy package files
-COPY package.json package-lock.json* ./
-COPY apps/api/package.json ./apps/api/
-COPY packages/*/package.json ./packages/*/
-
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
-
-# Build stage
+# Build stage - install dependencies and build
 FROM base AS builder
 WORKDIR /app
 
-# Copy all files
-COPY . .
+# Copy package files for workspace resolution
+COPY package.json package-lock.json* ./
+COPY apps/api/package.json ./apps/api/
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/database/package.json ./packages/database/
+COPY packages/data-import/package.json ./packages/data-import/
+COPY packages/agents/package.json ./packages/agents/
 
-# Install all dependencies (including dev)
+# Install all dependencies (needed for workspace resolution and build)
 RUN npm ci
 
-# Build packages
-RUN npm run build --workspace=@soul-kg-crm/database
+# Copy source files
+COPY . .
+
+# Build packages (in order of dependencies)
 RUN npm run build --workspace=@soul-kg-crm/shared
+RUN npm run build --workspace=@soul-kg-crm/database
 RUN npm run build --workspace=@soul-kg-crm/data-import
 RUN npm run build --workspace=@soul-kg-crm/agents
-
-# Build API
 RUN npm run build --workspace=@soul-kg-crm/api
+
+# Remove dev dependencies
+RUN npm prune --production
 
 # Production stage
 FROM base AS runner
@@ -43,15 +40,28 @@ ENV PORT=3001
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nodejs
 
+# Copy package files for workspace resolution
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/package-lock.json* ./
+COPY --from=builder --chown=nodejs:nodejs /app/apps/api/package.json ./apps/api/
+COPY --from=builder --chown=nodejs:nodejs /app/packages/shared/package.json ./packages/shared/
+COPY --from=builder --chown=nodejs:nodejs /app/packages/database/package.json ./packages/database/
+COPY --from=builder --chown=nodejs:nodejs /app/packages/data-import/package.json ./packages/data-import/
+COPY --from=builder --chown=nodejs:nodejs /app/packages/agents/package.json ./packages/agents/
+
 # Copy built files
 COPY --from=builder --chown=nodejs:nodejs /app/apps/api/dist ./apps/api/dist
-COPY --from=builder --chown=nodejs:nodejs /app/apps/api/package.json ./apps/api/
-COPY --from=builder --chown=nodejs:nodejs /app/packages ./packages
-COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=deps --chown=nodejs:nodejs /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder --chown=nodejs:nodejs /app/packages/database/dist ./packages/database/dist
+COPY --from=builder --chown=nodejs:nodejs /app/packages/data-import/dist ./packages/data-import/dist
+COPY --from=builder --chown=nodejs:nodejs /app/packages/agents/dist ./packages/agents/dist
 
-# Copy package.json and lock file for workspace resolution
-COPY --chown=nodejs:nodejs package.json package-lock.json* ./
+# Copy Prisma schema and generated client
+COPY --from=builder --chown=nodejs:nodejs /app/packages/database/prisma ./packages/database/prisma
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copy production node_modules (after prune)
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 
 USER nodejs
 
@@ -62,4 +72,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 CMD ["node", "apps/api/dist/index.js"]
-
