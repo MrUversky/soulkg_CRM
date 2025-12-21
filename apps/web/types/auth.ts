@@ -32,6 +32,7 @@ export interface RegisterRequest {
   firstName?: string;
   lastName?: string;
   organizationId?: string;
+  organizationName?: string;
 }
 
 export interface RefreshTokenRequest {

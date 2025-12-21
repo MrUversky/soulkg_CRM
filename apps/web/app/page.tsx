@@ -1,26 +1,49 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/contexts/auth-context';
+import Link from 'next/link';
+import Button from '@/components/ui/Button';
+
 export default function Home() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 px-4">
+      <div className="text-center max-w-2xl">
+        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4">
           Soul KG CRM
         </h1>
-        <p className="text-gray-600 mb-8">
-          Multi-tenant CRM system with AI agents
+        <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+          Multi-tenant CRM system with AI agents for tour sales automation
         </p>
-        <div className="space-x-4">
-          <a
-            href="/auth/login"
-            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Login
-          </a>
-          <a
-            href="/auth/register"
-            className="inline-block px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            Register
-          </a>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/auth/login">
+            <Button variant="primary" size="lg">
+              Sign In
+            </Button>
+          </Link>
+          <Link href="/auth/register">
+            <Button variant="secondary" size="lg">
+              Get Started
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
