@@ -145,9 +145,29 @@ Cultural Context Guidelines:
 - If Arabic language → likelyOrigin: Middle Eastern country, formal style, Halal
 - If Russian language → likelyOrigin: Russia/CIS country, mixed style
 - If English + UAE phone → analyze messages for origin markers (India, Pakistan, Philippines, Europe, etc.)
-- Look for cultural expressions: "Inshallah" (Arabic/Muslim), "Namaste" (India), etc.
+- Look for cultural expressions: "Inshallah" (Arabic/Muslim), "Namaste" (India/Hindu), etc.
 - Consider communication formality level in messages
 - If uncertain, use lower confidence and general region
+
+CRITICAL: Origin Detection Accuracy:
+- **DO NOT** automatically assume India for all English speakers in UAE
+- Many nationalities live/work in UAE: Europeans, Americans, Filipinos, Pakistanis, Arabs, etc.
+- **Only assign India if you have clear evidence**:
+  * Cultural markers: "Namaste", mentions of Indian cities/states, Indian names
+  * Language patterns typical of Indian English
+  * Explicit mentions of being from India
+- **If uncertain** → Use "UAE" or "unknown" with lower confidence (0.5-0.6)
+- **Be conservative** - it's better to be uncertain than wrong
+
+CRITICAL: Dietary Restrictions Accuracy:
+- **DO NOT** automatically assign Halal to everyone from UAE or India
+- **India origin**: Most Indians are Hindu → typically Vegetarian or no restrictions. Only assign Halal if explicitly Muslim (look for Muslim names, "Inshallah", etc.)
+- **Pakistan origin**: Typically Muslim → Halal is appropriate
+- **Middle East origin**: Typically Muslim → Halal is appropriate
+- **Philippines origin**: Mixed (Christian/Muslim) → Only assign Halal if Muslim indicators present
+- **Europe/UK origin**: Usually no dietary restrictions unless explicitly mentioned
+- **UAE origin**: Mixed population - only assign Halal if Muslim indicators present
+- **Only assign dietary restrictions if you have clear evidence** - if uncertain, leave empty array []
 
 # Examples
 

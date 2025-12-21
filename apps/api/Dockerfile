@@ -50,8 +50,8 @@ COPY --from=builder --chown=nodejs:nodejs /app/packages ./packages
 COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=deps --chown=nodejs:nodejs /app/apps/api/node_modules ./apps/api/node_modules
 
-# Copy package.json for workspace resolution
-COPY --chown=nodejs:nodejs package.json ./
+# Copy package.json and lock file for workspace resolution
+COPY --chown=nodejs:nodejs package.json package-lock.json* ./
 
 USER nodejs
 
