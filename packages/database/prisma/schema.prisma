@@ -1,0 +1,526 @@
+// Soul KG CRM Database Schema
+// Generated from docs/architecture/database-schema.md
+// Version: 1.0
+// Date: 2025-12-20
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Organizations and Users
+// ============================================
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  logo        String?
+  settings    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users              User[]
+  clients            Client[]
+  products           Product[]
+  partners           Partner[]
+  conversations      Conversation[]
+  messages           Message[]
+  clientStatusHistories ClientStatusHistory[]
+  agentConfigurations AgentConfiguration[]
+  promptVariants     PromptVariant[]
+  experiments        Experiment[]
+  dialogueAnalyses   DialogueAnalysis[]
+  tours              Tour[]
+  whatsappSessions   WhatsAppSession[]
+
+  @@map("organizations")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  organizationId String
+  email          String
+  passwordHash   String
+  firstName      String?
+  lastName       String?
+  role           UserRole @default(MANAGER)
+  isActive       Boolean  @default(true)
+  lastLoginAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sentMessages   Message[]    @relation("SentByUser")
+  statusChanges  ClientStatusHistory[]
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@index([email])
+  @@map("users")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+}
+
+// ============================================
+// Clients and Conversations
+// ============================================
+
+model Client {
+  id                String         @id @default(uuid())
+  organizationId    String
+  phone             String
+  email             String?
+  firstName         String?
+  lastName          String?
+  status            ClientStatus   @default(NEW_LEAD)
+  preferredLanguage String?
+  culturalContext   Json?
+  metadata          Json?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Relations
+  organization      Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversations     Conversation[]
+  statusHistory     ClientStatusHistory[]
+  clientProducts    ClientProduct[]
+  clientTours       ClientTour[]
+  assignedPartner   Partner?       @relation(fields: [assignedPartnerId], references: [id])
+  assignedPartnerId String?
+  promptVariant     PromptVariant? @relation(fields: [promptVariantId], references: [id])
+  promptVariantId   String?
+
+  @@unique([organizationId, phone])
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, phone])
+  @@index([organizationId, createdAt])
+  @@map("clients")
+}
+
+enum ClientStatus {
+  NEW_LEAD
+  QUALIFIED
+  WARMED
+  PROPOSAL_SENT
+  NEGOTIATION
+  SOLD
+  SERVICE
+  CLOSED
+}
+
+model Conversation {
+  id             String            @id @default(uuid())
+  organizationId String
+  clientId       String
+  channel        CommunicationChannel @default(WHATSAPP)
+  status         ConversationStatus   @default(ACTIVE)
+  managedBy      ConversationManager   @default(AI)
+  lastMessageAt  DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  // Relations
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  client         Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  messages       Message[]
+
+  @@index([organizationId, clientId])
+  @@index([organizationId, status])
+  @@index([organizationId, lastMessageAt])
+  @@map("conversations")
+}
+
+enum CommunicationChannel {
+  WHATSAPP
+  TELEGRAM
+  EMAIL
+}
+
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum ConversationManager {
+  AI
+  HUMAN
+}
+
+model Message {
+  id                String        @id @default(uuid())
+  conversationId    String
+  organizationId    String
+  direction         MessageDirection
+  sender            MessageSender
+  senderId          String?
+  content           String
+  language          String?
+  translatedContent String?
+  whatsappMessageId String?
+  status            MessageStatus @default(SENT)
+  error             String?
+  createdAt         DateTime      @default(now())
+
+  // Relations
+  conversation      Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  organization      Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sentByUser        User?         @relation("SentByUser", fields: [senderId], references: [id])
+
+  @@index([organizationId, conversationId])
+  @@index([organizationId, createdAt])
+  @@index([conversationId, createdAt])
+  @@index([whatsappMessageId])
+  @@map("messages")
+}
+
+enum MessageDirection {
+  INCOMING
+  OUTGOING
+}
+
+enum MessageSender {
+  CLIENT
+  AI
+  HUMAN
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+}
+
+model ClientStatusHistory {
+  id          String       @id @default(uuid())
+  clientId    String
+  organizationId String
+  oldStatus   ClientStatus?
+  newStatus   ClientStatus
+  changedBy   StatusChangedBy
+  changedById String?
+  reason      String?
+  createdAt   DateTime     @default(now())
+
+  // Relations
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user        User?        @relation(fields: [changedById], references: [id])
+
+  @@index([organizationId, clientId])
+  @@index([organizationId, createdAt])
+  @@map("client_status_history")
+}
+
+enum StatusChangedBy {
+  AI
+  HUMAN
+  SYSTEM
+}
+
+// ============================================
+// Products and Partners
+// ============================================
+
+model Product {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  description    String?
+  duration       Int?
+  type           ProductType
+  basePrice      Decimal
+  currency       String   @default("USD")
+  inclusions     Json?
+  exclusions     Json?
+  options        Json?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  partner        Partner?     @relation(fields: [partnerId], references: [id])
+  partnerId      String?
+  clientProducts ClientProduct[]
+  tours          Tour[]
+
+  @@index([organizationId])
+  @@index([organizationId, isActive])
+  @@map("products")
+}
+
+enum ProductType {
+  TOUR
+  SERVICE
+  PACKAGE
+}
+
+model Partner {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  contactPhone   String?
+  contactEmail   String?
+  contactWhatsApp String?
+  contactTelegram String?
+  conditions     String?
+  rating         Decimal?
+  isAvailable    Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  products       Product[]
+  clients        Client[]
+
+  @@index([organizationId])
+  @@index([organizationId, isAvailable])
+  @@map("partners")
+}
+
+model ClientProduct {
+  id          String   @id @default(uuid())
+  clientId    String
+  productId   String
+  status      ClientProductStatus @default(INTERESTED)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, productId])
+  @@index([clientId])
+  @@index([productId])
+  @@map("client_products")
+}
+
+enum ClientProductStatus {
+  INTERESTED
+  PROPOSED
+  SELECTED
+  BOOKED
+}
+
+model Tour {
+  id             String   @id @default(uuid())
+  organizationId String
+  productId      String
+  startDate      DateTime
+  endDate        DateTime
+  maxParticipants Int?
+  currentParticipants Int @default(0)
+  price          Decimal?
+  currency       String   @default("USD")
+  status         TourStatus @default(AVAILABLE)
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product        Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  clientTours    ClientTour[]
+
+  @@index([organizationId, productId])
+  @@index([organizationId, startDate])
+  @@index([organizationId, status])
+  @@index([startDate, endDate])
+  @@map("tours")
+}
+
+enum TourStatus {
+  AVAILABLE
+  FULL
+  CANCELLED
+  COMPLETED
+}
+
+model ClientTour {
+  id          String   @id @default(uuid())
+  clientId    String
+  tourId      String
+  status      ClientTourStatus @default(INTERESTED)
+  participants Int?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tour        Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, tourId])
+  @@index([clientId])
+  @@index([tourId])
+  @@map("client_tours")
+}
+
+enum ClientTourStatus {
+  INTERESTED
+  PROPOSED
+  SELECTED
+  BOOKED
+  CONFIRMED
+  CANCELLED
+}
+
+// ============================================
+// AI Agents and Configurations
+// ============================================
+
+model AgentConfiguration {
+  id             String   @id @default(uuid())
+  organizationId String
+  agentType      AgentType
+  name           String
+  prompt         String
+  settings       Json?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, agentType, name])
+  @@index([organizationId, agentType])
+  @@index([organizationId, isActive])
+  @@map("agent_configurations")
+}
+
+enum AgentType {
+  COMMUNICATION
+  QUALIFICATION
+  PRODUCT_SELECTION
+  STATUS_DETECTION
+  WARMING
+  SALES
+  SERVICE
+  FEEDBACK
+}
+
+model PromptVariant {
+  id             String   @id @default(uuid())
+  organizationId String
+  agentType      AgentType
+  name           String
+  prompt         String
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  experiment     Experiment?  @relation(fields: [experimentId], references: [id])
+  experimentId   String?
+  clients        Client[]
+  dialogueAnalyses DialogueAnalysis[]
+
+  @@unique([organizationId, agentType, name])
+  @@index([organizationId, agentType])
+  @@index([organizationId, isActive])
+  @@map("prompt_variants")
+}
+
+model Experiment {
+  id             String   @id @default(uuid())
+  organizationId String
+  agentType      AgentType
+  name           String
+  description    String?
+  status         ExperimentStatus @default(ACTIVE)
+  startDate      DateTime @default(now())
+  endDate        DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  variants       PromptVariant[]
+
+  @@index([organizationId, status])
+  @@index([organizationId, agentType])
+  @@map("experiments")
+}
+
+enum ExperimentStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+model DialogueAnalysis {
+  id             String   @id @default(uuid())
+  organizationId String
+  analysisType   AnalysisType
+  promptVariantId String?
+  data           Json
+  recommendations Json?
+  createdAt      DateTime @default(now())
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  variant        PromptVariant? @relation(fields: [promptVariantId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, analysisType])
+  @@map("dialogue_analysis")
+}
+
+enum AnalysisType {
+  SUCCESS_PATTERNS
+  PROBLEM_AREAS
+  CONVERSION_METRICS
+  RECOMMENDATIONS
+}
+
+// ============================================
+// WhatsApp Integration
+// ============================================
+
+model WhatsAppSession {
+  id                String   @id @default(uuid())
+  organizationId    String   @unique
+  sessionData       String?  // JSON string with session data
+  qrCode            String?
+  status            WhatsAppSessionStatus @default(DISCONNECTED)
+  errorMessage      String?
+  lastConnectedAt   DateTime?
+  lastDisconnectedAt DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("whatsapp_sessions")
+}
+
+enum WhatsAppSessionStatus {
+  CONNECTING
+  CONNECTED
+  DISCONNECTED
+  QR_CODE_PENDING
+  ERROR
+}
+
