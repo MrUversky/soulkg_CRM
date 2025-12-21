@@ -1,0 +1,35 @@
+services:
+  # API Service
+  - type: web
+    name: soul-kg-crm-api
+    env: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: OPENROUTER_API_KEY
+        sync: false
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # PostgreSQL Database
+  - type: pspg
+    name: soul-kg-crm-db
+    plan: free
+    databaseName: soul_kg_crm
+    postgresMajorVersion: 15
+
