@@ -79,26 +79,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Login
   const login = useCallback(async (credentials: LoginRequest) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-context.tsx:81',message:'Login attempt started',data:{email:credentials.email,hasPassword:!!credentials.password},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     try {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-context.tsx:84',message:'Making API request',data:{url:'/auth/login',baseURL:process.env.NEXT_PUBLIC_API_URL},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       const response = await apiClient.post('/auth/login', credentials);
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-context.tsx:87',message:'API response received',data:{status:response.status,hasUser:!!response.data.user,hasTokens:!!response.data.tokens,userKeys:response.data.user?Object.keys(response.data.user):[],tokensKeys:response.data.tokens?Object.keys(response.data.tokens):[]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
       const { user: userData, tokens: tokensData } = response.data;
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-context.tsx:90',message:'Saving auth state',data:{userId:userData?.id,userEmail:userData?.email,hasAccessToken:!!tokensData?.accessToken,hasRefreshToken:!!tokensData?.refreshToken},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
       saveAuthState(userData, tokensData);
     } catch (error: any) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'auth-context.tsx:92',message:'Login error caught',data:{errorMessage:error?.message,responseStatus:error?.response?.status,responseError:error?.response?.data?.error,responseData:error?.response?.data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       const message = error.response?.data?.error || 'Login failed';
       throw new Error(message);
     }

@@ -10,7 +10,6 @@ import { prisma } from '@soul-kg-crm/database';
 import { hashPassword, verifyPassword } from '../utils/password';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
 import { authenticateToken } from '../middleware/auth.middleware';
-import * as http from 'http';
 
 const router = Router();
 
@@ -197,15 +196,9 @@ router.post('/register', async (req: Request, res: Response) => {
  * @throws {401} Unauthorized if email/password is incorrect
  */
 router.post('/login', async (req: Request, res: Response) => {
-  // #region agent log
-  import('http').then(http=>{const r=http.request({hostname:'127.0.0.1',port:7243,path:'/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',method:'POST',headers:{'Content-Type':'application/json'}},()=>{});r.write(JSON.stringify({location:'auth.routes.ts:198',message:'Login endpoint called',data:{email:req.body?.email,hasPassword:!!req.body?.password},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'}));r.end();}).catch(()=>{});
-  // #endregion
   try {
     const body = loginSchema.parse(req.body);
     const { email, password } = body;
-  // #region agent log
-  const log1={location:'auth.routes.ts:203',message:'Searching for user',data:{email,passwordLength:password.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};const r1=http.request({hostname:'127.0.0.1',port:7243,path:'/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',method:'POST',headers:{'Content-Type':'application/json'}},()=>{});r1.write(JSON.stringify(log1));r1.end();
-  // #endregion
 
     // Find user by email (check all organizations)
     const user = await prisma.user.findFirst({
@@ -217,30 +210,15 @@ router.post('/login', async (req: Request, res: Response) => {
         organization: true,
       },
     });
-    // #region agent log
-    const log2={location:'auth.routes.ts:214',message:'User lookup result',data:{userFound:!!user,userId:user?.id,userEmail:user?.email,isActive:user?.isActive,hasPasswordHash:!!user?.passwordHash,passwordHashLength:user?.passwordHash?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};const r2=http.request({hostname:'127.0.0.1',port:7243,path:'/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',method:'POST',headers:{'Content-Type':'application/json'}},()=>{});r2.write(JSON.stringify(log2));r2.end();
-    // #endregion
 
     if (!user) {
-      // #region agent log
-      const log3={location:'auth.routes.ts:217',message:'User not found',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};const r3=http.request({hostname:'127.0.0.1',port:7243,path:'/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',method:'POST',headers:{'Content-Type':'application/json'}},()=>{});r3.write(JSON.stringify(log3));r3.end();
-      // #endregion
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
     // Verify password
-    // #region agent log
-    const log4={location:'auth.routes.ts:221',message:'Verifying password',data:{passwordLength:password.length,passwordHashLength:user.passwordHash.length,passwordHashPrefix:user.passwordHash.substring(0,10)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};const r4=http.request({hostname:'127.0.0.1',port:7243,path:'/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',method:'POST',headers:{'Content-Type':'application/json'}},()=>{});r4.write(JSON.stringify(log4));r4.end();
-    // #endregion
     const isValidPassword = await verifyPassword(password, user.passwordHash);
-    // #region agent log
-    const log5={location:'auth.routes.ts:222',message:'Password verification result',data:{isValidPassword},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};const r5=http.request({hostname:'127.0.0.1',port:7243,path:'/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',method:'POST',headers:{'Content-Type':'application/json'}},()=>{});r5.write(JSON.stringify(log5));r5.end();
-    // #endregion
     if (!isValidPassword) {
-      // #region agent log
-      const log6={location:'auth.routes.ts:223',message:'Password invalid',data:{email},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};const r6=http.request({hostname:'127.0.0.1',port:7243,path:'/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',method:'POST',headers:{'Content-Type':'application/json'}},()=>{});r6.write(JSON.stringify(log6));r6.end();
-      // #endregion
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
@@ -265,9 +243,6 @@ router.post('/login', async (req: Request, res: Response) => {
       }),
     };
 
-    // #region agent log
-    const log7={location:'auth.routes.ts:246',message:'Sending success response',data:{userId:user.id,hasAccessToken:!!tokens.accessToken,hasRefreshToken:!!tokens.refreshToken,accessTokenLength:tokens.accessToken?.length,refreshTokenLength:tokens.refreshToken?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'};const r7=http.request({hostname:'127.0.0.1',port:7243,path:'/ingest/df61c14c-2257-4a30-8c01-ff09a1128427',method:'POST',headers:{'Content-Type':'application/json'}},()=>{});r7.write(JSON.stringify(log7));r7.end();
-    // #endregion
     res.json({
       user: {
         id: user.id,
