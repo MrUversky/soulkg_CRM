@@ -106,7 +106,7 @@ npm run reclassify     # Переклассифицировать клиенто
 
 ## 🚀 Развертывание
 
-Полное руководство по развертыванию в production доступно в [docs/deployment.md](./docs/deployment.md).
+Полное руководство по развертыванию в production доступно в [docs/guides/deployment.md](./docs/guides/deployment.md).
 
 ### Быстрый деплой
 
@@ -120,7 +120,7 @@ npm run reclassify     # Переклассифицировать клиенто
 2. Разверните API на [Railway](https://railway.app/) или [Render](https://render.com/)
 3. Разверните Frontend на [Vercel](https://vercel.com/)
 
-Подробные инструкции: [docs/deployment.md](./docs/deployment.md)
+Подробные инструкции: [docs/guides/deployment.md](./docs/guides/deployment.md)
 
 ## 📚 Документация
 
@@ -129,7 +129,7 @@ npm run reclassify     # Переклассифицировать клиенто
 - [PROJECT_STATUS.md](./PROJECT_STATUS.md) - Текущий статус и прогресс
 - [MVP Scope](./docs/product/mvp-scope.md) - Объем первой версии
 - [CONTEXT.md](./CONTEXT.md) - Контекст проекта (для AI/Cursor)
-- [Deployment Guide](./docs/deployment.md) - Руководство по развертыванию
+- [Deployment Guide](./docs/guides/deployment.md) - Руководство по развертыванию
 
 ### Архитектура
 - [System Design](./docs/architecture/system-design.md) - Архитектура системы
