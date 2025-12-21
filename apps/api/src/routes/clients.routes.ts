@@ -57,7 +57,21 @@ const listClientsQuerySchema = z.object({
 
 /**
  * GET /api/clients
- * Get list of clients with filtering and pagination
+ * 
+ * Get paginated list of clients for the authenticated user's organization.
+ * Supports filtering by status, search by name/phone/email, and sorting.
+ * 
+ * @route GET /api/clients
+ * @access Private (requires authentication)
+ * @query {number} [page=1] - Page number (default: 1)
+ * @query {number} [limit=20] - Items per page (default: 20)
+ * @query {string} [status] - Filter by client status (NEW_LEAD, QUALIFIED, etc.)
+ * @query {string} [search] - Search in firstName, lastName, phone, email
+ * @query {string} [sortBy=createdAt] - Sort field (createdAt, updatedAt, lastMessageAt, firstName)
+ * @query {string} [sortOrder=desc] - Sort order (asc, desc)
+ * @returns {Object} data - Array of client objects
+ * @returns {Object} pagination - Pagination metadata (page, limit, total, totalPages)
+ * @throws {401} Unauthorized if not authenticated
  */
 router.get('/', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -146,7 +160,17 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 
 /**
  * GET /api/clients/:id
- * Get client by ID
+ * 
+ * Get detailed information about a specific client by ID.
+ * Includes conversation metadata (last message date).
+ * 
+ * @route GET /api/clients/:id
+ * @access Private (requires authentication)
+ * @param {string} id - Client UUID
+ * @returns {Object} Client object with full details
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if client belongs to different organization
+ * @throws {404} Not found if client doesn't exist
  */
 router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -207,7 +231,22 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
 
 /**
  * POST /api/clients
- * Create new client
+ * 
+ * Create a new client in the authenticated user's organization.
+ * Phone number must be unique within the organization.
+ * 
+ * @route POST /api/clients
+ * @access Private (requires authentication)
+ * @body {string} phone - Phone number in format +996XXXXXXXXX (required)
+ * @body {string} [email] - Email address (optional)
+ * @body {string} [firstName] - First name (optional)
+ * @body {string} [lastName] - Last name (optional)
+ * @body {string} [status=NEW_LEAD] - Client status (optional, default: NEW_LEAD)
+ * @body {string} [preferredLanguage] - Preferred language code (optional)
+ * @returns {Object} Created client object
+ * @throws {400} Validation error if input is invalid
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {409} Conflict if client with phone number already exists
  */
 router.post('/', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -277,7 +316,23 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
 
 /**
  * PUT /api/clients/:id
- * Update client
+ * 
+ * Update client information. Only provided fields will be updated.
+ * Phone number cannot be changed (use delete + create if needed).
+ * 
+ * @route PUT /api/clients/:id
+ * @access Private (requires authentication)
+ * @param {string} id - Client UUID
+ * @body {string} [email] - Email address (optional)
+ * @body {string} [firstName] - First name (optional)
+ * @body {string} [lastName] - Last name (optional)
+ * @body {string} [status] - Client status (optional)
+ * @body {string} [preferredLanguage] - Preferred language code (optional)
+ * @returns {Object} Updated client object
+ * @throws {400} Validation error if input is invalid
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if client belongs to different organization
+ * @throws {404} Not found if client doesn't exist
  */
 router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -343,7 +398,20 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
 
 /**
  * PATCH /api/clients/:id/status
- * Update client status (with history tracking)
+ * 
+ * Update client status and track status change history.
+ * Creates a status history entry for audit purposes.
+ * 
+ * @route PATCH /api/clients/:id/status
+ * @access Private (requires authentication)
+ * @param {string} id - Client UUID
+ * @body {string} status - New client status (required)
+ * @body {string} [reason] - Reason for status change (optional)
+ * @returns {Object} Updated client object with new status
+ * @throws {400} Validation error if input is invalid
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if client belongs to different organization
+ * @throws {404} Not found if client doesn't exist
  */
 router.patch('/:id/status', authenticateToken, async (req: Request, res: Response) => {
   try {
