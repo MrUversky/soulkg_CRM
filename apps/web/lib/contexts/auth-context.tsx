@@ -122,7 +122,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await apiClient.post('/auth/refresh', {
         refreshToken: tokens.refreshToken,
       });
-      const { accessToken } = response.data.tokens;
+      // Backend returns { accessToken } directly, not { tokens: { accessToken } }
+      const { accessToken } = response.data;
       const newTokens = { ...tokens, accessToken };
       localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
       setTokens(newTokens);

@@ -60,7 +60,8 @@ apiClient.interceptors.response.use(
             refreshToken,
           });
 
-          const { accessToken } = response.data.tokens;
+          // Backend returns { accessToken } directly, not { tokens: { accessToken } }
+          const { accessToken } = response.data;
           localStorage.setItem('accessToken', accessToken);
 
           // Retry original request with new token
@@ -72,7 +73,7 @@ apiClient.interceptors.response.use(
         if (typeof window !== 'undefined') {
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
-          window.location.href = '/auth/login';
+          window.location.href = '/login';
         }
         return Promise.reject(refreshError);
       }
@@ -83,4 +84,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-
