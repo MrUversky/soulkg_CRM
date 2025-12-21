@@ -25,7 +25,16 @@ app.get('/health', (_req, res) => {
 
 // Import routes
 import importRoutes from './routes/import.routes';
+import authRoutes from './routes/auth.routes';
+import organizationsRoutes from './routes/organizations.routes';
+import usersRoutes from './routes/users.routes';
+import clientsRoutes from './routes/clients.routes';
+
 app.use('/api/import', importRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/organizations', organizationsRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/clients', clientsRoutes);
 
 // Start server
 app.listen(PORT, () => {
