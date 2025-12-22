@@ -71,6 +71,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     
     // Save to localStorage
     localStorage.setItem('theme', theme);
+    
+    // Force reflow to ensure classes are applied
+    root.offsetHeight;
   }, [theme, mounted]);
 
   // Listen for system theme changes
@@ -92,6 +95,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme, mounted]);
 
   const setTheme = (newTheme: Theme) => {
+    console.log('Setting theme to:', newTheme);
     setThemeState(newTheme);
   };
 
