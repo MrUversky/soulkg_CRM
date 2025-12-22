@@ -25,7 +25,7 @@ export default function DashboardLayout({
         <div className="flex">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           <main className="flex-1 md:ml-0 min-h-[calc(100vh-4rem)]">
-            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-6 lg:py-8">
+            <div className="px-4 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-6 lg:py-8">
               {children}
             </div>
           </main>

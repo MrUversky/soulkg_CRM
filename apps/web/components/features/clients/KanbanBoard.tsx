@@ -163,7 +163,7 @@ export default function KanbanBoard({ search }: KanbanBoardProps) {
       onDragEnd={handleDragEnd}
       onDragOver={handleDragOver}
     >
-      <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4">
+      <div className="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto pb-4 px-4 sm:px-6 lg:px-8 xl:px-10">
         {STATUS_ORDER.map((status) => {
           const clients = clientsByStatus[status] || [];
           const count = clients.length;
@@ -171,10 +171,10 @@ export default function KanbanBoard({ search }: KanbanBoardProps) {
           return (
             <div
               key={status}
-              className="flex-shrink-0 w-[280px] sm:w-[320px]"
+              className="flex-shrink-0 w-[260px] sm:w-[280px] lg:w-[320px]"
             >
-              <Card className="h-full flex flex-col">
-                <CardHeader className="pb-3">
+              <Card className="flex flex-col h-[calc(100vh-280px)] sm:h-[calc(100vh-260px)]">
+                <CardHeader className="pb-3 flex-shrink-0">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm sm:text-base">
                       {STATUS_LABELS[status]}
@@ -184,7 +184,7 @@ export default function KanbanBoard({ search }: KanbanBoardProps) {
                     </span>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-y-auto max-h-[calc(100vh-200px)]">
+                <CardContent className="flex-1 overflow-y-auto min-h-0">
                   <SortableContext
                     items={clients.map((c) => c.id)}
                     strategy={verticalListSortingStrategy}

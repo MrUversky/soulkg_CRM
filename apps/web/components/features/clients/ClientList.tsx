@@ -70,26 +70,28 @@ export default function ClientList() {
   }, [error, toast]);
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-bold text-text-primary mb-6 leading-tight">Clients</h1>
-          <p className="text-lg text-text-secondary leading-relaxed">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-3 sm:mb-4 md:mb-6 leading-tight">Clients</h1>
+          <p className="text-sm sm:text-base lg:text-lg text-text-secondary leading-relaxed">
             Manage your clients and track their journey through the sales funnel
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/clients/kanban">
-            <Button variant="outline" size="lg">
-              <LayoutGrid className="h-5 w-5 mr-2" />
-              Kanban View
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 flex-shrink-0">
+          <Link href="/dashboard/clients/kanban" className="w-full sm:w-auto">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto">
+              <LayoutGrid className="h-4 w-4 sm:h-5 sm:w-5 sm:mr-2" />
+              <span className="hidden sm:inline">Kanban View</span>
+              <span className="sm:hidden">Kanban</span>
             </Button>
           </Link>
-          <Link href="/dashboard/clients/new">
-            <Button variant="default" size="lg">
-              <Plus className="h-5 w-5 mr-2" />
-              Add Client
+          <Link href="/dashboard/clients/new" className="w-full sm:w-auto">
+            <Button variant="default" size="lg" className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5 sm:mr-2" />
+              <span className="hidden sm:inline">Add Client</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           </Link>
         </div>
@@ -97,11 +99,11 @@ export default function ClientList() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="py-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
+        <CardContent className="py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+            <div className="flex-1 min-w-0">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-muted" />
+                <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-text-muted" />
                 <Input
                   placeholder="Search by name, phone, or email..."
                   value={search}
@@ -109,18 +111,18 @@ export default function ClientList() {
                     setSearch(e.target.value);
                     setPage(1);
                   }}
-                  className="pl-11"
+                  className="pl-9 sm:pl-11 text-sm sm:text-base"
                 />
               </div>
             </div>
-            <div className="md:w-52">
+            <div className="w-full sm:w-52 flex-shrink-0">
               <select
                 value={statusFilter}
                 onChange={(e) => {
                   setStatusFilter(e.target.value as ClientStatus | '');
                   setPage(1);
                 }}
-                className="w-full h-12 px-4 py-2 border border-border rounded-xl bg-background/50 backdrop-blur-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                className="w-full h-10 sm:h-12 px-3 sm:px-4 py-2 text-sm sm:text-base border border-border rounded-lg sm:rounded-xl bg-background/50 backdrop-blur-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
               >
                 <option value="">All Statuses</option>
                 {Object.entries(STATUS_LABELS).map(([value, label]) => (
@@ -181,7 +183,7 @@ export default function ClientList() {
       {/* Client List */}
       {!isLoading && !error && clients.length > 0 && (
         <>
-          <div className="grid gap-4">
+          <div className="grid gap-3 sm:gap-4">
             {clients.map((client) => (
               <Link
                 key={client.id}
@@ -189,44 +191,44 @@ export default function ClientList() {
                 className="block"
               >
                 <Card className="hover:shadow-xl transition-all duration-300 ease-spring cursor-pointer hover:-translate-y-1 border-border/50 group">
-                  <CardContent className="py-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                  <CardContent className="py-4 sm:py-6 lg:py-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-5">
-                          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-semibold text-lg flex-shrink-0 shadow-md shadow-primary/30 group-hover:shadow-lg group-hover:shadow-primary/40 transition-shadow duration-300">
+                        <div className="flex items-center gap-3 sm:gap-4 lg:gap-5">
+                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-semibold text-base sm:text-lg flex-shrink-0 shadow-md shadow-primary/30 group-hover:shadow-lg group-hover:shadow-primary/40 transition-shadow duration-300">
                             {client.firstName?.[0] || client.phone[4]}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-text-primary truncate mb-2 group-hover:text-primary transition-colors duration-200">
+                            <h3 className="text-base sm:text-lg font-semibold text-text-primary truncate mb-1.5 sm:mb-2 group-hover:text-primary transition-colors duration-200">
                               {client.firstName || client.lastName
                                 ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
                                 : 'Unnamed Client'}
                             </h3>
-                            <div className="flex flex-wrap items-center gap-4 text-sm text-text-secondary">
-                              <span className="flex items-center gap-2">
-                                <Phone className="h-4 w-4" />
-                                {formatPhone(client.phone)}
+                            <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-text-secondary">
+                              <span className="flex items-center gap-1.5 sm:gap-2">
+                                <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                <span className="truncate">{formatPhone(client.phone)}</span>
                               </span>
                               {client.email && (
-                                <span className="flex items-center gap-2">
-                                  <Mail className="h-4 w-4" />
-                                  <span className="truncate max-w-[200px]">{client.email}</span>
+                                <span className="flex items-center gap-1.5 sm:gap-2">
+                                  <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                  <span className="truncate max-w-[200px] sm:max-w-none">{client.email}</span>
                                 </span>
                               )}
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-col sm:items-end gap-4 sm:pl-4">
+                      <div className="flex flex-row sm:flex-col sm:items-end items-center justify-between sm:justify-end gap-2 sm:gap-3 sm:pl-4 flex-shrink-0">
                         <span
                           className={cn(
-                            'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold',
+                            'inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-semibold',
                             STATUS_COLORS[client.status]
                           )}
                         >
                           {STATUS_LABELS[client.status]}
                         </span>
-                        <span className="text-xs text-text-muted">
+                        <span className="text-xs text-text-muted whitespace-nowrap">
                           Updated {formatRelativeTime(client.updatedAt)}
                         </span>
                       </div>
@@ -239,17 +241,18 @@ export default function ClientList() {
 
           {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4">
-              <p className="text-sm text-text-secondary">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 pt-4">
+              <p className="text-xs sm:text-sm text-text-secondary text-center sm:text-left">
                 Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, pagination.total)} of{' '}
                 {pagination.total} clients
               </p>
-              <div className="flex gap-4">
+              <div className="flex gap-2 sm:gap-4">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
+                  className="flex-1 sm:flex-none"
                 >
                   Previous
                 </Button>
@@ -258,6 +261,7 @@ export default function ClientList() {
                   size="sm"
                   onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
                   disabled={page === pagination.totalPages}
+                  className="flex-1 sm:flex-none"
                 >
                   Next
                 </Button>
