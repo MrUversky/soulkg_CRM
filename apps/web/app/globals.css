@@ -214,8 +214,8 @@ body {
   outline-offset: 2px;
 }
 
-/* Remove default button styles */
-button {
+/* Remove default button styles - only for unstyled buttons */
+button:not([class*="bg-"]) {
   background: none;
   border: none;
   cursor: pointer;
@@ -240,11 +240,9 @@ html {
   color: var(--color-text-primary);
 }
 
-@media (prefers-color-scheme: dark) {
-  ::selection {
-    background-color: var(--color-primary-800);
-    color: var(--color-text-primary);
-  }
+.dark ::selection {
+  background-color: var(--color-primary-800);
+  color: var(--color-text-primary);
 }
 
 /* Toast animations */
