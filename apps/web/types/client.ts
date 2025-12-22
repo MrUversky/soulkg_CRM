@@ -26,7 +26,7 @@ export interface Client {
     formality?: 'formal' | 'casual';
     timezone?: string;
   };
-  metadata?: Record<string, any>;
+  metadata?: ClientMetadata;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,12 +59,25 @@ export interface CreateClientRequest {
   preferredLanguage?: string;
 }
 
+export interface Note {
+  id: string;
+  content: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface ClientMetadata {
+  notes?: Note[];
+  tags?: string[];
+}
+
 export interface UpdateClientRequest {
   email?: string;
   firstName?: string;
   lastName?: string;
   status?: ClientStatus;
   preferredLanguage?: string;
+  metadata?: ClientMetadata;
 }
 
 export type CommunicationChannel = 'WHATSAPP' | 'TELEGRAM' | 'EMAIL';

@@ -21,6 +21,7 @@ import ConversationView from './ConversationView';
 import StatusTimeline from './StatusTimeline';
 import QuickActionsPanel from './QuickActionsPanel';
 import ProductsList from './ProductsList';
+import NotesEditor from './NotesEditor';
 
 const STATUS_COLORS: Record<ClientStatus, string> = {
   NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
@@ -290,6 +291,9 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Notes & Tags */}
+            <NotesEditor clientId={clientId} />
           </div>
 
           {/* Sidebar */}

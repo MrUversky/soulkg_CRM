@@ -33,12 +33,25 @@ const createClientSchema = z.object({
   preferredLanguage: z.string().optional(),
 });
 
+const noteSchema = z.object({
+  id: z.string(),
+  content: z.string(),
+  createdAt: z.string(),
+  createdBy: z.string(),
+});
+
+const metadataSchema = z.object({
+  notes: z.array(noteSchema).optional(),
+  tags: z.array(z.string()).optional(),
+}).optional();
+
 const updateClientSchema = z.object({
   email: z.string().email('Invalid email format').optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   status: ClientStatusEnum.optional(),
   preferredLanguage: z.string().optional(),
+  metadata: metadataSchema,
 });
 
 const updateStatusSchema = z.object({
@@ -389,10 +402,19 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
       return;
     }
 
+    // Prepare update data
+    const updateData: any = {};
+    if (body.email !== undefined) updateData.email = body.email;
+    if (body.firstName !== undefined) updateData.firstName = body.firstName;
+    if (body.lastName !== undefined) updateData.lastName = body.lastName;
+    if (body.status !== undefined) updateData.status = body.status;
+    if (body.preferredLanguage !== undefined) updateData.preferredLanguage = body.preferredLanguage;
+    if (body.metadata !== undefined) updateData.metadata = body.metadata;
+
     // Update client
     const client = await prisma.client.update({
       where: { id },
-      data: body,
+      data: updateData,
       select: {
         id: true,
         phone: true,
@@ -401,6 +423,7 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
         lastName: true,
         status: true,
         preferredLanguage: true,
+        metadata: true,
         createdAt: true,
         updatedAt: true,
       },
