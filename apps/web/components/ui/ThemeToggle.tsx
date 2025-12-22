@@ -12,24 +12,11 @@ interface ThemeToggleProps {
 
 export function ThemeToggle({ variant = 'button', className }: ThemeToggleProps) {
   const [mounted, setMounted] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
   
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Safe theme hook usage
-  let theme: 'light' | 'dark' | 'system' = 'system';
-  let setTheme: (theme: 'light' | 'dark' | 'system') => void = () => {};
-  let resolvedTheme: 'light' | 'dark' = 'dark';
-
-  try {
-    const themeContext = useTheme();
-    theme = themeContext.theme;
-    setTheme = themeContext.setTheme;
-    resolvedTheme = themeContext.resolvedTheme;
-  } catch (e) {
-    // ThemeProvider not available, use defaults
-  }
 
   if (!mounted) {
     return (

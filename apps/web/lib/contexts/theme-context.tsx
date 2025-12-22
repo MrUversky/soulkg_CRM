@@ -18,12 +18,33 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    // Load theme from localStorage
+    // Load theme from localStorage first
     const savedTheme = localStorage.getItem('theme') as Theme | null;
     if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
       setThemeState(savedTheme);
     }
+    
+    // Apply initial theme immediately
+    const root = window.document.documentElement;
+    const initialTheme = savedTheme && ['light', 'dark', 'system'].includes(savedTheme) 
+      ? savedTheme 
+      : 'system';
+    
+    let effectiveTheme: 'light' | 'dark';
+    if (initialTheme === 'system') {
+      effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+    } else {
+      effectiveTheme = initialTheme;
+    }
+    
+    root.classList.remove('light', 'dark');
+    root.classList.add(effectiveTheme);
+    root.setAttribute('data-theme', effectiveTheme);
+    setResolvedTheme(effectiveTheme);
+    
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -74,11 +95,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(newTheme);
   };
 
-  // Don't render until mounted to avoid hydration mismatch
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
+  // Always provide context, but only apply classes after mount
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
       {children}
