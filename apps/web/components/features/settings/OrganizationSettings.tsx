@@ -72,14 +72,7 @@ export default function OrganizationSettings() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
-  }
-
+  // All hooks must be called before any conditional returns
   useEffect(() => {
     if (error || (!isLoading && !organization)) {
       toast({
@@ -89,6 +82,14 @@ export default function OrganizationSettings() {
       });
     }
   }, [error, isLoading, organization, toast]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    );
+  }
 
   if (!organization) {
     return (
