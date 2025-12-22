@@ -13,7 +13,8 @@ import { ClientStatus } from '@/types/client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { Search, Plus, Phone, Mail, User } from 'lucide-react';
+import { Search, Plus, Phone, Mail, User, LayoutGrid } from 'lucide-react';
+import Link from 'next/link';
 import { formatPhone, formatRelativeTime } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
@@ -79,12 +80,20 @@ export default function ClientList() {
             Manage your clients and track their journey through the sales funnel
           </p>
         </div>
-        <Link href="/dashboard/clients/new">
-          <Button variant="default" size="lg">
-            <Plus className="h-5 w-5 mr-2" />
-            Add Client
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/clients/kanban">
+            <Button variant="outline" size="lg">
+              <LayoutGrid className="h-5 w-5 mr-2" />
+              Kanban View
+            </Button>
+          </Link>
+          <Link href="/dashboard/clients/new">
+            <Button variant="default" size="lg">
+              <Plus className="h-5 w-5 mr-2" />
+              Add Client
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
