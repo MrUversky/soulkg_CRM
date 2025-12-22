@@ -7,7 +7,7 @@
  * @example
  * ```tsx
  * // Basic usage
- * <Button variant="primary">Click me</Button>
+ * <Button variant="default">Click me</Button>
  * 
  * // With loading state
  * <Button isLoading={isSubmitting}>Submit</Button>
@@ -68,9 +68,9 @@ const buttonVariants = cva(
  * @property {boolean} [asChild] - Render as child component (useful for Next.js Link). When true, uses Radix Slot.
  * @property {boolean} [fullWidth] - Make button full width of container.
  * @property {boolean} [isLoading] - Show loading spinner and disable button.
- * @property {"default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "primary" | "danger"} [variant] - Button style variant.
- *   - `default` / `primary`: Primary gradient button (blue-purple gradient)
- *   - `destructive` / `danger`: Destructive action button (red gradient)
+ * @property {"default" | "destructive" | "outline" | "secondary" | "ghost" | "link"} [variant] - Button style variant.
+ *   - `default`: Primary gradient button (blue-purple gradient)
+ *   - `destructive`: Destructive action button (red gradient)
  *   - `outline`: Outlined button with border
  *   - `secondary`: Secondary button (purple gradient)
  *   - `ghost`: Transparent button with hover effect
@@ -80,8 +80,6 @@ const buttonVariants = cva(
  *   - `sm`: h-10 px-4 (40px height, small padding)
  *   - `lg`: h-14 px-10 (56px height, large padding)
  *   - `icon`: h-12 w-12 (48x48px square, for icon-only buttons)
- * 
- * @note Legacy variants `primary` and `danger` are aliased to `default` and `destructive` for backward compatibility.
  */
 export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'variant'> {
@@ -92,7 +90,7 @@ export interface ButtonProps
   /** Show loading spinner and disable button */
   isLoading?: boolean
   /** Button style variant */
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "primary" | "danger"
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
   /** Button size */
   size?: "default" | "sm" | "lg" | "icon"
 }
@@ -101,13 +99,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, fullWidth, isLoading, disabled, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     
-    // Legacy variant aliases for backward compatibility
-    const normalizedVariant = variant === "primary" ? "default" : variant === "danger" ? "destructive" : variant
-    
     return (
       <Comp
         className={cn(
-          buttonVariants({ variant: normalizedVariant, size, className }),
+          buttonVariants({ variant, size, className }),
           fullWidth && "w-full"
         )}
         ref={ref}

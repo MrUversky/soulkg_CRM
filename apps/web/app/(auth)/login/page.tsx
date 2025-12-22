@@ -15,7 +15,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { Card, CardHeader, CardTitle, CardBody, CardFooter } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -58,6 +59,11 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.08)_0%,_transparent_50%)]" />
       
       <div className="w-full max-w-md relative z-10">
+        {/* Theme toggle */}
+        <div className="absolute top-0 right-0">
+          <ThemeToggle />
+        </div>
+
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-3 leading-tight bg-gradient-to-br from-primary-600 to-secondary-600 bg-clip-text text-transparent">
             Soul KG CRM
@@ -68,11 +74,11 @@ export default function LoginPage() {
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Login</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="block w-full">
+            <CardHeader>
+              <CardTitle>Login</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
               {error && (
                 <div
                   className="p-4 rounded-lg bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800"
@@ -103,31 +109,30 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 required
               />
+            </CardContent>
+            <CardFooter className="flex-col gap-6">
+              <Button
+                type="submit"
+                variant="default"
+                fullWidth
+                isLoading={isLoading}
+                disabled={isLoading}
+                size="lg"
+              >
+                Sign In
+              </Button>
 
-              <CardFooter className="flex-col gap-6">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  fullWidth
-                  isLoading={isLoading}
-                  disabled={isLoading}
-                  size="lg"
+              <p className="text-sm text-text-secondary text-center">
+                Don't have an account?{' '}
+                <Link
+                  href="/register"
+                  className="text-primary hover:text-primary-hover font-medium transition-colors duration-200"
                 >
-                  Sign In
-                </Button>
-
-                <p className="text-sm text-text-secondary text-center">
-                  Don't have an account?{' '}
-                  <Link
-                    href="/register"
-                    className="text-primary hover:text-primary-hover font-medium transition-colors duration-200"
-                  >
-                    Sign up
-                  </Link>
-                </p>
-              </CardFooter>
-            </form>
-          </CardBody>
+                  Sign up
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
         </Card>
       </div>
     </div>

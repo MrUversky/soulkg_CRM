@@ -33,3 +33,4 @@ services:
     databaseName: soul_kg_crm
     postgresMajorVersion: 15
 
+

@@ -18,7 +18,6 @@ export {
   CardTitle,
   CardDescription,
   CardContent,
-  CardBody, // Legacy alias for CardContent
 } from './Card';
 
 export { Label } from './label';

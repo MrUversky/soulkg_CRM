@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { Card, CardHeader, CardTitle, CardBody, CardFooter } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -81,11 +81,11 @@ export default function RegisterPage() {
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Register</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="block">
+            <CardHeader>
+              <CardTitle>Register</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
               {error && (
                 <div
                   className="p-4 rounded-lg bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800"
@@ -155,31 +155,30 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 required
               />
+            </CardContent>
+            <CardFooter className="flex-col gap-6">
+              <Button
+                type="submit"
+                variant="default"
+                fullWidth
+                isLoading={isLoading}
+                disabled={isLoading}
+                size="lg"
+              >
+                Create Account
+              </Button>
 
-              <CardFooter className="flex-col gap-6">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  fullWidth
-                  isLoading={isLoading}
-                  disabled={isLoading}
-                  size="lg"
+              <p className="text-sm text-text-secondary text-center">
+                Already have an account?{' '}
+                <Link
+                  href="/login"
+                  className="text-primary hover:text-primary-hover font-medium transition-colors duration-200"
                 >
-                  Create Account
-                </Button>
-
-                <p className="text-sm text-text-secondary text-center">
-                  Already have an account?{' '}
-                  <Link
-                    href="/login"
-                    className="text-primary hover:text-primary-hover font-medium transition-colors duration-200"
-                  >
-                    Sign in
-                  </Link>
-                </p>
-              </CardFooter>
-            </form>
-          </CardBody>
+                  Sign in
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
         </Card>
       </div>
     </div>

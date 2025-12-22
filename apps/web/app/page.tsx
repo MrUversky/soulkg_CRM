@@ -40,7 +40,7 @@ export default function Home() {
         </p>
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
           <Link href="/login" className="w-full sm:w-auto">
-            <Button variant="primary" size="lg" className="w-full sm:w-auto min-w-[200px]">
+            <Button variant="default" size="lg" className="w-full sm:w-auto min-w-[200px]">
               Sign In
             </Button>
           </Link>

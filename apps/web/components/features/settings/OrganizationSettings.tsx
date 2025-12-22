@@ -16,6 +16,7 @@ import { useOrganization, useUpdateOrganization } from '@/lib/hooks/useOrganizat
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useToast } from '@/components/ui/use-toast';
 
 const organizationSchema = z.object({
@@ -112,6 +113,30 @@ export default function OrganizationSettings() {
         </p>
       </div>
 
+      {/* Theme Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Appearance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-semibold text-text-primary mb-1">
+                Theme
+              </h3>
+              <p className="text-sm text-text-secondary">
+                Choose your preferred theme
+              </p>
+            </div>
+            <ThemeToggle />
+          </div>
+          <div className="mt-6 pt-6 border-t border-border">
+            <ThemeToggle variant="dropdown" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Organization Settings */}
       <Card>
         <form onSubmit={handleSubmit(onSubmit)} className="block">
           <CardHeader>

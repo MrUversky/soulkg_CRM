@@ -56,3 +56,4 @@
 - Main content: `p-6 md:p-8` (responsive)
 - Sidebar navigation: `p-6 space-y-2`
 
+

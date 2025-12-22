@@ -18,3 +18,4 @@ export interface UpdateOrganizationRequest {
   settings?: Record<string, any>;
 }
 
+
