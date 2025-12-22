@@ -276,7 +276,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
         </h3>
 
         {/* Add Tag Form */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row gap-2 mb-4">
           <Input
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
@@ -287,12 +287,13 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
               }
             }}
             placeholder="Add a tag..."
-            className="flex-1"
+            className="flex-1 w-full"
           />
           <Button
             onClick={handleAddTag}
             disabled={updateClientMutation.isPending}
             size="sm"
+            className="w-full sm:w-auto"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add
@@ -407,14 +408,14 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-text-primary whitespace-pre-wrap">{note.content}</p>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4">
+                      <div className="flex-1 min-w-0 w-full">
+                        <p className="text-sm sm:text-base text-text-primary whitespace-pre-wrap break-words">{note.content}</p>
                         <p className="text-xs text-text-tertiary mt-2">
                           {formatDate(note.createdAt)}
                         </p>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 self-start sm:self-auto">
                         <Button
                           variant="ghost"
                           size="sm"

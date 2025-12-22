@@ -141,9 +141,9 @@ export default function ProductsList({ clientId }: ProductsListProps) {
     <div className="space-y-6">
       {/* Products Section */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-            <Package className="h-5 w-5" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4">
+          <h3 className="text-base sm:text-lg font-semibold text-text-primary flex items-center gap-2">
+            <Package className="h-4 w-4 sm:h-5 sm:w-5" />
             Products ({products.length})
           </h3>
           {!showAddForm && (
@@ -151,6 +151,7 @@ export default function ProductsList({ clientId }: ProductsListProps) {
               variant="outline"
               size="sm"
               onClick={() => setShowAddForm(true)}
+              className="w-full sm:w-auto"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Product
@@ -260,49 +261,49 @@ export default function ProductsList({ clientId }: ProductsListProps) {
             {products.map((product: ClientProduct) => (
               <Card key={product.id}>
                 <CardContent className="pt-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-semibold text-text-primary">
-                          {product.product.name}
-                        </h4>
-                        <span
-                          className={cn(
-                            'px-2 py-1 rounded text-xs font-medium',
-                            STATUS_COLORS[product.status]
-                          )}
-                        >
-                          {STATUS_LABELS[product.status]}
-                        </span>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4">
+                      <div className="flex-1 min-w-0 w-full">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                          <h4 className="font-semibold text-text-primary text-sm sm:text-base">
+                            {product.product.name}
+                          </h4>
+                          <span
+                            className={cn(
+                              'px-2 py-1 rounded text-xs font-medium self-start',
+                              STATUS_COLORS[product.status]
+                            )}
+                          >
+                            {STATUS_LABELS[product.status]}
+                          </span>
+                        </div>
+                        {product.product.description && (
+                          <p className="text-xs sm:text-sm text-text-secondary mb-2">
+                            {product.product.description}
+                          </p>
+                        )}
+                        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-text-tertiary">
+                          <span>
+                            Price: {product.product.basePrice} {product.product.currency}
+                          </span>
+                          <span>Type: {product.product.type}</span>
+                          <span>Added: {formatDate(product.createdAt)}</span>
+                        </div>
+                        {product.notes && (
+                          <p className="text-xs sm:text-sm text-text-secondary mt-2 italic">
+                            Note: {product.notes}
+                          </p>
+                        )}
                       </div>
-                      {product.product.description && (
-                        <p className="text-sm text-text-secondary mb-2">
-                          {product.product.description}
-                        </p>
-                      )}
-                      <div className="flex flex-wrap gap-4 text-sm text-text-tertiary">
-                        <span>
-                          Price: {product.product.basePrice} {product.product.currency}
-                        </span>
-                        <span>Type: {product.product.type}</span>
-                        <span>Added: {formatDate(product.createdAt)}</span>
-                      </div>
-                      {product.notes && (
-                        <p className="text-sm text-text-secondary mt-2 italic">
-                          Note: {product.notes}
-                        </p>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveProduct(product.productId)}
+                        disabled={removeProductMutation.isPending}
+                        className="text-error-600 hover:text-error-700 hover:bg-error-50 dark:hover:bg-error-900/20 self-start sm:self-auto"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveProduct(product.productId)}
-                      disabled={removeProductMutation.isPending}
-                      className="text-error-600 hover:text-error-700 hover:bg-error-50 dark:hover:bg-error-900/20"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             ))}

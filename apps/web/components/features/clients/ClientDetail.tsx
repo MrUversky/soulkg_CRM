@@ -9,6 +9,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useClient, useUpdateClientStatus } from '@/lib/hooks/useClients';
 import { ClientStatus } from '@/types/client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
@@ -17,11 +18,33 @@ import { ArrowLeft, Phone, Mail, User, Calendar, Edit, MessageSquare, Clock, Pac
 import { formatPhone, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
-import ConversationView from './ConversationView';
-import StatusTimeline from './StatusTimeline';
 import QuickActionsPanel from './QuickActionsPanel';
-import ProductsList from './ProductsList';
 import NotesEditor from './NotesEditor';
+
+// Lazy load tab components for better performance
+const ConversationView = dynamic(() => import('./ConversationView'), {
+  loading: () => (
+    <div className="flex items-center justify-center py-16">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+    </div>
+  ),
+});
+
+const ProductsList = dynamic(() => import('./ProductsList'), {
+  loading: () => (
+    <div className="flex items-center justify-center py-16">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+    </div>
+  ),
+});
+
+const StatusTimeline = dynamic(() => import('./StatusTimeline'), {
+  loading: () => (
+    <div className="flex items-center justify-center py-16">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+    </div>
+  ),
+});
 
 const STATUS_COLORS: Record<ClientStatus, string> = {
   NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
@@ -205,9 +228,9 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
 
       {/* Tab Content */}
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
           {/* Main Info */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="xl:col-span-2 space-y-4 sm:space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Contact Information</CardTitle>
@@ -297,14 +320,14 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <QuickActionsPanel client={client} />
             <Card>
               <CardHeader>
                 <CardTitle>Details</CardTitle>
               </CardHeader>
               <CardContent>
-                <dl className="space-y-6">
+                <dl className="space-y-4 sm:space-y-6">
                   <div>
                     <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
                       <Calendar className="h-4 w-4" />
@@ -330,21 +353,39 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
       )}
 
       {activeTab === 'conversations' && (
-        <div>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+            </div>
+          }
+        >
           <ConversationView clientId={clientId} />
-        </div>
+        </Suspense>
       )}
 
       {activeTab === 'products' && (
-        <div>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+            </div>
+          }
+        >
           <ProductsList clientId={clientId} />
-        </div>
+        </Suspense>
       )}
 
       {activeTab === 'history' && (
-        <div>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+            </div>
+          }
+        >
           <StatusTimeline clientId={clientId} />
-        </div>
+        </Suspense>
       )}
     </div>
   );
