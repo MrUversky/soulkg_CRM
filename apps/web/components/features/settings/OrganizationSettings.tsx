@@ -6,15 +6,17 @@
 
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useOrganization, useUpdateOrganization } from '@/lib/hooks/useOrganizations';
-import { Card, CardHeader, CardTitle, CardBody, CardFooter } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import { useToast } from '@/components/ui/use-toast';
 
 const organizationSchema = z.object({
   name: z.string().min(1, 'Organization name is required'),
@@ -25,8 +27,9 @@ type OrganizationFormData = z.infer<typeof organizationSchema>;
 
 export default function OrganizationSettings() {
   const router = useRouter();
+  const { toast } = useToast();
   const { user } = useAuth();
-  const { data: organization, isLoading } = useOrganization(user?.organizationId || '');
+  const { data: organization, isLoading, error } = useOrganization(user?.organizationId || '');
   const updateMutation = useUpdateOrganization();
 
   const {
@@ -54,10 +57,17 @@ export default function OrganizationSettings() {
           logo: data.logo || undefined,
         },
       });
-      alert('Organization settings updated successfully!');
+      toast({
+        title: "Success",
+        description: "Organization settings updated successfully!",
+        variant: "success",
+      });
     } catch (error: any) {
-      console.error('Failed to update organization:', error);
-      alert(error.response?.data?.error || 'Failed to update organization. Please try again.');
+      toast({
+        title: "Error",
+        description: error.response?.data?.error || "Failed to update organization. Please try again.",
+        variant: "error",
+      });
     }
   };
 
@@ -69,16 +79,26 @@ export default function OrganizationSettings() {
     );
   }
 
+  useEffect(() => {
+    if (error || (!isLoading && !organization)) {
+      toast({
+        title: "Error",
+        description: "Failed to load organization settings.",
+        variant: "error",
+      });
+    }
+  }, [error, isLoading, organization, toast]);
+
   if (!organization) {
     return (
       <Card>
-        <CardBody>
+        <CardContent>
           <div className="text-center py-12">
             <p className="text-error-600 dark:text-error-400">
               Failed to load organization settings.
             </p>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
     );
   }
@@ -93,11 +113,11 @@ export default function OrganizationSettings() {
       </div>
 
       <Card>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="block">
           <CardHeader>
             <CardTitle>Organization Information</CardTitle>
           </CardHeader>
-          <CardBody className="space-y-6">
+          <CardContent className="space-y-8">
             <Input
               label="Organization Name"
               placeholder="My Company"
@@ -135,11 +155,11 @@ export default function OrganizationSettings() {
                 </div>
               </dl>
             </div>
-          </CardBody>
+          </CardContent>
           <CardFooter>
             <Button
               type="submit"
-              variant="primary"
+              variant="default"
               isLoading={updateMutation.isPending}
               disabled={updateMutation.isPending}
             >

@@ -6,16 +6,17 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useClients } from '@/lib/hooks/useClients';
 import { ClientStatus } from '@/types/client';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { Search, Plus, Phone, Mail, User } from 'lucide-react';
 import { formatPhone, formatRelativeTime } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/components/ui/use-toast';
 
 const STATUS_COLORS: Record<ClientStatus, string> = {
   NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
@@ -44,6 +45,7 @@ export default function ClientList() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ClientStatus | ''>('');
   const limit = 20;
+  const { toast } = useToast();
 
   const { data, isLoading, error } = useClients({
     page,
@@ -57,18 +59,28 @@ export default function ClientList() {
   const clients = data?.data || [];
   const pagination = data?.pagination;
 
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load clients. Please try again.",
+        variant: "error",
+      });
+    }
+  }, [error, toast]);
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-bold text-text-primary mb-4">Clients</h1>
-          <p className="text-lg text-text-secondary">
+          <h1 className="text-4xl md:text-5xl font-bold text-text-primary mb-6 leading-tight">Clients</h1>
+          <p className="text-lg text-text-secondary leading-relaxed">
             Manage your clients and track their journey through the sales funnel
           </p>
         </div>
         <Link href="/dashboard/clients/new">
-          <Button variant="primary" size="lg">
+          <Button variant="default" size="lg">
             <Plus className="h-5 w-5 mr-2" />
             Add Client
           </Button>
@@ -77,11 +89,11 @@ export default function ClientList() {
 
       {/* Filters */}
       <Card>
-        <CardBody>
+        <CardContent className="py-6">
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-tertiary" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-muted" />
                 <Input
                   placeholder="Search by name, phone, or email..."
                   value={search}
@@ -89,18 +101,18 @@ export default function ClientList() {
                     setSearch(e.target.value);
                     setPage(1);
                   }}
-                  className="pl-10"
+                  className="pl-11"
                 />
               </div>
             </div>
-            <div className="md:w-48">
+            <div className="md:w-52">
               <select
                 value={statusFilter}
                 onChange={(e) => {
                   setStatusFilter(e.target.value as ClientStatus | '');
                   setPage(1);
                 }}
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full h-12 px-4 py-2 border border-border rounded-xl bg-background/50 backdrop-blur-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
               >
                 <option value="">All Statuses</option>
                 {Object.entries(STATUS_LABELS).map(([value, label]) => (
@@ -111,7 +123,7 @@ export default function ClientList() {
               </select>
             </div>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
 
       {/* Loading State */}
@@ -124,22 +136,22 @@ export default function ClientList() {
       {/* Error State */}
       {error && (
         <Card>
-          <CardBody>
+          <CardContent>
             <div className="text-center py-12">
               <p className="text-error-600 dark:text-error-400">
                 Failed to load clients. Please try again.
               </p>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
       )}
 
       {/* Empty State */}
       {!isLoading && !error && clients.length === 0 && (
         <Card>
-          <CardBody>
+          <CardContent>
             <div className="text-center py-16">
-              <User className="h-12 w-12 text-text-tertiary mx-auto mb-6" />
+              <User className="h-12 w-12 text-text-muted mx-auto mb-6" />
               <h3 className="text-lg font-medium text-text-primary mb-4">
                 No clients found
               </h3>
@@ -150,34 +162,34 @@ export default function ClientList() {
               </p>
               {!search && !statusFilter && (
                 <Link href="/dashboard/clients/new">
-                  <Button variant="primary">Add Client</Button>
+                  <Button variant="default">Add Client</Button>
                 </Link>
               )}
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
       )}
 
       {/* Client List */}
       {!isLoading && !error && clients.length > 0 && (
         <>
-          <div className="grid gap-6">
+          <div className="grid gap-4">
             {clients.map((client) => (
               <Link
                 key={client.id}
                 href={`/dashboard/clients/${client.id}`}
                 className="block"
               >
-                <Card className="hover:shadow-xl transition-all duration-200 cursor-pointer hover:-translate-y-0.5 border-border">
-                  <CardBody>
+                <Card className="hover:shadow-xl transition-all duration-300 ease-spring cursor-pointer hover:-translate-y-1 border-border/50 group">
+                  <CardContent className="py-8">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-                      <div className="flex-1">
-                        <div className="flex items-start gap-4">
-                          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-medium flex-shrink-0">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-5">
+                          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-semibold text-lg flex-shrink-0 shadow-md shadow-primary/30 group-hover:shadow-lg group-hover:shadow-primary/40 transition-shadow duration-300">
                             {client.firstName?.[0] || client.phone[4]}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-text-primary truncate mb-2">
+                            <h3 className="text-lg font-semibold text-text-primary truncate mb-2 group-hover:text-primary transition-colors duration-200">
                               {client.firstName || client.lastName
                                 ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
                                 : 'Unnamed Client'}
@@ -190,28 +202,28 @@ export default function ClientList() {
                               {client.email && (
                                 <span className="flex items-center gap-2">
                                   <Mail className="h-4 w-4" />
-                                  {client.email}
+                                  <span className="truncate max-w-[200px]">{client.email}</span>
                                 </span>
                               )}
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-col sm:items-end gap-3">
+                      <div className="flex flex-col sm:items-end gap-4 sm:pl-4">
                         <span
                           className={cn(
-                            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                            'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold',
                             STATUS_COLORS[client.status]
                           )}
                         >
                           {STATUS_LABELS[client.status]}
                         </span>
-                        <span className="text-xs text-text-tertiary">
+                        <span className="text-xs text-text-muted">
                           Updated {formatRelativeTime(client.updatedAt)}
                         </span>
                       </div>
                     </div>
-                  </CardBody>
+                  </CardContent>
                 </Card>
               </Link>
             ))}

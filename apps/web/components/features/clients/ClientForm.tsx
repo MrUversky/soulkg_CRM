@@ -12,11 +12,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useClient, useCreateClient, useUpdateClient } from '@/lib/hooks/useClients';
 import { ClientStatus } from '@/types/client';
-import { Card, CardHeader, CardTitle, CardBody, CardFooter } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/components/ui/use-toast';
 
 const clientSchema = z.object({
   phone: z.string().regex(/^\+996\d{9}$/, 'Phone must be in format +996XXXXXXXXX'),
@@ -44,6 +45,7 @@ interface ClientFormProps {
 
 export default function ClientForm({ clientId }: ClientFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const isEdit = !!clientId;
   const { data: client, isLoading: isLoadingClient } = useClient(clientId || '');
   const createMutation = useCreateClient();
@@ -92,9 +94,18 @@ export default function ClientForm({ clientId }: ClientFormProps) {
           preferredLanguage: data.preferredLanguage || undefined,
         });
       }
+      toast({
+        title: "Success",
+        description: isEdit ? "Client updated successfully." : "Client created successfully.",
+        variant: "success",
+      });
       router.push('/dashboard/clients');
     } catch (error: any) {
-      console.error('Failed to save client:', error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.error || "Failed to save client. Please try again.",
+        variant: "error",
+      });
     }
   };
 
@@ -121,11 +132,11 @@ export default function ClientForm({ clientId }: ClientFormProps) {
       </div>
 
       <Card>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="block">
           <CardHeader>
             <CardTitle>Client Information</CardTitle>
           </CardHeader>
-          <CardBody className="space-y-6">
+          <CardContent className="space-y-8">
             {!isEdit && (
               <Input
                 label="Phone"
@@ -187,7 +198,7 @@ export default function ClientForm({ clientId }: ClientFormProps) {
               error={errors.preferredLanguage?.message}
               helperText="Language code (e.g., en, ru, kg)"
             />
-          </CardBody>
+          </CardContent>
           <CardFooter>
             <div className="flex gap-6 w-full">
               <Link href="/dashboard/clients" className="flex-1">
@@ -197,7 +208,7 @@ export default function ClientForm({ clientId }: ClientFormProps) {
               </Link>
               <Button
                 type="submit"
-                variant="primary"
+                variant="default"
                 fullWidth
                 isLoading={createMutation.isPending || updateMutation.isPending}
                 disabled={createMutation.isPending || updateMutation.isPending}

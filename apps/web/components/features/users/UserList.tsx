@@ -6,14 +6,15 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useUsers, useDeactivateUser } from '@/lib/hooks/useUsers';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { Plus, Mail, User as UserIcon, Shield, UserCheck, Trash2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useAuth } from '@/lib/contexts/auth-context';
+import { useToast } from '@/components/ui/use-toast';
 
 const ROLE_COLORS = {
   SUPER_ADMIN: 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900 dark:text-secondary-300',
@@ -29,11 +30,22 @@ const ROLE_LABELS = {
 
 export default function UserList() {
   const { user: currentUser } = useAuth();
+  const { toast } = useToast();
   const { data, isLoading, error } = useUsers();
   const deactivateMutation = useDeactivateUser();
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
 
   const users = data?.data || [];
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load users. Please try again.",
+        variant: "error",
+      });
+    }
+  }, [error, toast]);
 
   const handleDeactivate = async (id: string) => {
     if (!confirm('Are you sure you want to deactivate this user?')) {
@@ -43,9 +55,17 @@ export default function UserList() {
     try {
       setDeactivatingId(id);
       await deactivateMutation.mutateAsync(id);
-    } catch (error) {
-      console.error('Failed to deactivate user:', error);
-      alert('Failed to deactivate user. Please try again.');
+      toast({
+        title: "Success",
+        description: "User deactivated successfully.",
+        variant: "success",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.error || "Failed to deactivate user. Please try again.",
+        variant: "error",
+      });
     } finally {
       setDeactivatingId(null);
     }
@@ -56,13 +76,13 @@ export default function UserList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary mb-4">Users</h1>
+          <h1 className="text-3xl font-bold text-text-primary mb-6">Users</h1>
           <p className="text-lg text-text-secondary">
             Manage users in your organization
           </p>
         </div>
         <Link href="/dashboard/users/new">
-          <Button variant="primary" size="lg">
+          <Button variant="default" size="lg">
             <Plus className="h-5 w-5 mr-2" />
             Add User
           </Button>
@@ -79,20 +99,20 @@ export default function UserList() {
       {/* Error State */}
       {error && (
         <Card>
-          <CardBody>
+          <CardContent>
             <div className="text-center py-12">
               <p className="text-error-600 dark:text-error-400">
                 Failed to load users. Please try again.
               </p>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
       )}
 
       {/* Empty State */}
       {!isLoading && !error && users.length === 0 && (
         <Card>
-          <CardBody>
+          <CardContent>
             <div className="text-center py-16">
               <UserIcon className="h-12 w-12 text-text-tertiary mx-auto mb-6" />
               <h3 className="text-lg font-medium text-text-primary mb-4">
@@ -102,10 +122,10 @@ export default function UserList() {
                 Get started by adding your first user
               </p>
               <Link href="/dashboard/users/new">
-                <Button variant="primary">Add User</Button>
+                <Button variant="default">Add User</Button>
               </Link>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
       )}
 
@@ -114,9 +134,9 @@ export default function UserList() {
         <div className="grid gap-6">
           {users.map((user) => (
             <Card key={user.id}>
-              <CardBody>
+              <CardContent className="py-8">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-                  <div className="flex items-start gap-4 flex-1">
+                  <div className="flex items-start gap-5 flex-1">
                     <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-medium flex-shrink-0">
                       {user.firstName?.[0] || user.email[0].toUpperCase()}
                     </div>
@@ -161,7 +181,7 @@ export default function UserList() {
                     </Link>
                     {user.id !== currentUser?.id && user.isActive && (
                       <Button
-                        variant="danger"
+                        variant="destructive"
                         size="sm"
                         onClick={() => handleDeactivate(user.id)}
                         isLoading={deactivatingId === user.id}
@@ -173,7 +193,7 @@ export default function UserList() {
                     )}
                   </div>
                 </div>
-              </CardBody>
+              </CardContent>
             </Card>
           ))}
         </div>

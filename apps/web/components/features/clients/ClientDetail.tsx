@@ -6,16 +6,17 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useClient, useUpdateClientStatus } from '@/lib/hooks/useClients';
 import { ClientStatus } from '@/types/client';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { ArrowLeft, Phone, Mail, User, Calendar, Edit } from 'lucide-react';
 import { formatPhone, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/components/ui/use-toast';
 
 const STATUS_COLORS: Record<ClientStatus, string> = {
   NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
@@ -45,9 +46,20 @@ interface ClientDetailProps {
 
 export default function ClientDetail({ clientId }: ClientDetailProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const { data: client, isLoading, error } = useClient(clientId);
   const updateStatusMutation = useUpdateClientStatus();
   const [selectedStatus, setSelectedStatus] = useState<ClientStatus | ''>('');
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load client. Please try again.",
+        variant: "error",
+      });
+    }
+  }, [error, toast]);
 
   const handleStatusChange = async (newStatus: ClientStatus) => {
     try {
@@ -55,9 +67,18 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
         id: clientId,
         status: newStatus,
       });
+      toast({
+        title: "Success",
+        description: "Client status updated successfully.",
+        variant: "success",
+      });
       setSelectedStatus('');
-    } catch (error) {
-      console.error('Failed to update status:', error);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.error || "Failed to update status. Please try again.",
+        variant: "error",
+      });
     }
   };
 
@@ -72,7 +93,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
   if (error || !client) {
     return (
       <Card>
-        <CardBody>
+        <CardContent>
           <div className="text-center py-12">
             <p className="text-error-600 dark:text-error-400 mb-6">
               Failed to load client. Please try again.
@@ -83,7 +104,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
               </Button>
             </Link>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
     );
   }
@@ -106,7 +127,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
           </h1>
         </div>
         <Link href={`/dashboard/clients/${clientId}/edit`}>
-          <Button variant="primary">
+          <Button variant="default">
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
@@ -120,7 +141,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
             <CardHeader>
               <CardTitle>Contact Information</CardTitle>
             </CardHeader>
-            <CardBody>
+            <CardContent>
               <dl className="space-y-6">
                 <div>
                   <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
@@ -153,7 +174,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
                   </div>
                 )}
               </dl>
-            </CardBody>
+            </CardContent>
           </Card>
 
           {/* Status History */}
@@ -161,7 +182,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
             <CardHeader>
               <CardTitle>Status</CardTitle>
             </CardHeader>
-            <CardBody>
+            <CardContent>
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-text-primary mb-3">
@@ -186,7 +207,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
                     {(Object.keys(STATUS_LABELS) as ClientStatus[]).map((status) => (
                       <Button
                         key={status}
-                        variant={client.status === status ? 'primary' : 'outline'}
+                        variant={client.status === status ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => handleStatusChange(status)}
                         disabled={updateStatusMutation.isPending || client.status === status}
@@ -197,7 +218,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
                   </div>
                 </div>
               </div>
-            </CardBody>
+            </CardContent>
           </Card>
         </div>
 
@@ -207,7 +228,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
             <CardHeader>
               <CardTitle>Details</CardTitle>
             </CardHeader>
-            <CardBody>
+            <CardContent>
               <dl className="space-y-6">
                 <div>
                   <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
@@ -227,7 +248,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
                   </dd>
                 </div>
               </dl>
-            </CardBody>
+            </CardContent>
           </Card>
         </div>
       </div>

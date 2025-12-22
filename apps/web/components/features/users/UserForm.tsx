@@ -11,11 +11,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useUser, useCreateUser, useUpdateUser } from '@/lib/hooks/useUsers';
-import { Card, CardHeader, CardTitle, CardBody, CardFooter } from '@/components/ui/Card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/components/ui/use-toast';
 
 const userSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -34,6 +35,7 @@ interface UserFormProps {
 
 export default function UserForm({ userId }: UserFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const isEdit = !!userId;
   const { data: user, isLoading: isLoadingUser } = useUser(userId || '');
   const createMutation = useCreateUser();
@@ -78,7 +80,11 @@ export default function UserForm({ userId }: UserFormProps) {
         });
       } else {
         if (!data.password) {
-          alert('Password is required for new users');
+          toast({
+            title: "Validation Error",
+            description: "Password is required for new users.",
+            variant: "error",
+          });
           return;
         }
         await createMutation.mutateAsync({
@@ -89,10 +95,18 @@ export default function UserForm({ userId }: UserFormProps) {
           role: data.role,
         });
       }
+      toast({
+        title: "Success",
+        description: isEdit ? "User updated successfully." : "User created successfully.",
+        variant: "success",
+      });
       router.push('/dashboard/users');
     } catch (error: any) {
-      console.error('Failed to save user:', error);
-      alert(error.response?.data?.error || 'Failed to save user. Please try again.');
+      toast({
+        title: "Error",
+        description: error.response?.data?.error || "Failed to save user. Please try again.",
+        variant: "error",
+      });
     }
   };
 
@@ -119,11 +133,11 @@ export default function UserForm({ userId }: UserFormProps) {
       </div>
 
       <Card>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="block">
           <CardHeader>
             <CardTitle>User Information</CardTitle>
           </CardHeader>
-          <CardBody className="space-y-6">
+          <CardContent className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
                 label="First Name"
@@ -187,7 +201,7 @@ export default function UserForm({ userId }: UserFormProps) {
                 </label>
               </div>
             )}
-          </CardBody>
+          </CardContent>
           <CardFooter>
             <div className="flex gap-6 w-full">
               <Link href="/dashboard/users" className="flex-1">
@@ -197,7 +211,7 @@ export default function UserForm({ userId }: UserFormProps) {
               </Link>
               <Button
                 type="submit"
-                variant="primary"
+                variant="default"
                 fullWidth
                 isLoading={createMutation.isPending || updateMutation.isPending}
                 disabled={createMutation.isPending || updateMutation.isPending}
