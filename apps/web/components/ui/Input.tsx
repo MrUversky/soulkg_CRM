@@ -1,77 +1,54 @@
-/**
- * Input Component
- * 
- * Accessible input component with validation support
- */
+import * as React from "react"
 
-import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils"
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  helperText?: string;
+export interface InputProps extends React.ComponentProps<"input"> {
+  error?: string
+  label?: string
+  helperText?: string
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, helperText, id, ...props }, ref) => {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
-    const hasError = !!error;
-
+  ({ className, type, error, label, helperText, ...props }, ref) => {
+    const errorId = error ? `${props.id}-error` : undefined
+    const helperId = helperText && !error ? `${props.id}-helper` : undefined
+    const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined
+    
     return (
-      <div className="w-full">
+      <div className="space-y-2">
         {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
+          <label htmlFor={props.id} className="text-sm font-medium leading-none">
             {label}
-            {props.required && <span className="text-red-500 ml-1">*</span>}
+            {props.required && <span className="text-error-600 ml-1">*</span>}
           </label>
         )}
         <input
-          ref={ref}
-          id={inputId}
+          type={type}
           className={cn(
-            'w-full px-3 py-2 border rounded-lg',
-            'bg-white dark:bg-gray-800',
-            'text-gray-900 dark:text-gray-100',
-            'border-gray-300 dark:border-gray-600',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-            'disabled:opacity-50 disabled:cursor-not-allowed',
-            'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-            hasError && 'border-red-500 focus:ring-red-500',
+            "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 md:text-sm",
+            error && "border-error-600 focus-visible:ring-error-600",
             className
           )}
-          aria-invalid={hasError}
-          aria-describedby={
-            error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined
-          }
+          ref={ref}
+          aria-invalid={!!error}
+          aria-describedby={describedBy}
           {...props}
         />
         {error && (
-          <p
-            id={`${inputId}-error`}
-            className="mt-1 text-sm text-red-600 dark:text-red-400"
-            role="alert"
-          >
+          <p id={errorId} className="text-sm text-error-600" role="alert">
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p
-            id={`${inputId}-helper`}
-            className="mt-1 text-sm text-gray-500 dark:text-gray-400"
-          >
+          <p id={helperId} className="text-sm text-muted-foreground">
             {helperText}
           </p>
         )}
       </div>
-    );
+    )
   }
-);
+)
+Input.displayName = "Input"
 
-Input.displayName = 'Input';
-
-export default Input;
-
+export { Input }
+export default Input
