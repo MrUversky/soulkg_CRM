@@ -12,9 +12,9 @@
  *     <CardTitle>Card Title</CardTitle>
  *     <CardDescription>Card description text</CardDescription>
  *   </CardHeader>
- *   <CardBody>
+ *   <CardContent>
  *     <p>Card content goes here</p>
- *   </CardBody>
+ *   </CardContent>
  *   <CardFooter>
  *     <Button>Action</Button>
  *   </CardFooter>
@@ -22,9 +22,9 @@
  * 
  * // Simple card without sections
  * <Card>
- *   <CardBody>
+ *   <CardContent>
  *     <p>Simple content</p>
- *   </CardBody>
+ *   </CardContent>
  * </Card>
  * ```
  * 
@@ -86,7 +86,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-2 px-8 pt-8 pb-4", className)}
+    className={cn("flex flex-col space-y-3 px-8 pt-8 pb-4", className)}
     {...props}
   />
 ))
@@ -156,13 +156,16 @@ CardDescription.displayName = "CardDescription"
  * ```
  * 
  * @note Padding: px-8 pt-6 pb-8 (32px horizontal, 24px top, 32px bottom)
- * @note Legacy alias: CardBody (for backward compatibility)
  */
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("px-8 pt-6 pb-8", className)} {...props} />
+  <div 
+    ref={ref} 
+    className={cn("px-8 pt-6 pb-8", className)} 
+    {...props} 
+  />
 ))
 CardContent.displayName = "CardContent"
 
@@ -176,7 +179,7 @@ CardContent.displayName = "CardContent"
  * ```tsx
  * <CardFooter>
  *   <Button variant="outline">Cancel</Button>
- *   <Button variant="primary">Save</Button>
+ *   <Button variant="default">Save</Button>
  * </CardFooter>
  * ```
  * 
@@ -195,13 +198,4 @@ const CardFooter = React.forwardRef<
 ))
 CardFooter.displayName = "CardFooter"
 
-/**
- * CardBody Component
- * 
- * Legacy alias for CardContent. Use CardContent for new code.
- * 
- * @deprecated Use CardContent instead. This alias will be removed after migration.
- */
-const CardBody = CardContent
-
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CardBody }
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }

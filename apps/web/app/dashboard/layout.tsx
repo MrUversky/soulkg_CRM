@@ -24,8 +24,10 @@ export default function DashboardLayout({
         <Header onMenuClick={() => setSidebarOpen(true)} />
         <div className="flex">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-          <main className="flex-1 md:ml-64 min-h-[calc(100vh-4rem)] p-6 md:p-8 max-w-7xl mx-auto w-full">
-            {children}
+          <main className="flex-1 md:ml-0 min-h-[calc(100vh-4rem)]">
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-6 lg:py-8">
+              {children}
+            </div>
           </main>
         </div>
       </div>
