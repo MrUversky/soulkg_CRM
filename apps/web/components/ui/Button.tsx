@@ -35,13 +35,13 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-600 text-white dark:text-white hover:from-primary-700 hover:via-primary-600 hover:to-secondary-700 shadow-[0_4px_14px_0_rgba(59,130,246,0.15),0_2px_4px_0_rgba(0,0,0,0.1)] hover:shadow-[0_8px_20px_0_rgba(59,130,246,0.25),0_4px_8px_0_rgba(0,0,0,0.15)] active:scale-[0.98] before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
+        default: "bg-gradient-to-br from-primary-700 via-primary-600 to-secondary-700 dark:from-primary-600 dark:via-primary-500 dark:to-secondary-600 text-white hover:from-primary-800 hover:via-primary-700 hover:to-secondary-800 dark:hover:from-primary-700 dark:hover:via-primary-600 dark:hover:to-secondary-700 shadow-[0_4px_14px_0_rgba(37,99,235,0.25),0_2px_4px_0_rgba(0,0,0,0.1)] dark:shadow-[0_4px_14px_0_rgba(59,130,246,0.15),0_2px_4px_0_rgba(0,0,0,0.1)] hover:shadow-[0_8px_20px_0_rgba(37,99,235,0.35),0_4px_8px_0_rgba(0,0,0,0.15)] dark:hover:shadow-[0_8px_20px_0_rgba(59,130,246,0.25),0_4px_8px_0_rgba(0,0,0,0.15)] active:scale-[0.98] before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
         destructive:
           "bg-gradient-to-br from-error-600 to-error-500 text-white hover:from-error-700 hover:to-error-600 shadow-[0_4px_14px_0_rgba(239,68,68,0.15)] hover:shadow-[0_8px_20px_0_rgba(239,68,68,0.25)] active:scale-[0.98]",
         outline:
           "border-2 border-primary-300 dark:border-primary-600 bg-background/50 backdrop-blur-sm text-primary-700 dark:text-primary-300 hover:bg-gradient-to-br hover:from-primary-50 hover:to-secondary-50 dark:hover:from-primary-950/20 dark:hover:to-secondary-950/20 hover:border-primary-400 dark:hover:border-primary-500 hover:shadow-md active:scale-[0.98]",
         secondary:
-          "bg-gradient-to-br from-secondary-500 to-secondary-400 text-white hover:from-secondary-600 hover:to-secondary-500 shadow-[0_4px_14px_0_rgba(168,85,247,0.15)] hover:shadow-[0_8px_20px_0_rgba(168,85,247,0.25)] active:scale-[0.98]",
+          "bg-gradient-to-br from-secondary-700 to-secondary-600 dark:from-secondary-500 dark:to-secondary-400 text-white hover:from-secondary-800 hover:to-secondary-700 dark:hover:from-secondary-600 dark:hover:to-secondary-500 shadow-[0_4px_14px_0_rgba(126,34,206,0.25)] dark:shadow-[0_4px_14px_0_rgba(168,85,247,0.15)] hover:shadow-[0_8px_20px_0_rgba(126,34,206,0.35)] dark:hover:shadow-[0_8px_20px_0_rgba(168,85,247,0.25)] active:scale-[0.98]",
         ghost: "text-text-primary hover:bg-accent/50 hover:backdrop-blur-sm hover:shadow-sm active:scale-[0.98]",
         link: "text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline-offset-4 hover:underline",
       },
