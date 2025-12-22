@@ -55,6 +55,20 @@ const listClientsQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
+const conversationsQuerySchema = z.object({
+  channel: z.enum(['WHATSAPP', 'TELEGRAM', 'EMAIL']).optional(),
+  status: z.enum(['ACTIVE', 'ARCHIVED']).optional(),
+  limit: z.string().regex(/^\d+$/).transform(Number).optional().default('20'),
+  offset: z.string().regex(/^\d+$/).transform(Number).optional().default('0'),
+});
+
+const messagesQuerySchema = z.object({
+  conversationId: z.string().uuid().optional(),
+  limit: z.string().regex(/^\d+$/).transform(Number).optional().default('50'),
+  offset: z.string().regex(/^\d+$/).transform(Number).optional().default('0'),
+  search: z.string().optional(),
+});
+
 /**
  * GET /api/clients
  * 
@@ -484,6 +498,389 @@ router.patch('/:id/status', authenticateToken, async (req: Request, res: Respons
     console.error('Error updating client status:', error);
     res.status(500).json({
       error: 'Failed to update client status',
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+/**
+ * GET /api/clients/:id/conversations
+ * 
+ * Get list of conversations for a specific client.
+ * Supports filtering by channel and status, with pagination.
+ * 
+ * @route GET /api/clients/:id/conversations
+ * @access Private (requires authentication)
+ * @param {string} id - Client UUID
+ * @query {string} [channel] - Filter by channel (WHATSAPP, TELEGRAM, EMAIL)
+ * @query {string} [status] - Filter by status (ACTIVE, ARCHIVED)
+ * @query {number} [limit=20] - Maximum number of conversations to return
+ * @query {number} [offset=0] - Number of conversations to skip
+ * @returns {Object} data - Array of conversation objects
+ * @returns {Object} pagination - Pagination metadata (total, limit, offset)
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if client belongs to different organization
+ * @throws {404} Not found if client doesn't exist
+ */
+router.get('/:id/conversations', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
+    const { id } = req.params;
+    const query = conversationsQuerySchema.parse(req.query);
+    const { channel, status, limit, offset } = query;
+
+    // Verify client exists and belongs to user's organization
+    const client = await prisma.client.findUnique({
+      where: { id },
+      select: { id: true, organizationId: true },
+    });
+
+    if (!client) {
+      res.status(404).json({ error: 'Client not found' });
+      return;
+    }
+
+    if (client.organizationId !== req.user.organizationId) {
+      res.status(403).json({ error: 'Access denied to this client' });
+      return;
+    }
+
+    // Build where clause
+    const where: any = {
+      clientId: id,
+      organizationId: req.user.organizationId,
+    };
+
+    if (channel) {
+      where.channel = channel;
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    // Get total count
+    const total = await prisma.conversation.count({ where });
+
+    // Get conversations
+    const conversations = await prisma.conversation.findMany({
+      where,
+      take: limit,
+      skip: offset,
+      orderBy: { lastMessageAt: 'desc' },
+      include: {
+        _count: {
+          select: { messages: true },
+        },
+      },
+      select: {
+        id: true,
+        channel: true,
+        status: true,
+        managedBy: true,
+        lastMessageAt: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: { messages: true },
+        },
+      },
+    });
+
+    res.json({
+      data: conversations.map((conv) => ({
+        id: conv.id,
+        channel: conv.channel,
+        status: conv.status,
+        managedBy: conv.managedBy,
+        lastMessageAt: conv.lastMessageAt?.toISOString() || null,
+        messageCount: conv._count.messages,
+        createdAt: conv.createdAt.toISOString(),
+        updatedAt: conv.updatedAt.toISOString(),
+      })),
+      pagination: {
+        total,
+        limit,
+        offset,
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Validation error', details: error.errors });
+      return;
+    }
+
+    console.error('Error fetching conversations:', error);
+    res.status(500).json({
+      error: 'Failed to fetch conversations',
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+/**
+ * GET /api/clients/:id/messages
+ * 
+ * Get messages for a specific client.
+ * Supports filtering by conversation, search, and pagination.
+ * Messages are sorted by creation date (newest first).
+ * 
+ * @route GET /api/clients/:id/messages
+ * @access Private (requires authentication)
+ * @param {string} id - Client UUID
+ * @query {string} [conversationId] - Filter by conversation ID
+ * @query {number} [limit=50] - Maximum number of messages to return
+ * @query {number} [offset=0] - Number of messages to skip
+ * @query {string} [search] - Search in message content
+ * @returns {Object} data - Array of message objects
+ * @returns {Object} pagination - Pagination metadata (total, limit, offset)
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if client belongs to different organization
+ * @throws {404} Not found if client doesn't exist
+ */
+router.get('/:id/messages', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
+    const { id } = req.params;
+    const query = messagesQuerySchema.parse(req.query);
+    const { conversationId, limit, offset, search } = query;
+
+    // Verify client exists and belongs to user's organization
+    const client = await prisma.client.findUnique({
+      where: { id },
+      select: { id: true, organizationId: true },
+    });
+
+    if (!client) {
+      res.status(404).json({ error: 'Client not found' });
+      return;
+    }
+
+    if (client.organizationId !== req.user.organizationId) {
+      res.status(403).json({ error: 'Access denied to this client' });
+      return;
+    }
+
+    // Build where clause
+    const where: any = {
+      organizationId: req.user.organizationId,
+      conversation: {
+        clientId: id,
+      },
+    };
+
+    if (conversationId) {
+      where.conversationId = conversationId;
+    }
+
+    if (search) {
+      where.content = {
+        contains: search,
+        mode: 'insensitive',
+      };
+    }
+
+    // Get total count
+    const total = await prisma.message.count({ where });
+
+    // Get messages
+    const messages = await prisma.message.findMany({
+      where,
+      take: limit,
+      skip: offset,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        conversation: {
+          select: {
+            id: true,
+            channel: true,
+          },
+        },
+        sentByUser: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      select: {
+        id: true,
+        conversationId: true,
+        direction: true,
+        sender: true,
+        senderId: true,
+        content: true,
+        language: true,
+        translatedContent: true,
+        status: true,
+        createdAt: true,
+        conversation: {
+          select: {
+            id: true,
+            channel: true,
+          },
+        },
+        sentByUser: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      data: messages.map((msg) => ({
+        id: msg.id,
+        conversationId: msg.conversationId,
+        conversation: {
+          id: msg.conversation.id,
+          channel: msg.conversation.channel,
+        },
+        direction: msg.direction,
+        sender: msg.sender,
+        senderId: msg.senderId,
+        senderUser: msg.sentByUser
+          ? {
+              id: msg.sentByUser.id,
+              firstName: msg.sentByUser.firstName,
+              lastName: msg.sentByUser.lastName,
+            }
+          : null,
+        content: msg.content,
+        language: msg.language,
+        translatedContent: msg.translatedContent,
+        status: msg.status,
+        createdAt: msg.createdAt.toISOString(),
+      })),
+      pagination: {
+        total,
+        limit,
+        offset,
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Validation error', details: error.errors });
+      return;
+    }
+
+    console.error('Error fetching messages:', error);
+    res.status(500).json({
+      error: 'Failed to fetch messages',
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+/**
+ * GET /api/clients/:id/status-history
+ * 
+ * Get status change history for a specific client.
+ * Returns chronological list of status changes with who changed it and why.
+ * 
+ * @route GET /api/clients/:id/status-history
+ * @access Private (requires authentication)
+ * @param {string} id - Client UUID
+ * @returns {Object} data - Array of status history objects
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if client belongs to different organization
+ * @throws {404} Not found if client doesn't exist
+ */
+router.get('/:id/status-history', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
+    const { id } = req.params;
+
+    // Verify client exists and belongs to user's organization
+    const client = await prisma.client.findUnique({
+      where: { id },
+      select: { id: true, organizationId: true },
+    });
+
+    if (!client) {
+      res.status(404).json({ error: 'Client not found' });
+      return;
+    }
+
+    if (client.organizationId !== req.user.organizationId) {
+      res.status(403).json({ error: 'Access denied to this client' });
+      return;
+    }
+
+    // Get status history
+    const statusHistory = await prisma.clientStatusHistory.findMany({
+      where: {
+        clientId: id,
+        organizationId: req.user.organizationId,
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+      select: {
+        id: true,
+        oldStatus: true,
+        newStatus: true,
+        changedBy: true,
+        changedById: true,
+        reason: true,
+        createdAt: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      data: statusHistory.map((entry) => ({
+        id: entry.id,
+        oldStatus: entry.oldStatus,
+        newStatus: entry.newStatus,
+        changedBy: entry.changedBy,
+        changedById: entry.changedById,
+        changedByUser: entry.user
+          ? {
+              id: entry.user.id,
+              firstName: entry.user.firstName,
+              lastName: entry.user.lastName,
+              email: entry.user.email,
+            }
+          : null,
+        reason: entry.reason,
+        createdAt: entry.createdAt.toISOString(),
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching status history:', error);
+    res.status(500).json({
+      error: 'Failed to fetch status history',
       message: error instanceof Error ? error.message : String(error),
     });
   }

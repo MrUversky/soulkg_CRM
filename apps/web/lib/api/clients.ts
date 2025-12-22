@@ -5,7 +5,18 @@
  */
 
 import apiClient from '../api-client';
-import { Client, ClientListResponse, ClientListParams, CreateClientRequest, UpdateClientRequest } from '@/types/client';
+import {
+  Client,
+  ClientListResponse,
+  ClientListParams,
+  CreateClientRequest,
+  UpdateClientRequest,
+  ConversationsResponse,
+  MessagesResponse,
+  ConversationsParams,
+  MessagesParams,
+  StatusHistoryResponse,
+} from '@/types/client';
 
 export const clientsApi = {
   /**
@@ -48,6 +59,30 @@ export const clientsApi = {
       status,
       reason,
     });
+    return response.data;
+  },
+
+  /**
+   * Get conversations for a client
+   */
+  async getClientConversations(id: string, params?: ConversationsParams): Promise<ConversationsResponse> {
+    const response = await apiClient.get<ConversationsResponse>(`/clients/${id}/conversations`, { params });
+    return response.data;
+  },
+
+  /**
+   * Get messages for a client
+   */
+  async getClientMessages(id: string, params?: MessagesParams): Promise<MessagesResponse> {
+    const response = await apiClient.get<MessagesResponse>(`/clients/${id}/messages`, { params });
+    return response.data;
+  },
+
+  /**
+   * Get status history for a client
+   */
+  async getClientStatusHistory(id: string): Promise<StatusHistoryResponse> {
+    const response = await apiClient.get<StatusHistoryResponse>(`/clients/${id}/status-history`);
     return response.data;
   },
 };

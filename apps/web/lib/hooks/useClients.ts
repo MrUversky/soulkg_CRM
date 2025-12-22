@@ -8,7 +8,14 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { clientsApi } from '../api/clients';
-import { ClientListParams, CreateClientRequest, UpdateClientRequest, ClientStatus } from '@/types/client';
+import {
+  ClientListParams,
+  CreateClientRequest,
+  UpdateClientRequest,
+  ClientStatus,
+  ConversationsParams,
+  MessagesParams,
+} from '@/types/client';
 
 export function useClients(params?: ClientListParams) {
   return useQuery({
@@ -59,6 +66,30 @@ export function useUpdateClientStatus() {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['client', variables.id] });
     },
+  });
+}
+
+export function useClientConversations(clientId: string, params?: ConversationsParams) {
+  return useQuery({
+    queryKey: ['client', clientId, 'conversations', params],
+    queryFn: () => clientsApi.getClientConversations(clientId, params),
+    enabled: !!clientId,
+  });
+}
+
+export function useClientMessages(clientId: string, params?: MessagesParams) {
+  return useQuery({
+    queryKey: ['client', clientId, 'messages', params],
+    queryFn: () => clientsApi.getClientMessages(clientId, params),
+    enabled: !!clientId,
+  });
+}
+
+export function useClientStatusHistory(clientId: string) {
+  return useQuery({
+    queryKey: ['client', clientId, 'status-history'],
+    queryFn: () => clientsApi.getClientStatusHistory(clientId),
+    enabled: !!clientId,
   });
 }
 

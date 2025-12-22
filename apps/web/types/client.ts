@@ -67,3 +67,97 @@ export interface UpdateClientRequest {
   preferredLanguage?: string;
 }
 
+export type CommunicationChannel = 'WHATSAPP' | 'TELEGRAM' | 'EMAIL';
+export type ConversationStatus = 'ACTIVE' | 'ARCHIVED';
+export type ConversationManager = 'AI' | 'HUMAN';
+export type MessageDirection = 'INCOMING' | 'OUTGOING';
+export type MessageSender = 'CLIENT' | 'AI' | 'HUMAN';
+export type MessageStatus = 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
+
+export interface Conversation {
+  id: string;
+  channel: CommunicationChannel;
+  status: ConversationStatus;
+  managedBy: ConversationManager;
+  lastMessageAt: string | null;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  conversation: {
+    id: string;
+    channel: CommunicationChannel;
+  };
+  direction: MessageDirection;
+  sender: MessageSender;
+  senderId: string | null;
+  senderUser: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+  } | null;
+  content: string;
+  language: string | null;
+  translatedContent: string | null;
+  status: MessageStatus;
+  createdAt: string;
+}
+
+export interface ConversationsResponse {
+  data: Conversation[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}
+
+export interface MessagesResponse {
+  data: Message[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}
+
+export interface ConversationsParams {
+  channel?: CommunicationChannel;
+  status?: ConversationStatus;
+  limit?: number;
+  offset?: number;
+}
+
+export interface MessagesParams {
+  conversationId?: string;
+  limit?: number;
+  offset?: number;
+  search?: string;
+}
+
+export type StatusChangedBy = 'AI' | 'HUMAN';
+
+export interface StatusHistoryEntry {
+  id: string;
+  oldStatus: ClientStatus | null;
+  newStatus: ClientStatus;
+  changedBy: StatusChangedBy;
+  changedById: string | null;
+  changedByUser: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string;
+  } | null;
+  reason: string | null;
+  createdAt: string;
+}
+
+export interface StatusHistoryResponse {
+  data: StatusHistoryEntry[];
+}
+

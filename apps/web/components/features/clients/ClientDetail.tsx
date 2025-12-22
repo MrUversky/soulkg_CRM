@@ -13,10 +13,13 @@ import { useClient, useUpdateClientStatus } from '@/lib/hooks/useClients';
 import { ClientStatus } from '@/types/client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, Phone, Mail, User, Calendar, Edit } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, User, Calendar, Edit, MessageSquare, Clock } from 'lucide-react';
 import { formatPhone, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
+import ConversationView from './ConversationView';
+import StatusTimeline from './StatusTimeline';
+import QuickActionsPanel from './QuickActionsPanel';
 
 const STATUS_COLORS: Record<ClientStatus, string> = {
   NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
@@ -50,6 +53,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
   const { data: client, isLoading, error } = useClient(clientId);
   const updateStatusMutation = useUpdateClientStatus();
   const [selectedStatus, setSelectedStatus] = useState<ClientStatus | ''>('');
+  const [activeTab, setActiveTab] = useState<'overview' | 'conversations' | 'history'>('overview');
 
   useEffect(() => {
     if (error) {
@@ -110,148 +114,208 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center gap-6">
-        <Link href="/dashboard/clients">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-        </Link>
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-text-primary">
-            {client.firstName || client.lastName
-              ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
-              : 'Unnamed Client'}
-          </h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <Link href="/dashboard/clients">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Back</span>
+            </Button>
+          </Link>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-text-primary truncate">
+              {client.firstName || client.lastName
+                ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
+                : 'Unnamed Client'}
+            </h1>
+          </div>
         </div>
-        <Link href={`/dashboard/clients/${clientId}/edit`}>
-          <Button variant="default">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
+        <Link href={`/dashboard/clients/${clientId}/edit`} className="w-full sm:w-auto">
+          <Button variant="default" className="w-full sm:w-auto">
+            <Edit className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Edit</span>
           </Button>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Info */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="space-y-6">
-                <div>
-                  <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
-                    <Phone className="h-4 w-4" />
-                    Phone
-                  </dt>
-                  <dd className="text-base text-text-primary">
-                    {formatPhone(client.phone)}
-                  </dd>
-                </div>
-                {client.email && (
+      {/* Tabs */}
+      <div className="border-b border-border overflow-x-auto">
+        <div className="flex gap-2 sm:gap-4 min-w-max sm:min-w-0">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={cn(
+              'px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap',
+              activeTab === 'overview'
+                ? 'border-primary text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-text-tertiary hover:text-text-primary hover:border-border'
+            )}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('conversations')}
+            className={cn(
+              'px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center gap-1 sm:gap-2 whitespace-nowrap',
+              activeTab === 'conversations'
+                ? 'border-primary text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-text-tertiary hover:text-text-primary hover:border-border'
+            )}
+          >
+            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Conversations</span>
+            <span className="sm:hidden">Chat</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('history')}
+            className={cn(
+              'px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center gap-1 sm:gap-2 whitespace-nowrap',
+              activeTab === 'history'
+                ? 'border-primary text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-text-tertiary hover:text-text-primary hover:border-border'
+            )}
+          >
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+            History
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Main Info */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <dl className="space-y-6">
                   <div>
                     <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
-                      <Mail className="h-4 w-4" />
-                      Email
+                      <Phone className="h-4 w-4" />
+                      Phone
                     </dt>
                     <dd className="text-base text-text-primary">
-                      {client.email}
+                      {formatPhone(client.phone)}
                     </dd>
                   </div>
-                )}
-                {client.preferredLanguage && (
+                  {client.email && (
+                    <div>
+                      <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
+                        <Mail className="h-4 w-4" />
+                        Email
+                      </dt>
+                      <dd className="text-base text-text-primary">
+                        {client.email}
+                      </dd>
+                    </div>
+                  )}
+                  {client.preferredLanguage && (
+                    <div>
+                      <dt className="text-sm font-semibold text-text-tertiary mb-2">
+                        Preferred Language
+                      </dt>
+                      <dd className="text-base text-text-primary">
+                        {client.preferredLanguage.toUpperCase()}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </CardContent>
+            </Card>
+
+            {/* Status History */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-3">
+                      Current Status
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <span
+                        className={cn(
+                          'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
+                          STATUS_COLORS[client.status]
+                        )}
+                      >
+                        {STATUS_LABELS[client.status]}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-3">
+                      Change Status
+                    </label>
+                    <div className="flex flex-wrap gap-3">
+                      {(Object.keys(STATUS_LABELS) as ClientStatus[]).map((status) => (
+                        <Button
+                          key={status}
+                          variant={client.status === status ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleStatusChange(status)}
+                          disabled={updateStatusMutation.isPending || client.status === status}
+                        >
+                          {STATUS_LABELS[status]}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <QuickActionsPanel client={client} />
+            <Card>
+              <CardHeader>
+                <CardTitle>Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <dl className="space-y-6">
+                  <div>
+                    <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
+                      <Calendar className="h-4 w-4" />
+                      Created
+                    </dt>
+                    <dd className="text-sm text-text-primary">
+                      {formatDate(client.createdAt)}
+                    </dd>
+                  </div>
                   <div>
                     <dt className="text-sm font-semibold text-text-tertiary mb-2">
-                      Preferred Language
+                      Last Updated
                     </dt>
-                    <dd className="text-base text-text-primary">
-                      {client.preferredLanguage.toUpperCase()}
+                    <dd className="text-sm text-text-primary">
+                      {formatDate(client.updatedAt)}
                     </dd>
                   </div>
-                )}
-              </dl>
-            </CardContent>
-          </Card>
-
-          {/* Status History */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-3">
-                    Current Status
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <span
-                      className={cn(
-                        'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
-                        STATUS_COLORS[client.status]
-                      )}
-                    >
-                      {STATUS_LABELS[client.status]}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-3">
-                    Change Status
-                  </label>
-                  <div className="flex flex-wrap gap-3">
-                    {(Object.keys(STATUS_LABELS) as ClientStatus[]).map((status) => (
-                      <Button
-                        key={status}
-                        variant={client.status === status ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleStatusChange(status)}
-                        disabled={updateStatusMutation.isPending || client.status === status}
-                      >
-                        {STATUS_LABELS[status]}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </dl>
+              </CardContent>
+            </Card>
+          </div>
         </div>
+      )}
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="space-y-6">
-                <div>
-                  <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
-                    <Calendar className="h-4 w-4" />
-                    Created
-                  </dt>
-                  <dd className="text-sm text-text-primary">
-                    {formatDate(client.createdAt)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-semibold text-text-tertiary mb-2">
-                    Last Updated
-                  </dt>
-                  <dd className="text-sm text-text-primary">
-                    {formatDate(client.updatedAt)}
-                  </dd>
-                </div>
-              </dl>
-            </CardContent>
-          </Card>
+      {activeTab === 'conversations' && (
+        <div>
+          <ConversationView clientId={clientId} />
         </div>
-      </div>
+      )}
+
+      {activeTab === 'history' && (
+        <div>
+          <StatusTimeline clientId={clientId} />
+        </div>
+      )}
     </div>
   );
 }
