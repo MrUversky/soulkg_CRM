@@ -6,8 +6,8 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useClient, useUpdateClientStatus } from '@/lib/hooks/useClients';
 import { ClientStatus } from '@/types/client';
@@ -47,13 +47,22 @@ interface ClientDetailProps {
   clientId: string;
 }
 
-export default function ClientDetail({ clientId }: ClientDetailProps) {
+function ClientDetailContent({ clientId }: ClientDetailProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { data: client, isLoading, error } = useClient(clientId);
   const updateStatusMutation = useUpdateClientStatus();
   const [selectedStatus, setSelectedStatus] = useState<ClientStatus | ''>('');
   const [activeTab, setActiveTab] = useState<'overview' | 'conversations' | 'history'>('overview');
+
+  // Определяем откуда пришли (kanban или list) из query параметра
+  const from = searchParams.get('from') || 'list';
+  const backUrl = from === 'kanban' ? '/dashboard/clients/kanban' : '/dashboard/clients';
+
+  const handleBack = () => {
+    router.push(backUrl);
+  };
 
   useEffect(() => {
     if (error) {
@@ -118,12 +127,10 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Link href="/dashboard/clients">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Back</span>
-            </Button>
-          </Link>
+          <Button variant="ghost" size="sm" onClick={handleBack}>
+            <ArrowLeft className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Back</span>
+          </Button>
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-text-primary truncate">
               {client.firstName || client.lastName
@@ -317,6 +324,18 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ClientDetail({ clientId }: ClientDetailProps) {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-16">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    }>
+      <ClientDetailContent clientId={clientId} />
+    </Suspense>
   );
 }
 

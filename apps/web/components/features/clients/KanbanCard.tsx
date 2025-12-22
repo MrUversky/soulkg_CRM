@@ -78,22 +78,39 @@ export default function KanbanCard({ client }: KanbanCardProps) {
       className="touch-none"
     >
       <Link
-        href={`/dashboard/clients/${client.id}`}
-        onClick={handleClick}
+        href={`/dashboard/clients/${client.id}?from=kanban`}
+        onClick={(e) => {
+          handleClick(e);
+          // Сохраняем позицию горизонтального скролла канбана
+          const kanbanScrollContainer = document.querySelector('.overflow-x-auto') as HTMLElement;
+          if (kanbanScrollContainer) {
+            sessionStorage.setItem('clients-kanban-scroll', kanbanScrollContainer.scrollLeft.toString());
+          }
+          // Сохраняем позицию вертикального скролла колонки, в которой находится карточка
+          // Ищем CardContent с data-column-status (это скроллируемый контейнер колонки)
+          const cardElement = e.currentTarget.closest('.touch-none')?.parentElement;
+          const columnElement = cardElement?.closest('[data-column-status]') as HTMLElement;
+          if (columnElement) {
+            const columnStatus = columnElement.getAttribute('data-column-status');
+            if (columnStatus) {
+              sessionStorage.setItem(`clients-kanban-column-${columnStatus}-scroll`, columnElement.scrollTop.toString());
+            }
+          }
+        }}
         className="block"
       >
         <Card
           {...listeners}
           className={cn(
-            'p-3 sm:p-4 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow',
+            'p-3 sm:p-3.5 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow',
             isDragging && 'shadow-lg ring-2 ring-primary-500 cursor-grabbing'
           )}
         >
-          <div className="space-y-2 sm:space-y-3">
+          <div className="space-y-2.5">
             {/* Header */}
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm sm:text-base font-semibold text-text-primary truncate">
+                <h3 className="text-base sm:text-lg font-semibold text-text-primary leading-tight">
                   {clientName}
                 </h3>
               </div>
@@ -111,23 +128,23 @@ export default function KanbanCard({ client }: KanbanCardProps) {
 
             {/* Contact Info */}
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-text-secondary">
-                <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <div className="flex items-center gap-2 text-sm text-text-secondary">
+                <Phone className="h-4 w-4 flex-shrink-0" />
                 <span className="truncate">{formatPhone(client.phone)}</span>
               </div>
               {client.email && (
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-text-secondary">
-                  <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                <div className="flex items-center gap-2 text-sm text-text-secondary">
+                  <Mail className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{client.email}</span>
                 </div>
               )}
             </div>
 
             {/* Status Badge */}
-            <div className="flex items-center justify-between pt-1 border-t border-border">
+            <div className="flex items-center justify-between pt-2 border-t border-border">
               <span
                 className={cn(
-                  'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
+                  'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium',
                   STATUS_COLORS[client.status]
                 )}
               >

@@ -47,6 +47,19 @@ export default function ClientList() {
   const limit = 20;
   const { toast } = useToast();
 
+  // Восстановление позиции скролла при возврате
+  useEffect(() => {
+    const savedScroll = sessionStorage.getItem('clients-list-scroll');
+    if (savedScroll) {
+      const scrollPosition = parseInt(savedScroll, 10);
+      // Используем setTimeout для восстановления после рендера
+      setTimeout(() => {
+        window.scrollTo({ top: scrollPosition, behavior: 'instant' });
+        sessionStorage.removeItem('clients-list-scroll');
+      }, 0);
+    }
+  }, []);
+
   const { data, isLoading, error } = useClients({
     page,
     limit,
@@ -187,8 +200,12 @@ export default function ClientList() {
             {clients.map((client) => (
               <Link
                 key={client.id}
-                href={`/dashboard/clients/${client.id}`}
+                href={`/dashboard/clients/${client.id}?from=list`}
                 className="block"
+                onClick={() => {
+                  // Сохраняем позицию скролла окна перед переходом
+                  sessionStorage.setItem('clients-list-scroll', window.scrollY.toString());
+                }}
               >
                 <Card className="hover:shadow-xl transition-all duration-300 ease-spring cursor-pointer hover:-translate-y-1 border-border/50 group">
                   <CardContent className="py-4 sm:py-6 lg:py-8">

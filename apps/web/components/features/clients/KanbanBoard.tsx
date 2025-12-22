@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, RefObject, useEffect } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -55,9 +55,10 @@ const STATUS_LABELS: Record<ClientStatus, string> = {
 
 interface KanbanBoardProps {
   search?: string;
+  scrollRef?: RefObject<HTMLDivElement>;
 }
 
-export default function KanbanBoard({ search }: KanbanBoardProps) {
+export default function KanbanBoard({ search, scrollRef }: KanbanBoardProps) {
   const { toast } = useToast();
   const [activeId, setActiveId] = useState<string | null>(null);
   const updateStatusMutation = useUpdateClientStatus();
@@ -102,6 +103,28 @@ export default function KanbanBoard({ search }: KanbanBoardProps) {
     if (!activeId || !clientsData?.data) return null;
     return clientsData.data.find((c) => c.id === activeId) || null;
   }, [activeId, clientsData]);
+
+  // Восстановление вертикального скролла для всех колонок при возврате
+  const hasClientsData = !!clientsData?.data;
+  useEffect(() => {
+    if (!hasClientsData || isLoading) return;
+
+    // Используем двойной requestAnimationFrame для гарантии рендера колонок
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        STATUS_ORDER.forEach((status) => {
+          const savedColumnScroll = sessionStorage.getItem(`clients-kanban-column-${status}-scroll`);
+          if (savedColumnScroll) {
+            const columnElement = document.querySelector(`[data-column-status="${status}"]`) as HTMLElement;
+            if (columnElement) {
+              columnElement.scrollTop = parseInt(savedColumnScroll, 10);
+              sessionStorage.removeItem(`clients-kanban-column-${status}-scroll`);
+            }
+          }
+        });
+      });
+    });
+  }, [hasClientsData, isLoading]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -163,7 +186,15 @@ export default function KanbanBoard({ search }: KanbanBoardProps) {
       onDragEnd={handleDragEnd}
       onDragOver={handleDragOver}
     >
-      <div className="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto pb-4 px-4 sm:px-6 lg:px-8 xl:px-10">
+      <div 
+        ref={scrollRef}
+        className="flex gap-4 sm:gap-5 lg:gap-6 overflow-x-auto pb-4 px-4 sm:px-6 lg:px-8 xl:px-10"
+        onScroll={(e) => {
+          // Сохраняем позицию горизонтального скролла
+          const target = e.target as HTMLElement;
+          sessionStorage.setItem('clients-kanban-scroll', target.scrollLeft.toString());
+        }}
+      >
         {STATUS_ORDER.map((status) => {
           const clients = clientsByStatus[status] || [];
           const count = clients.length;
@@ -171,25 +202,36 @@ export default function KanbanBoard({ search }: KanbanBoardProps) {
           return (
             <div
               key={status}
-              className="flex-shrink-0 w-[260px] sm:w-[280px] lg:w-[320px]"
+              className="flex-shrink-0 w-[300px] sm:w-[340px] lg:w-[380px]"
             >
               <Card className="flex flex-col h-[calc(100vh-280px)] sm:h-[calc(100vh-260px)]">
-                <CardHeader className="pb-3 flex-shrink-0">
+                <CardHeader className="pb-3 flex-shrink-0 px-4 sm:px-5">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm sm:text-base">
+                    <CardTitle className="text-sm sm:text-base font-semibold">
                       {STATUS_LABELS[status]}
                     </CardTitle>
-                    <span className="text-xs sm:text-sm text-text-tertiary bg-surface px-2 py-1 rounded">
+                    <span className="text-xs sm:text-sm text-text-tertiary bg-surface px-2 py-1 rounded font-medium">
                       {count}
                     </span>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-y-auto min-h-0">
+                <CardContent 
+                  data-column-status={status}
+                  className="flex-1 overflow-y-auto min-h-0 px-3 sm:px-4"
+                  onScroll={(e) => {
+                    // Сохраняем позицию вертикального скролла для каждой колонки
+                    const target = e.target as HTMLElement;
+                    const columnStatus = target.getAttribute('data-column-status');
+                    if (columnStatus) {
+                      sessionStorage.setItem(`clients-kanban-column-${columnStatus}-scroll`, target.scrollTop.toString());
+                    }
+                  }}
+                >
                   <SortableContext
                     items={clients.map((c) => c.id)}
                     strategy={verticalListSortingStrategy}
                   >
-                    <div className="space-y-2 sm:space-y-3">
+                    <div className="space-y-2.5 sm:space-y-3">
                       {clients.length === 0 ? (
                         <div className="text-center py-8 text-text-tertiary text-sm">
                           No clients

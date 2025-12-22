@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import KanbanBoard from '@/components/features/clients/KanbanBoard';
 import Button from '@/components/ui/Button';
@@ -15,6 +15,22 @@ import Input from '@/components/ui/Input';
 
 export default function ClientsKanbanPage() {
   const [search, setSearch] = useState('');
+  const boardRef = useRef<HTMLDivElement>(null);
+
+  // Восстановление позиции скролла при возврате
+  useEffect(() => {
+    const savedScroll = sessionStorage.getItem('clients-kanban-scroll');
+    if (savedScroll && boardRef.current) {
+      const scrollPosition = parseInt(savedScroll, 10);
+      // Используем requestAnimationFrame для восстановления после рендера
+      requestAnimationFrame(() => {
+        if (boardRef.current) {
+          boardRef.current.scrollLeft = scrollPosition;
+          sessionStorage.removeItem('clients-kanban-scroll');
+        }
+      });
+    }
+  }, []);
 
   return (
     <>
@@ -64,7 +80,7 @@ export default function ClientsKanbanPage() {
 
       {/* Kanban Board - на всю ширину экрана */}
       <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
-        <KanbanBoard search={search || undefined} />
+        <KanbanBoard search={search || undefined} scrollRef={boardRef} />
       </div>
     </>
   );
