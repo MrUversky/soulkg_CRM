@@ -63,7 +63,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-16">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
@@ -73,12 +73,12 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
     return (
       <Card>
         <CardBody>
-          <div className="text-center py-8">
-            <p className="text-error-600 dark:text-error-400">
+          <div className="text-center py-12">
+            <p className="text-error-600 dark:text-error-400 mb-6">
               Failed to load client. Please try again.
             </p>
             <Link href="/dashboard/clients">
-              <Button variant="outline" className="mt-4">
+              <Button variant="outline">
                 Back to Clients
               </Button>
             </Link>
@@ -89,9 +89,9 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-6">
         <Link href="/dashboard/clients">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -121,33 +121,33 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
               <CardTitle>Contact Information</CardTitle>
             </CardHeader>
             <CardBody>
-              <dl className="space-y-4">
+              <dl className="space-y-6">
                 <div>
-                  <dt className="text-sm font-medium text-text-tertiary flex items-center gap-2">
+                  <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
                     <Phone className="h-4 w-4" />
                     Phone
                   </dt>
-                  <dd className="mt-1 text-base text-text-primary">
+                  <dd className="text-base text-text-primary">
                     {formatPhone(client.phone)}
                   </dd>
                 </div>
                 {client.email && (
                   <div>
-                    <dt className="text-sm font-medium text-text-tertiary flex items-center gap-2">
+                    <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
                       <Mail className="h-4 w-4" />
                       Email
                     </dt>
-                    <dd className="mt-1 text-base text-text-primary">
+                    <dd className="text-base text-text-primary">
                       {client.email}
                     </dd>
                   </div>
                 )}
                 {client.preferredLanguage && (
                   <div>
-                    <dt className="text-sm font-medium text-text-tertiary">
+                    <dt className="text-sm font-semibold text-text-tertiary mb-2">
                       Preferred Language
                     </dt>
-                    <dd className="mt-1 text-base text-text-primary">
+                    <dd className="text-base text-text-primary">
                       {client.preferredLanguage.toUpperCase()}
                     </dd>
                   </div>
@@ -162,12 +162,12 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
               <CardTitle>Status</CardTitle>
             </CardHeader>
             <CardBody>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-semibold text-text-primary mb-3">
                     Current Status
                   </label>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
                     <span
                       className={cn(
                         'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
@@ -179,10 +179,10 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-semibold text-text-primary mb-3">
                     Change Status
                   </label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-3">
                     {(Object.keys(STATUS_LABELS) as ClientStatus[]).map((status) => (
                       <Button
                         key={status}
@@ -208,21 +208,21 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
               <CardTitle>Details</CardTitle>
             </CardHeader>
             <CardBody>
-              <dl className="space-y-4">
+              <dl className="space-y-6">
                 <div>
-                  <dt className="text-sm font-medium text-text-tertiary flex items-center gap-2">
+                  <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
                     <Calendar className="h-4 w-4" />
                     Created
                   </dt>
-                  <dd className="mt-1 text-sm text-text-primary">
+                  <dd className="text-sm text-text-primary">
                     {formatDate(client.createdAt)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-text-tertiary">
+                  <dt className="text-sm font-semibold text-text-tertiary mb-2">
                     Last Updated
                   </dt>
-                  <dd className="mt-1 text-sm text-text-primary">
+                  <dd className="text-sm text-text-primary">
                     {formatDate(client.updatedAt)}
                   </dd>
                 </div>

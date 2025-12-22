@@ -168,6 +168,22 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+  
+  /* Gradients */
+  --gradient-primary: var(--gradient-primary);
+  --gradient-primary-hover: var(--gradient-primary-hover);
+  --gradient-secondary: var(--gradient-secondary);
+  --gradient-surface: var(--gradient-surface);
+  --gradient-background: var(--gradient-background);
+  --gradient-background-subtle: var(--gradient-background-subtle);
+  --gradient-border: var(--gradient-border);
+  --gradient-text-primary: var(--gradient-text-primary);
+  
+  /* Glassmorphism */
+  --glass-bg: var(--glass-bg);
+  --glass-bg-dark: var(--glass-bg-dark);
+  --glass-border: var(--glass-border);
+  --glass-shadow: var(--glass-shadow);
 }
 
 * {

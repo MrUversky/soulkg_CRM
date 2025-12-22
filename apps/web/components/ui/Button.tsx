@@ -5,25 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-semibold ring-offset-background transition-all duration-300 ease-spring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 relative overflow-hidden",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-700 dark:hover:bg-primary-400 shadow-sm hover:shadow-md",
+        default: "bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-600 text-white hover:from-primary-700 hover:via-primary-600 hover:to-secondary-700 shadow-[0_4px_14px_0_rgba(59,130,246,0.15),0_2px_4px_0_rgba(0,0,0,0.1)] hover:shadow-[0_8px_20px_0_rgba(59,130,246,0.25),0_4px_8px_0_rgba(0,0,0,0.15)] active:scale-[0.98] before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-error-700 shadow-sm hover:shadow-md",
+          "bg-gradient-to-br from-error-600 to-error-500 text-white hover:from-error-700 hover:to-error-600 shadow-[0_4px_14px_0_rgba(239,68,68,0.15)] hover:shadow-[0_8px_20px_0_rgba(239,68,68,0.25)] active:scale-[0.98]",
         outline:
-          "border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border-2 border-gradient-to-r from-primary-200 to-secondary-200 bg-background/50 backdrop-blur-sm hover:bg-gradient-to-br hover:from-primary-50 hover:to-secondary-50 hover:border-primary-300 hover:shadow-md active:scale-[0.98]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary-200",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-gradient-to-br from-secondary-500 to-secondary-400 text-white hover:from-secondary-600 hover:to-secondary-500 shadow-[0_4px_14px_0_rgba(168,85,247,0.15)] hover:shadow-[0_8px_20px_0_rgba(168,85,247,0.25)] active:scale-[0.98]",
+        ghost: "hover:bg-accent/50 hover:backdrop-blur-sm hover:shadow-sm active:scale-[0.98]",
+        link: "text-primary hover:text-primary-700 underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-lg px-3 text-xs",
-        lg: "h-11 rounded-lg px-8 text-base",
-        icon: "h-10 w-10",
+        default: "h-12 px-6 py-3",
+        sm: "h-10 rounded-xl px-4 text-sm",
+        lg: "h-14 rounded-xl px-10 text-lg",
+        icon: "h-12 w-12",
       },
     },
     defaultVariants: {

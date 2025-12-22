@@ -65,23 +65,27 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background-subtle px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-text-primary mb-2">
+    <div className="min-h-screen flex items-center justify-center relative px-6 py-16 overflow-hidden bg-background-subtle">
+      {/* Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 via-background to-secondary-50/50 dark:from-primary-950/30 dark:via-background dark:to-secondary-950/30" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.08)_0%,_transparent_50%)]" />
+      
+      <div className="w-full max-w-md relative z-10">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-3 leading-tight bg-gradient-to-br from-primary-600 to-secondary-600 bg-clip-text text-transparent">
             Soul KG CRM
           </h1>
-          <p className="text-base text-text-secondary">
+          <p className="text-lg text-text-secondary leading-relaxed">
             Create your account
           </p>
         </div>
 
-        <Card className="shadow-lg">
+        <Card>
           <CardHeader>
             <CardTitle>Register</CardTitle>
           </CardHeader>
           <CardBody>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
               {error && (
                 <div
                   className="p-4 rounded-lg bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800"
@@ -91,7 +95,7 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 <Input
                   label="First Name"
                   placeholder="John"
@@ -152,7 +156,7 @@ export default function RegisterPage() {
                 required
               />
 
-              <CardFooter className="flex-col gap-4 pt-4">
+              <CardFooter className="flex-col gap-6">
                 <Button
                   type="submit"
                   variant="primary"

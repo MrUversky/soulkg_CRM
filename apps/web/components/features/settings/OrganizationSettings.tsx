@@ -63,7 +63,7 @@ export default function OrganizationSettings() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-16">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
@@ -73,7 +73,7 @@ export default function OrganizationSettings() {
     return (
       <Card>
         <CardBody>
-          <div className="text-center py-8">
+          <div className="text-center py-12">
             <p className="text-error-600 dark:text-error-400">
               Failed to load organization settings.
             </p>
@@ -84,10 +84,10 @@ export default function OrganizationSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-text-primary">Settings</h1>
-        <p className="mt-2 text-text-secondary">
+        <h1 className="text-3xl font-bold text-text-primary mb-4">Settings</h1>
+        <p className="text-lg text-text-secondary">
           Manage your organization settings
         </p>
       </div>
@@ -97,7 +97,7 @@ export default function OrganizationSettings() {
           <CardHeader>
             <CardTitle>Organization Information</CardTitle>
           </CardHeader>
-          <CardBody className="space-y-4">
+          <CardBody className="space-y-6">
             <Input
               label="Organization Name"
               placeholder="My Company"
@@ -115,21 +115,21 @@ export default function OrganizationSettings() {
               helperText="URL to your organization logo"
             />
 
-            <div className="pt-4 border-t border-border">
-              <dl className="space-y-2">
+            <div className="pt-6 border-t border-border">
+              <dl className="space-y-4">
                 <div>
-                  <dt className="text-sm font-medium text-text-tertiary">
+                  <dt className="text-sm font-semibold text-text-tertiary mb-2">
                     Organization ID
                   </dt>
-                  <dd className="mt-1 text-sm text-text-primary font-mono">
+                  <dd className="text-sm text-text-primary font-mono">
                     {organization.id}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-text-tertiary">
+                  <dt className="text-sm font-semibold text-text-tertiary mb-2">
                     Slug
                   </dt>
-                  <dd className="mt-1 text-sm text-text-primary">
+                  <dd className="text-sm text-text-primary">
                     {organization.slug}
                   </dd>
                 </div>

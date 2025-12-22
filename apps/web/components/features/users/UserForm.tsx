@@ -98,15 +98,15 @@ export default function UserForm({ userId }: UserFormProps) {
 
   if (isEdit && isLoadingUser) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-16">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
+    <div className="space-y-8">
+      <div className="flex items-center gap-6">
         <Link href="/dashboard/users">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -123,8 +123,8 @@ export default function UserForm({ userId }: UserFormProps) {
           <CardHeader>
             <CardTitle>User Information</CardTitle>
           </CardHeader>
-          <CardBody className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardBody className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
                 label="First Name"
                 placeholder="John"
@@ -162,7 +162,7 @@ export default function UserForm({ userId }: UserFormProps) {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className="block text-sm font-semibold text-text-primary mb-3">
                 Role
               </label>
               <select
@@ -175,21 +175,21 @@ export default function UserForm({ userId }: UserFormProps) {
             </div>
 
             {isEdit && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   id="isActive"
                   {...register('isActive')}
                   className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
                 />
-                <label htmlFor="isActive" className="text-sm font-medium text-text-primary">
+                <label htmlFor="isActive" className="text-sm font-semibold text-text-primary">
                   Active
                 </label>
               </div>
             )}
           </CardBody>
           <CardFooter>
-            <div className="flex gap-4 w-full">
+            <div className="flex gap-6 w-full">
               <Link href="/dashboard/users" className="flex-1">
                 <Button variant="outline" fullWidth>
                   Cancel

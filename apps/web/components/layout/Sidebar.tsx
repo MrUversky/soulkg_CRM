@@ -77,7 +77,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         <div className="flex flex-col h-full">
           {/* Mobile header */}
-          <div className="flex items-center justify-between p-4 border-b border-border md:hidden">
+          <div className="flex items-center justify-between p-6 border-b border-border md:hidden">
             <span className="text-lg font-bold text-text-primary">
               Menu
             </span>
@@ -91,7 +91,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-6 space-y-2">
             {filteredNavigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
@@ -102,7 +102,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   href={item.href}
                   onClick={onClose}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
+                    'flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                     isActive
                       ? 'bg-primary text-white shadow-md shadow-primary/30'
                       : 'text-text-secondary hover:bg-surface-hover hover:shadow-sm'

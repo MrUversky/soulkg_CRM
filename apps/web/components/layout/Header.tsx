@@ -29,7 +29,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-sm shadow-sm">
-      <div className="flex h-16 items-center px-4 md:px-6">
+      <div className="flex h-16 items-center px-6 md:px-8">
         {/* Mobile menu button */}
         <button
           onClick={onMenuClick}
@@ -40,7 +40,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </button>
 
         {/* Logo */}
-        <Link href="/dashboard" className="flex items-center gap-2 ml-2 md:ml-0">
+        <Link href="/dashboard" className="flex items-center gap-4">
           <span className="text-xl font-bold text-text-primary">
             Soul KG CRM
           </span>
@@ -72,8 +72,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 onClick={() => setShowUserMenu(false)}
                 aria-hidden="true"
               />
-              <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-background border border-border py-1 z-50">
-                <div className="px-4 py-2 border-b border-border">
+              <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-background border border-border py-2 z-50">
+                <div className="px-4 py-3 border-b border-border">
                   <p className="text-sm font-medium text-text-primary">
                     {user?.firstName && user?.lastName
                       ? `${user.firstName} ${user.lastName}`
@@ -85,7 +85,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 </div>
                 <Link
                   href="/settings"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-text-secondary hover:bg-surface-hover transition-colors duration-200"
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary hover:bg-surface-hover transition-colors duration-200"
                   onClick={() => setShowUserMenu(false)}
                 >
                   <Settings className="h-4 w-4" />
@@ -93,7 +93,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-error-600 dark:text-error-400 hover:bg-surface-hover transition-colors duration-200"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-error-600 dark:text-error-400 hover:bg-surface-hover transition-colors duration-200"
                 >
                   <LogOut className="h-4 w-4" />
                   Logout

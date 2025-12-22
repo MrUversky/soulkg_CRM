@@ -62,7 +62,7 @@ export default function ClientList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-bold text-text-primary mb-2">Clients</h1>
+          <h1 className="text-4xl font-bold text-text-primary mb-4">Clients</h1>
           <p className="text-lg text-text-secondary">
             Manage your clients and track their journey through the sales funnel
           </p>
@@ -78,7 +78,7 @@ export default function ClientList() {
       {/* Filters */}
       <Card>
         <CardBody>
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-tertiary" />
@@ -116,7 +116,7 @@ export default function ClientList() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="flex items-center justify-center py-12">
+        <div className="flex items-center justify-center py-16">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
         </div>
       )}
@@ -125,7 +125,7 @@ export default function ClientList() {
       {error && (
         <Card>
           <CardBody>
-            <div className="text-center py-8">
+            <div className="text-center py-12">
               <p className="text-error-600 dark:text-error-400">
                 Failed to load clients. Please try again.
               </p>
@@ -138,12 +138,12 @@ export default function ClientList() {
       {!isLoading && !error && clients.length === 0 && (
         <Card>
           <CardBody>
-            <div className="text-center py-12">
-              <User className="h-12 w-12 text-text-tertiary mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-text-primary mb-2">
+            <div className="text-center py-16">
+              <User className="h-12 w-12 text-text-tertiary mx-auto mb-6" />
+              <h3 className="text-lg font-medium text-text-primary mb-4">
                 No clients found
               </h3>
-              <p className="text-text-secondary mb-4">
+              <p className="text-text-secondary mb-6">
                 {search || statusFilter
                   ? 'Try adjusting your filters'
                   : 'Get started by adding your first client'}
@@ -161,7 +161,7 @@ export default function ClientList() {
       {/* Client List */}
       {!isLoading && !error && clients.length > 0 && (
         <>
-          <div className="grid gap-4">
+          <div className="grid gap-6">
             {clients.map((client) => (
               <Link
                 key={client.id}
@@ -169,26 +169,26 @@ export default function ClientList() {
                 className="block"
               >
                 <Card className="hover:shadow-xl transition-all duration-200 cursor-pointer hover:-translate-y-0.5 border-border">
-                  <CardBody className="p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <CardBody>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                       <div className="flex-1">
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-4">
                           <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-medium flex-shrink-0">
                             {client.firstName?.[0] || client.phone[4]}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-text-primary truncate">
+                            <h3 className="text-lg font-semibold text-text-primary truncate mb-2">
                               {client.firstName || client.lastName
                                 ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
                                 : 'Unnamed Client'}
                             </h3>
-                            <div className="flex flex-wrap items-center gap-4 mt-1 text-sm text-text-secondary">
-                              <span className="flex items-center gap-1">
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-text-secondary">
+                              <span className="flex items-center gap-2">
                                 <Phone className="h-4 w-4" />
                                 {formatPhone(client.phone)}
                               </span>
                               {client.email && (
-                                <span className="flex items-center gap-1">
+                                <span className="flex items-center gap-2">
                                   <Mail className="h-4 w-4" />
                                   {client.email}
                                 </span>
@@ -197,7 +197,7 @@ export default function ClientList() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-col sm:items-end gap-2">
+                      <div className="flex flex-col sm:items-end gap-3">
                         <span
                           className={cn(
                             'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
@@ -219,12 +219,12 @@ export default function ClientList() {
 
           {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-4">
               <p className="text-sm text-text-secondary">
                 Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, pagination.total)} of{' '}
                 {pagination.total} clients
               </p>
-              <div className="flex gap-2">
+              <div className="flex gap-4">
                 <Button
                   variant="outline"
                   size="sm"

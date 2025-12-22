@@ -52,12 +52,12 @@ export default function UserList() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary">Users</h1>
-          <p className="mt-2 text-text-secondary">
+          <h1 className="text-3xl font-bold text-text-primary mb-4">Users</h1>
+          <p className="text-lg text-text-secondary">
             Manage users in your organization
           </p>
         </div>
@@ -71,7 +71,7 @@ export default function UserList() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="flex items-center justify-center py-12">
+        <div className="flex items-center justify-center py-16">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
         </div>
       )}
@@ -80,7 +80,7 @@ export default function UserList() {
       {error && (
         <Card>
           <CardBody>
-            <div className="text-center py-8">
+            <div className="text-center py-12">
               <p className="text-error-600 dark:text-error-400">
                 Failed to load users. Please try again.
               </p>
@@ -93,12 +93,12 @@ export default function UserList() {
       {!isLoading && !error && users.length === 0 && (
         <Card>
           <CardBody>
-            <div className="text-center py-12">
-              <UserIcon className="h-12 w-12 text-text-tertiary mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-text-primary mb-2">
+            <div className="text-center py-16">
+              <UserIcon className="h-12 w-12 text-text-tertiary mx-auto mb-6" />
+              <h3 className="text-lg font-medium text-text-primary mb-4">
                 No users found
               </h3>
-              <p className="text-text-secondary mb-4">
+              <p className="text-text-secondary mb-6">
                 Get started by adding your first user
               </p>
               <Link href="/dashboard/users/new">
@@ -111,37 +111,37 @@ export default function UserList() {
 
       {/* User List */}
       {!isLoading && !error && users.length > 0 && (
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {users.map((user) => (
             <Card key={user.id}>
               <CardBody>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                  <div className="flex items-start gap-4 flex-1">
                     <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-medium flex-shrink-0">
                       {user.firstName?.[0] || user.email[0].toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-lg font-semibold text-text-primary">
                           {user.firstName || user.lastName
                             ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
                             : user.email}
                         </h3>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             ROLE_COLORS[user.role]
                           }`}
                         >
                           {ROLE_LABELS[user.role]}
                         </span>
                         {!user.isActive && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-error-100 text-error-800 dark:bg-error-900 dark:text-error-300">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-error-100 text-error-800 dark:bg-error-900 dark:text-error-300">
                             Inactive
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-text-secondary">
-                        <span className="flex items-center gap-1">
+                      <div className="flex items-center gap-4 text-sm text-text-secondary">
+                        <span className="flex items-center gap-2">
                           <Mail className="h-4 w-4" />
                           {user.email}
                         </span>
@@ -153,7 +153,7 @@ export default function UserList() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-4">
                     <Link href={`/dashboard/users/${user.id}/edit`}>
                       <Button variant="outline" size="sm">
                         Edit

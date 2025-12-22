@@ -25,101 +25,101 @@ export default function DashboardPage() {
   const sold = clients.filter(c => c.status === 'SOLD').length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div>
-        <h1 className="text-4xl font-bold text-text-primary mb-2">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight bg-gradient-to-br from-primary-600 to-secondary-600 bg-clip-text text-transparent">
           Welcome back{user?.firstName ? `, ${user.firstName}` : ''}!
         </h1>
-        <p className="text-lg text-text-secondary">
+        <p className="text-xl text-text-secondary leading-relaxed">
           Here's what's happening with your CRM today.
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-l-4 border-l-primary-500 shadow-md hover:shadow-lg transition-shadow duration-200">
+        <Card className="border-l-4 border-l-primary-500">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-text-secondary uppercase tracking-wide">
+            <CardTitle className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
               Total Clients
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-4xl font-bold text-text-primary">{totalClients}</p>
+            <p className="text-4xl md:text-5xl font-bold text-text-primary leading-tight">{totalClients}</p>
           </CardBody>
         </Card>
 
-        <Card className="border-l-4 border-l-success-500 shadow-md hover:shadow-lg transition-shadow duration-200">
+        <Card className="border-l-4 border-l-success-500">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-text-secondary uppercase tracking-wide">
+            <CardTitle className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
               New Leads
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-4xl font-bold text-text-primary">{newLeads}</p>
+            <p className="text-4xl md:text-5xl font-bold text-text-primary leading-tight">{newLeads}</p>
           </CardBody>
         </Card>
 
-        <Card className="border-l-4 border-l-warning-500 shadow-md hover:shadow-lg transition-shadow duration-200">
+        <Card className="border-l-4 border-l-warning-500">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-text-secondary uppercase tracking-wide">
+            <CardTitle className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
               Qualified
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-4xl font-bold text-text-primary">{qualified}</p>
+            <p className="text-4xl md:text-5xl font-bold text-text-primary leading-tight">{qualified}</p>
           </CardBody>
         </Card>
 
-        <Card className="border-l-4 border-l-secondary-500 shadow-md hover:shadow-lg transition-shadow duration-200">
+        <Card className="border-l-4 border-l-secondary-500">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-text-secondary uppercase tracking-wide">
+            <CardTitle className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
               Sold
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-4xl font-bold text-text-primary">{sold}</p>
+            <p className="text-4xl md:text-5xl font-bold text-text-primary leading-tight">{sold}</p>
           </CardBody>
         </Card>
       </div>
 
       {/* Quick Actions */}
-      <Card className="shadow-md">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Quick Actions</CardTitle>
+          <CardTitle className="text-2xl">Quick Actions</CardTitle>
         </CardHeader>
         <CardBody>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link
               href="/dashboard/clients/new"
-              className="group p-6 rounded-xl border-2 border-border hover:border-primary hover:bg-primary-light transition-all duration-200 hover:shadow-lg"
+              className="group p-8 rounded-xl border-2 border-border hover:border-primary hover:bg-primary-light transition-all duration-300 hover:shadow-lg block overflow-hidden"
             >
-              <h3 className="font-semibold text-lg text-text-primary mb-2 group-hover:text-primary transition-colors duration-200">
+              <h3 className="font-bold text-xl text-text-primary mb-3 group-hover:text-primary transition-colors duration-300">
                 Add New Client
               </h3>
-              <p className="text-sm text-text-secondary">
+              <p className="text-base text-text-secondary leading-relaxed">
                 Create a new client record
               </p>
             </Link>
             <Link
               href="/dashboard/clients"
-              className="group p-6 rounded-xl border-2 border-border hover:border-primary hover:bg-primary-light transition-all duration-200 hover:shadow-lg"
+              className="group p-8 rounded-xl border-2 border-border hover:border-primary hover:bg-primary-light transition-all duration-300 hover:shadow-lg block overflow-hidden"
             >
-              <h3 className="font-semibold text-lg text-text-primary mb-2 group-hover:text-primary transition-colors duration-200">
+              <h3 className="font-bold text-xl text-text-primary mb-3 group-hover:text-primary transition-colors duration-300">
                 View All Clients
               </h3>
-              <p className="text-sm text-text-secondary">
+              <p className="text-base text-text-secondary leading-relaxed">
                 Browse and manage clients
               </p>
             </Link>
             {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
               <Link
                 href="/dashboard/users"
-                className="group p-6 rounded-xl border-2 border-border hover:border-primary hover:bg-primary-light transition-all duration-200 hover:shadow-lg"
+                className="group p-8 rounded-xl border-2 border-border hover:border-primary hover:bg-primary-light transition-all duration-300 hover:shadow-lg block overflow-hidden"
               >
-                <h3 className="font-semibold text-lg text-text-primary mb-2 group-hover:text-primary transition-colors duration-200">
+                <h3 className="font-bold text-xl text-text-primary mb-3 group-hover:text-primary transition-colors duration-300">
                   Manage Users
                 </h3>
-                <p className="text-sm text-text-secondary">
+                <p className="text-base text-text-secondary leading-relaxed">
                   Add or edit users
                 </p>
               </Link>
