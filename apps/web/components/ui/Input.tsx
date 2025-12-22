@@ -1,10 +1,58 @@
+/**
+ * Input Component
+ * 
+ * A form input component with built-in label, error handling, and helper text.
+ * Built on top of shadcn/ui with custom styling and accessibility features.
+ * 
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Input label="Email" type="email" placeholder="you@example.com" />
+ * 
+ * // With error
+ * <Input 
+ *   label="Password" 
+ *   type="password" 
+ *   error="Password must be at least 8 characters"
+ * />
+ * 
+ * // With helper text
+ * <Input 
+ *   label="Phone" 
+ *   helperText="Format: +996XXXXXXXXX"
+ * />
+ * 
+ * // Required field
+ * <Input label="Email" type="email" required />
+ * ```
+ * 
+ * @see {@link https://ui.shadcn.com/docs/components/input} shadcn/ui Input documentation
+ */
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Input component props
+ * 
+ * @interface InputProps
+ * @extends {React.ComponentProps<"input">}
+ * 
+ * @property {string} [error] - Error message to display below input. When provided, input border turns red and aria-invalid is set.
+ * @property {string} [label] - Label text displayed above input. Automatically associated with input via htmlFor/id.
+ * @property {string} [helperText] - Helper text displayed below input (only shown when no error).
+ * 
+ * @note All standard HTML input props are supported (type, placeholder, value, onChange, etc.)
+ * @note When `required` prop is set, label shows asterisk (*) indicator
+ * @note Component automatically handles ARIA attributes for accessibility (aria-invalid, aria-describedby)
+ */
 export interface InputProps extends React.ComponentProps<"input"> {
+  /** Error message to display below input */
   error?: string
+  /** Label text displayed above input */
   label?: string
+  /** Helper text displayed below input (only shown when no error) */
   helperText?: string
 }
 

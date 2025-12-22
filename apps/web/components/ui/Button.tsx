@@ -1,3 +1,29 @@
+/**
+ * Button Component
+ * 
+ * A versatile button component built on top of shadcn/ui with custom styling.
+ * Supports multiple variants, sizes, loading states, and full-width mode.
+ * 
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Button variant="primary">Click me</Button>
+ * 
+ * // With loading state
+ * <Button isLoading={isSubmitting}>Submit</Button>
+ * 
+ * // Full width
+ * <Button fullWidth>Full Width Button</Button>
+ * 
+ * // As child (for Next.js Link)
+ * <Button asChild>
+ *   <Link href="/dashboard">Dashboard</Link>
+ * </Button>
+ * ```
+ * 
+ * @see {@link https://ui.shadcn.com/docs/components/button} shadcn/ui Button documentation
+ */
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -33,12 +59,41 @@ const buttonVariants = cva(
   }
 )
 
+/**
+ * Button component props
+ * 
+ * @interface ButtonProps
+ * @extends {Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'variant'>}
+ * 
+ * @property {boolean} [asChild] - Render as child component (useful for Next.js Link). When true, uses Radix Slot.
+ * @property {boolean} [fullWidth] - Make button full width of container.
+ * @property {boolean} [isLoading] - Show loading spinner and disable button.
+ * @property {"default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "primary" | "danger"} [variant] - Button style variant.
+ *   - `default` / `primary`: Primary gradient button (blue-purple gradient)
+ *   - `destructive` / `danger`: Destructive action button (red gradient)
+ *   - `outline`: Outlined button with border
+ *   - `secondary`: Secondary button (purple gradient)
+ *   - `ghost`: Transparent button with hover effect
+ *   - `link`: Text link style button
+ * @property {"default" | "sm" | "lg" | "icon"} [size] - Button size.
+ *   - `default`: h-12 px-6 (48px height, standard padding)
+ *   - `sm`: h-10 px-4 (40px height, small padding)
+ *   - `lg`: h-14 px-10 (56px height, large padding)
+ *   - `icon`: h-12 w-12 (48x48px square, for icon-only buttons)
+ * 
+ * @note Legacy variants `primary` and `danger` are aliased to `default` and `destructive` for backward compatibility.
+ */
 export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'variant'> {
+  /** Render as child component (useful for Next.js Link) */
   asChild?: boolean
+  /** Make button full width of container */
   fullWidth?: boolean
+  /** Show loading spinner and disable button */
   isLoading?: boolean
+  /** Button style variant */
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "primary" | "danger"
+  /** Button size */
   size?: "default" | "sm" | "lg" | "icon"
 }
 
