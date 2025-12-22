@@ -18,8 +18,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     // Load theme from localStorage first
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    let savedTheme: Theme | null = null;
+    try {
+      savedTheme = localStorage.getItem('theme') as Theme | null;
+    } catch (e) {
+      // localStorage might not be available
+    }
+    
     if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
       setThemeState(savedTheme);
     }
@@ -48,7 +57,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || typeof window === 'undefined') return;
 
     const root = window.document.documentElement;
     
@@ -70,7 +79,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.setAttribute('data-theme', effectiveTheme);
     
     // Save to localStorage
-    localStorage.setItem('theme', theme);
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (e) {
+      // localStorage might not be available
+    }
     
     // Force reflow to ensure classes are applied
     root.offsetHeight;
@@ -78,7 +91,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Listen for system theme changes
   useEffect(() => {
-    if (!mounted || theme !== 'system') return;
+    if (!mounted || theme !== 'system' || typeof window === 'undefined') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
