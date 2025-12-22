@@ -95,7 +95,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme, mounted]);
 
   const setTheme = (newTheme: Theme) => {
-    console.log('Setting theme to:', newTheme);
     setThemeState(newTheme);
   };
 
