@@ -13,13 +13,14 @@ import { useClient, useUpdateClientStatus } from '@/lib/hooks/useClients';
 import { ClientStatus } from '@/types/client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, Phone, Mail, User, Calendar, Edit, MessageSquare, Clock } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, User, Calendar, Edit, MessageSquare, Clock, Package } from 'lucide-react';
 import { formatPhone, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import ConversationView from './ConversationView';
 import StatusTimeline from './StatusTimeline';
 import QuickActionsPanel from './QuickActionsPanel';
+import ProductsList from './ProductsList';
 
 const STATUS_COLORS: Record<ClientStatus, string> = {
   NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
@@ -54,7 +55,7 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
   const { data: client, isLoading, error } = useClient(clientId);
   const updateStatusMutation = useUpdateClientStatus();
   const [selectedStatus, setSelectedStatus] = useState<ClientStatus | ''>('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'conversations' | 'history'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'conversations' | 'products' | 'history'>('overview');
 
   // Определяем откуда пришли (kanban или list) из query параметра
   const from = searchParams.get('from') || 'list';
@@ -173,6 +174,18 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
             <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Conversations</span>
             <span className="sm:hidden">Chat</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('products')}
+            className={cn(
+              'px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center gap-1 sm:gap-2 whitespace-nowrap',
+              activeTab === 'products'
+                ? 'border-primary text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-text-tertiary hover:text-text-primary hover:border-border'
+            )}
+          >
+            <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+            Products
           </button>
           <button
             onClick={() => setActiveTab('history')}
@@ -315,6 +328,12 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
       {activeTab === 'conversations' && (
         <div>
           <ConversationView clientId={clientId} />
+        </div>
+      )}
+
+      {activeTab === 'products' && (
+        <div>
+          <ProductsList clientId={clientId} />
         </div>
       )}
 

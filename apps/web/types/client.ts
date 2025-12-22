@@ -161,3 +161,67 @@ export interface StatusHistoryResponse {
   data: StatusHistoryEntry[];
 }
 
+// Products and Tours
+export type ClientProductStatus = 'INTERESTED' | 'PROPOSED' | 'SELECTED' | 'BOOKED';
+export type ClientTourStatus = 'INTERESTED' | 'PROPOSED' | 'SELECTED' | 'BOOKED' | 'CONFIRMED' | 'CANCELLED';
+export type ProductType = 'TOUR' | 'SERVICE' | 'PACKAGE';
+export type TourStatus = 'AVAILABLE' | 'FULL' | 'CANCELLED' | 'COMPLETED';
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  basePrice: string;
+  currency: string;
+  type: ProductType;
+}
+
+export interface TourProduct {
+  id: string;
+  name: string;
+}
+
+export interface Tour {
+  id: string;
+  startDate: string;
+  endDate: string;
+  price: string | null;
+  currency: string;
+  status: TourStatus;
+  maxParticipants: number | null;
+  currentParticipants: number;
+  product: TourProduct;
+}
+
+export interface ClientProduct {
+  id: string;
+  productId: string;
+  product: Product;
+  status: ClientProductStatus;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClientTour {
+  id: string;
+  tourId: string;
+  tour: Tour;
+  status: ClientTourStatus;
+  participants: number | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClientProductsResponse {
+  products: ClientProduct[];
+  tours: ClientTour[];
+}
+
+export interface AddProductRequest {
+  productId: string;
+  status?: ClientProductStatus;
+  notes?: string;
+}
+

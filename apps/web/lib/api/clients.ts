@@ -16,6 +16,9 @@ import {
   ConversationsParams,
   MessagesParams,
   StatusHistoryResponse,
+  ClientProductsResponse,
+  ClientProduct,
+  AddProductRequest,
 } from '@/types/client';
 
 export const clientsApi = {
@@ -83,6 +86,30 @@ export const clientsApi = {
    */
   async getClientStatusHistory(id: string): Promise<StatusHistoryResponse> {
     const response = await apiClient.get<StatusHistoryResponse>(`/clients/${id}/status-history`);
+    return response.data;
+  },
+
+  /**
+   * Get products and tours for a client
+   */
+  async getClientProducts(id: string): Promise<ClientProductsResponse> {
+    const response = await apiClient.get<ClientProductsResponse>(`/clients/${id}/products`);
+    return response.data;
+  },
+
+  /**
+   * Add a product to a client
+   */
+  async addClientProduct(id: string, data: AddProductRequest): Promise<ClientProduct> {
+    const response = await apiClient.post<ClientProduct>(`/clients/${id}/products`, data);
+    return response.data;
+  },
+
+  /**
+   * Remove a product from a client
+   */
+  async removeClientProduct(id: string, productId: string): Promise<{ success: boolean }> {
+    const response = await apiClient.delete<{ success: boolean }>(`/clients/${id}/products/${productId}`);
     return response.data;
   },
 };

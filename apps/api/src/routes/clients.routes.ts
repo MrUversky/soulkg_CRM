@@ -69,6 +69,21 @@ const messagesQuerySchema = z.object({
   search: z.string().optional(),
 });
 
+// ClientProductStatus enum (must match Prisma schema)
+const ClientProductStatusEnum = z.enum([
+  'INTERESTED',
+  'PROPOSED',
+  'SELECTED',
+  'BOOKED',
+]);
+
+// Validation schemas for products
+const addProductSchema = z.object({
+  productId: z.string().uuid('Product ID must be a valid UUID'),
+  status: ClientProductStatusEnum.optional().default('INTERESTED'),
+  notes: z.string().optional(),
+});
+
 /**
  * GET /api/clients
  * 
@@ -572,11 +587,6 @@ router.get('/:id/conversations', authenticateToken, async (req: Request, res: Re
       take: limit,
       skip: offset,
       orderBy: { lastMessageAt: 'desc' },
-      include: {
-        _count: {
-          select: { messages: true },
-        },
-      },
       select: {
         id: true,
         channel: true,
@@ -697,21 +707,6 @@ router.get('/:id/messages', authenticateToken, async (req: Request, res: Respons
       take: limit,
       skip: offset,
       orderBy: { createdAt: 'desc' },
-      include: {
-        conversation: {
-          select: {
-            id: true,
-            channel: true,
-          },
-        },
-        sentByUser: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
       select: {
         id: true,
         conversationId: true,
@@ -829,16 +824,6 @@ router.get('/:id/status-history', authenticateToken, async (req: Request, res: R
         organizationId: req.user.organizationId,
       },
       orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-      },
       select: {
         id: true,
         oldStatus: true,
@@ -881,6 +866,349 @@ router.get('/:id/status-history', authenticateToken, async (req: Request, res: R
     console.error('Error fetching status history:', error);
     res.status(500).json({
       error: 'Failed to fetch status history',
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+/**
+ * GET /api/clients/:id/products
+ * 
+ * Get products and tours for a specific client.
+ * Returns both client products (interested products) and client tours (selected tours).
+ * 
+ * @route GET /api/clients/:id/products
+ * @access Private (requires authentication)
+ * @param {string} id - Client UUID
+ * @returns {Object} products - Array of client product objects
+ * @returns {Object} tours - Array of client tour objects
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if client belongs to different organization
+ * @throws {404} Not found if client doesn't exist
+ */
+router.get('/:id/products', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
+    const { id } = req.params;
+
+    // Verify client exists and belongs to user's organization
+    const client = await prisma.client.findUnique({
+      where: { id },
+      select: { id: true, organizationId: true },
+    });
+
+    if (!client) {
+      res.status(404).json({ error: 'Client not found' });
+      return;
+    }
+
+    if (client.organizationId !== req.user.organizationId) {
+      res.status(403).json({ error: 'Access denied to this client' });
+      return;
+    }
+
+    // Get client products with product details
+    const clientProducts = await prisma.clientProduct.findMany({
+      where: {
+        clientId: id,
+      },
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            basePrice: true,
+            currency: true,
+            type: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Get client tours with tour details
+    const clientTours = await prisma.clientTour.findMany({
+      where: {
+        clientId: id,
+      },
+      include: {
+        tour: {
+          select: {
+            id: true,
+            startDate: true,
+            endDate: true,
+            price: true,
+            currency: true,
+            status: true,
+            maxParticipants: true,
+            currentParticipants: true,
+            product: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json({
+      products: clientProducts.map((cp) => ({
+        id: cp.id,
+        productId: cp.productId,
+        product: {
+          id: cp.product.id,
+          name: cp.product.name,
+          description: cp.product.description,
+          basePrice: cp.product.basePrice.toString(),
+          currency: cp.product.currency,
+          type: cp.product.type,
+        },
+        status: cp.status,
+        notes: cp.notes,
+        createdAt: cp.createdAt.toISOString(),
+        updatedAt: cp.updatedAt.toISOString(),
+      })),
+      tours: clientTours.map((ct) => ({
+        id: ct.id,
+        tourId: ct.tourId,
+        tour: {
+          id: ct.tour.id,
+          startDate: ct.tour.startDate.toISOString(),
+          endDate: ct.tour.endDate.toISOString(),
+          price: ct.tour.price?.toString() || null,
+          currency: ct.tour.currency,
+          status: ct.tour.status,
+          maxParticipants: ct.tour.maxParticipants,
+          currentParticipants: ct.tour.currentParticipants,
+          product: {
+            id: ct.tour.product.id,
+            name: ct.tour.product.name,
+          },
+        },
+        status: ct.status,
+        participants: ct.participants,
+        notes: ct.notes,
+        createdAt: ct.createdAt.toISOString(),
+        updatedAt: ct.updatedAt.toISOString(),
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching client products:', error);
+    res.status(500).json({
+      error: 'Failed to fetch client products',
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+/**
+ * POST /api/clients/:id/products
+ * 
+ * Add a product to a client's interested products list.
+ * Creates a ClientProduct record linking the client to a product.
+ * 
+ * @route POST /api/clients/:id/products
+ * @access Private (requires authentication)
+ * @param {string} id - Client UUID
+ * @body {string} productId - Product UUID (required)
+ * @body {string} [status=INTERESTED] - Product status (optional, default: INTERESTED)
+ * @body {string} [notes] - Notes about this product interest (optional)
+ * @returns {Object} Created client product object
+ * @throws {400} Validation error if input is invalid
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if client belongs to different organization
+ * @throws {404} Not found if client or product doesn't exist
+ * @throws {409} Conflict if product is already added to client
+ */
+router.post('/:id/products', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
+    const { id } = req.params;
+    const body = addProductSchema.parse(req.body);
+    const { productId, status, notes } = body;
+
+    // Verify client exists and belongs to user's organization
+    const client = await prisma.client.findUnique({
+      where: { id },
+      select: { id: true, organizationId: true },
+    });
+
+    if (!client) {
+      res.status(404).json({ error: 'Client not found' });
+      return;
+    }
+
+    if (client.organizationId !== req.user.organizationId) {
+      res.status(403).json({ error: 'Access denied to this client' });
+      return;
+    }
+
+    // Verify product exists and belongs to same organization
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true, organizationId: true },
+    });
+
+    if (!product) {
+      res.status(404).json({ error: 'Product not found' });
+      return;
+    }
+
+    if (product.organizationId !== req.user.organizationId) {
+      res.status(403).json({ error: 'Access denied to this product' });
+      return;
+    }
+
+    // Check if product is already added to client
+    const existingClientProduct = await prisma.clientProduct.findUnique({
+      where: {
+        clientId_productId: {
+          clientId: id,
+          productId: productId,
+        },
+      },
+    });
+
+    if (existingClientProduct) {
+      res.status(409).json({ error: 'Product is already added to this client' });
+      return;
+    }
+
+    // Create client product
+    const clientProduct = await prisma.clientProduct.create({
+      data: {
+        clientId: id,
+        productId: productId,
+        status: status || 'INTERESTED',
+        notes: notes || null,
+      },
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            basePrice: true,
+            currency: true,
+            type: true,
+          },
+        },
+      },
+    });
+
+    res.status(201).json({
+      id: clientProduct.id,
+      productId: clientProduct.productId,
+      product: {
+        id: clientProduct.product.id,
+        name: clientProduct.product.name,
+        description: clientProduct.product.description,
+        basePrice: clientProduct.product.basePrice.toString(),
+        currency: clientProduct.product.currency,
+        type: clientProduct.product.type,
+      },
+      status: clientProduct.status,
+      notes: clientProduct.notes,
+      createdAt: clientProduct.createdAt.toISOString(),
+      updatedAt: clientProduct.updatedAt.toISOString(),
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: 'Validation error', details: error.errors });
+      return;
+    }
+
+    console.error('Error adding product to client:', error);
+    res.status(500).json({
+      error: 'Failed to add product to client',
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+/**
+ * DELETE /api/clients/:id/products/:productId
+ * 
+ * Remove a product from a client's interested products list.
+ * Deletes the ClientProduct record.
+ * 
+ * @route DELETE /api/clients/:id/products/:productId
+ * @access Private (requires authentication)
+ * @param {string} id - Client UUID
+ * @param {string} productId - Product UUID
+ * @returns {Object} success - Success indicator
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if client belongs to different organization
+ * @throws {404} Not found if client product doesn't exist
+ */
+router.delete('/:id/products/:productId', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
+    const { id } = req.params;
+    const { productId } = req.params;
+
+    // Verify client exists and belongs to user's organization
+    const client = await prisma.client.findUnique({
+      where: { id },
+      select: { id: true, organizationId: true },
+    });
+
+    if (!client) {
+      res.status(404).json({ error: 'Client not found' });
+      return;
+    }
+
+    if (client.organizationId !== req.user.organizationId) {
+      res.status(403).json({ error: 'Access denied to this client' });
+      return;
+    }
+
+    // Verify client product exists
+    const clientProduct = await prisma.clientProduct.findUnique({
+      where: {
+        clientId_productId: {
+          clientId: id,
+          productId: productId,
+        },
+      },
+    });
+
+    if (!clientProduct) {
+      res.status(404).json({ error: 'Product not found for this client' });
+      return;
+    }
+
+    // Delete client product
+    await prisma.clientProduct.delete({
+      where: {
+        clientId_productId: {
+          clientId: id,
+          productId: productId,
+        },
+      },
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error removing product from client:', error);
+    res.status(500).json({
+      error: 'Failed to remove product from client',
       message: error instanceof Error ? error.message : String(error),
     });
   }

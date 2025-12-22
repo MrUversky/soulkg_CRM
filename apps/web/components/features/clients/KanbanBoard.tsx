@@ -55,7 +55,7 @@ const STATUS_LABELS: Record<ClientStatus, string> = {
 
 interface KanbanBoardProps {
   search?: string;
-  scrollRef?: RefObject<HTMLDivElement>;
+  scrollRef?: RefObject<HTMLDivElement | null>;
 }
 
 export default function KanbanBoard({ search, scrollRef }: KanbanBoardProps) {

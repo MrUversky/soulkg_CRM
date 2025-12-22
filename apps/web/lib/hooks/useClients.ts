@@ -15,6 +15,7 @@ import {
   ClientStatus,
   ConversationsParams,
   MessagesParams,
+  AddProductRequest,
 } from '@/types/client';
 
 export function useClients(params?: ClientListParams) {
@@ -90,6 +91,40 @@ export function useClientStatusHistory(clientId: string) {
     queryKey: ['client', clientId, 'status-history'],
     queryFn: () => clientsApi.getClientStatusHistory(clientId),
     enabled: !!clientId,
+  });
+}
+
+export function useClientProducts(clientId: string) {
+  return useQuery({
+    queryKey: ['client', clientId, 'products'],
+    queryFn: () => clientsApi.getClientProducts(clientId),
+    enabled: !!clientId,
+  });
+}
+
+export function useAddClientProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ clientId, data }: { clientId: string; data: AddProductRequest }) =>
+      clientsApi.addClientProduct(clientId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['client', variables.clientId, 'products'] });
+      queryClient.invalidateQueries({ queryKey: ['client', variables.clientId] });
+    },
+  });
+}
+
+export function useRemoveClientProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ clientId, productId }: { clientId: string; productId: string }) =>
+      clientsApi.removeClientProduct(clientId, productId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['client', variables.clientId, 'products'] });
+      queryClient.invalidateQueries({ queryKey: ['client', variables.clientId] });
+    },
   });
 }
 
