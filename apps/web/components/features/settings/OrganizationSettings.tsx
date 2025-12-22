@@ -64,7 +64,7 @@ export default function OrganizationSettings() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
   }
@@ -74,7 +74,7 @@ export default function OrganizationSettings() {
       <Card>
         <CardBody>
           <div className="text-center py-8">
-            <p className="text-red-600 dark:text-red-400">
+            <p className="text-error-600 dark:text-error-400">
               Failed to load organization settings.
             </p>
           </div>
@@ -86,8 +86,8 @@ export default function OrganizationSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <h1 className="text-3xl font-bold text-text-primary">Settings</h1>
+        <p className="mt-2 text-text-secondary">
           Manage your organization settings
         </p>
       </div>
@@ -115,21 +115,21 @@ export default function OrganizationSettings() {
               helperText="URL to your organization logo"
             />
 
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="pt-4 border-t border-border">
               <dl className="space-y-2">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  <dt className="text-sm font-medium text-text-tertiary">
                     Organization ID
                   </dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100 font-mono">
+                  <dd className="mt-1 text-sm text-text-primary font-mono">
                     {organization.id}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  <dt className="text-sm font-medium text-text-tertiary">
                     Slug
                   </dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                  <dd className="mt-1 text-sm text-text-primary">
                     {organization.slug}
                   </dd>
                 </div>

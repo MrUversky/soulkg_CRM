@@ -99,7 +99,7 @@ export default function UserForm({ userId }: UserFormProps) {
   if (isEdit && isLoadingUser) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
   }
@@ -113,7 +113,7 @@ export default function UserForm({ userId }: UserFormProps) {
             Back
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl font-bold text-text-primary">
           {isEdit ? 'Edit User' : 'Add New User'}
         </h1>
       </div>
@@ -162,12 +162,12 @@ export default function UserForm({ userId }: UserFormProps) {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 Role
               </label>
               <select
                 {...register('role')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="MANAGER">Manager</option>
                 <option value="ADMIN">Admin</option>
@@ -180,9 +180,9 @@ export default function UserForm({ userId }: UserFormProps) {
                   type="checkbox"
                   id="isActive"
                   {...register('isActive')}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
                 />
-                <label htmlFor="isActive" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label htmlFor="isActive" className="text-sm font-medium text-text-primary">
                   Active
                 </label>
               </div>

@@ -27,63 +27,63 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        <h1 className="text-4xl font-bold text-text-primary mb-2">
           Welcome back{user?.firstName ? `, ${user.firstName}` : ''}!
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
+        <p className="text-lg text-text-secondary">
           Here's what's happening with your CRM today.
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card variant="elevated" className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-primary-500 shadow-md hover:shadow-lg transition-shadow duration-200">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+            <CardTitle className="text-sm font-medium text-text-secondary uppercase tracking-wide">
               Total Clients
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">{totalClients}</p>
+            <p className="text-4xl font-bold text-text-primary">{totalClients}</p>
           </CardBody>
         </Card>
 
-        <Card variant="elevated" className="border-l-4 border-l-green-500">
+        <Card className="border-l-4 border-l-success-500 shadow-md hover:shadow-lg transition-shadow duration-200">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+            <CardTitle className="text-sm font-medium text-text-secondary uppercase tracking-wide">
               New Leads
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">{newLeads}</p>
+            <p className="text-4xl font-bold text-text-primary">{newLeads}</p>
           </CardBody>
         </Card>
 
-        <Card variant="elevated" className="border-l-4 border-l-yellow-500">
+        <Card className="border-l-4 border-l-warning-500 shadow-md hover:shadow-lg transition-shadow duration-200">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+            <CardTitle className="text-sm font-medium text-text-secondary uppercase tracking-wide">
               Qualified
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">{qualified}</p>
+            <p className="text-4xl font-bold text-text-primary">{qualified}</p>
           </CardBody>
         </Card>
 
-        <Card variant="elevated" className="border-l-4 border-l-purple-500">
+        <Card className="border-l-4 border-l-secondary-500 shadow-md hover:shadow-lg transition-shadow duration-200">
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+            <CardTitle className="text-sm font-medium text-text-secondary uppercase tracking-wide">
               Sold
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">{sold}</p>
+            <p className="text-4xl font-bold text-text-primary">{sold}</p>
           </CardBody>
         </Card>
       </div>
 
       {/* Quick Actions */}
-      <Card variant="elevated">
+      <Card className="shadow-md">
         <CardHeader>
           <CardTitle className="text-xl">Quick Actions</CardTitle>
         </CardHeader>
@@ -91,35 +91,35 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link
               href="/dashboard/clients/new"
-              className="group p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:shadow-lg"
+              className="group p-6 rounded-xl border-2 border-border hover:border-primary hover:bg-primary-light transition-all duration-200 hover:shadow-lg"
             >
-              <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+              <h3 className="font-semibold text-lg text-text-primary mb-2 group-hover:text-primary transition-colors duration-200">
                 Add New Client
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-text-secondary">
                 Create a new client record
               </p>
             </Link>
             <Link
               href="/dashboard/clients"
-              className="group p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:shadow-lg"
+              className="group p-6 rounded-xl border-2 border-border hover:border-primary hover:bg-primary-light transition-all duration-200 hover:shadow-lg"
             >
-              <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+              <h3 className="font-semibold text-lg text-text-primary mb-2 group-hover:text-primary transition-colors duration-200">
                 View All Clients
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-text-secondary">
                 Browse and manage clients
               </p>
             </Link>
             {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
               <Link
                 href="/dashboard/users"
-                className="group p-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:shadow-lg"
+                className="group p-6 rounded-xl border-2 border-border hover:border-primary hover:bg-primary-light transition-all duration-200 hover:shadow-lg"
               >
-                <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                <h3 className="font-semibold text-lg text-text-primary mb-2 group-hover:text-primary transition-colors duration-200">
                   Manage Users
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-text-secondary">
                   Add or edit users
                 </p>
               </Link>

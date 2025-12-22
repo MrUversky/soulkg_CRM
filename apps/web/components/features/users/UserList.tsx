@@ -16,9 +16,9 @@ import { formatDate } from '@/lib/utils';
 import { useAuth } from '@/lib/contexts/auth-context';
 
 const ROLE_COLORS = {
-  SUPER_ADMIN: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-  ADMIN: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  MANAGER: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
+  SUPER_ADMIN: 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900 dark:text-secondary-300',
+  ADMIN: 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300',
+  MANAGER: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-300',
 };
 
 const ROLE_LABELS = {
@@ -56,8 +56,8 @@ export default function UserList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Users</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-text-primary">Users</h1>
+          <p className="mt-2 text-text-secondary">
             Manage users in your organization
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function UserList() {
       {/* Loading State */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
         </div>
       )}
 
@@ -81,7 +81,7 @@ export default function UserList() {
         <Card>
           <CardBody>
             <div className="text-center py-8">
-              <p className="text-red-600 dark:text-red-400">
+              <p className="text-error-600 dark:text-error-400">
                 Failed to load users. Please try again.
               </p>
             </div>
@@ -94,11 +94,11 @@ export default function UserList() {
         <Card>
           <CardBody>
             <div className="text-center py-12">
-              <UserIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              <UserIcon className="h-12 w-12 text-text-tertiary mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-text-primary mb-2">
                 No users found
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-text-secondary mb-4">
                 Get started by adding your first user
               </p>
               <Link href="/dashboard/users/new">
@@ -117,12 +117,12 @@ export default function UserList() {
               <CardBody>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex items-start gap-3 flex-1">
-                    <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium flex-shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-medium flex-shrink-0">
                       {user.firstName?.[0] || user.email[0].toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        <h3 className="text-lg font-semibold text-text-primary">
                           {user.firstName || user.lastName
                             ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
                             : user.email}
@@ -135,12 +135,12 @@ export default function UserList() {
                           {ROLE_LABELS[user.role]}
                         </span>
                         {!user.isActive && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-error-100 text-error-800 dark:bg-error-900 dark:text-error-300">
                             Inactive
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-4 mt-1 text-sm text-text-secondary">
                         <span className="flex items-center gap-1">
                           <Mail className="h-4 w-4" />
                           {user.email}

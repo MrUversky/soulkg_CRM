@@ -18,14 +18,14 @@ import { formatPhone, formatRelativeTime } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const STATUS_COLORS: Record<ClientStatus, string> = {
-  NEW_LEAD: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  QUALIFIED: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  WARMED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  PROPOSAL_SENT: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-  NEGOTIATION: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-  SOLD: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  SERVICE: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
-  CLOSED: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
+  NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
+  QUALIFIED: 'bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-300',
+  WARMED: 'bg-warning-100 text-warning-800 dark:bg-warning-900 dark:text-warning-300',
+  PROPOSAL_SENT: 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900 dark:text-secondary-300',
+  NEGOTIATION: 'bg-warning-200 text-warning-900 dark:bg-warning-800 dark:text-warning-200',
+  SOLD: 'bg-success-200 text-success-900 dark:bg-success-800 dark:text-success-200',
+  SERVICE: 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300',
+  CLOSED: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-300',
 };
 
 const STATUS_LABELS: Record<ClientStatus, string> = {
@@ -62,8 +62,8 @@ export default function ClientList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Clients</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
+          <h1 className="text-4xl font-bold text-text-primary mb-2">Clients</h1>
+          <p className="text-lg text-text-secondary">
             Manage your clients and track their journey through the sales funnel
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function ClientList() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-tertiary" />
                 <Input
                   placeholder="Search by name, phone, or email..."
                   value={search}
@@ -100,7 +100,7 @@ export default function ClientList() {
                   setStatusFilter(e.target.value as ClientStatus | '');
                   setPage(1);
                 }}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">All Statuses</option>
                 {Object.entries(STATUS_LABELS).map(([value, label]) => (
@@ -117,7 +117,7 @@ export default function ClientList() {
       {/* Loading State */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
         </div>
       )}
 
@@ -126,7 +126,7 @@ export default function ClientList() {
         <Card>
           <CardBody>
             <div className="text-center py-8">
-              <p className="text-red-600 dark:text-red-400">
+              <p className="text-error-600 dark:text-error-400">
                 Failed to load clients. Please try again.
               </p>
             </div>
@@ -139,11 +139,11 @@ export default function ClientList() {
         <Card>
           <CardBody>
             <div className="text-center py-12">
-              <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              <User className="h-12 w-12 text-text-tertiary mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-text-primary mb-2">
                 No clients found
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-text-secondary mb-4">
                 {search || statusFilter
                   ? 'Try adjusting your filters'
                   : 'Get started by adding your first client'}
@@ -168,21 +168,21 @@ export default function ClientList() {
                 href={`/dashboard/clients/${client.id}`}
                 className="block"
               >
-                <Card className="hover:shadow-xl transition-all duration-200 cursor-pointer hover:-translate-y-0.5 border-gray-200 dark:border-gray-700">
+                <Card className="hover:shadow-xl transition-all duration-200 cursor-pointer hover:-translate-y-0.5 border-border">
                   <CardBody className="p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-start gap-3">
-                          <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium flex-shrink-0">
+                          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-medium flex-shrink-0">
                             {client.firstName?.[0] || client.phone[4]}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
+                            <h3 className="text-lg font-semibold text-text-primary truncate">
                               {client.firstName || client.lastName
                                 ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
                                 : 'Unnamed Client'}
                             </h3>
-                            <div className="flex flex-wrap items-center gap-4 mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex flex-wrap items-center gap-4 mt-1 text-sm text-text-secondary">
                               <span className="flex items-center gap-1">
                                 <Phone className="h-4 w-4" />
                                 {formatPhone(client.phone)}
@@ -206,7 +206,7 @@ export default function ClientList() {
                         >
                           {STATUS_LABELS[client.status]}
                         </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-text-tertiary">
                           Updated {formatRelativeTime(client.updatedAt)}
                         </span>
                       </div>
@@ -220,7 +220,7 @@ export default function ClientList() {
           {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-text-secondary">
                 Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, pagination.total)} of{' '}
                 {pagination.total} clients
               </p>

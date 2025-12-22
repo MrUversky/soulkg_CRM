@@ -18,14 +18,14 @@ import { formatPhone, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const STATUS_COLORS: Record<ClientStatus, string> = {
-  NEW_LEAD: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  QUALIFIED: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  WARMED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  PROPOSAL_SENT: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-  NEGOTIATION: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-  SOLD: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  SERVICE: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
-  CLOSED: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
+  NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
+  QUALIFIED: 'bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-300',
+  WARMED: 'bg-warning-100 text-warning-800 dark:bg-warning-900 dark:text-warning-300',
+  PROPOSAL_SENT: 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900 dark:text-secondary-300',
+  NEGOTIATION: 'bg-warning-200 text-warning-900 dark:bg-warning-800 dark:text-warning-200',
+  SOLD: 'bg-success-200 text-success-900 dark:bg-success-800 dark:text-success-200',
+  SERVICE: 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300',
+  CLOSED: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-300',
 };
 
 const STATUS_LABELS: Record<ClientStatus, string> = {
@@ -64,7 +64,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
   }
@@ -74,7 +74,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
       <Card>
         <CardBody>
           <div className="text-center py-8">
-            <p className="text-red-600 dark:text-red-400">
+            <p className="text-error-600 dark:text-error-400">
               Failed to load client. Please try again.
             </p>
             <Link href="/dashboard/clients">
@@ -99,7 +99,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
           </Button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold text-text-primary">
             {client.firstName || client.lastName
               ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
               : 'Unnamed Client'}
@@ -123,31 +123,31 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
             <CardBody>
               <dl className="space-y-4">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                  <dt className="text-sm font-medium text-text-tertiary flex items-center gap-2">
                     <Phone className="h-4 w-4" />
                     Phone
                   </dt>
-                  <dd className="mt-1 text-base text-gray-900 dark:text-gray-100">
+                  <dd className="mt-1 text-base text-text-primary">
                     {formatPhone(client.phone)}
                   </dd>
                 </div>
                 {client.email && (
                   <div>
-                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <dt className="text-sm font-medium text-text-tertiary flex items-center gap-2">
                       <Mail className="h-4 w-4" />
                       Email
                     </dt>
-                    <dd className="mt-1 text-base text-gray-900 dark:text-gray-100">
+                    <dd className="mt-1 text-base text-text-primary">
                       {client.email}
                     </dd>
                   </div>
                 )}
                 {client.preferredLanguage && (
                   <div>
-                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <dt className="text-sm font-medium text-text-tertiary">
                       Preferred Language
                     </dt>
-                    <dd className="mt-1 text-base text-gray-900 dark:text-gray-100">
+                    <dd className="mt-1 text-base text-text-primary">
                       {client.preferredLanguage.toUpperCase()}
                     </dd>
                   </div>
@@ -164,7 +164,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
             <CardBody>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-text-primary mb-2">
                     Current Status
                   </label>
                   <div className="flex items-center gap-3">
@@ -179,7 +179,7 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-text-primary mb-2">
                     Change Status
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -210,19 +210,19 @@ export default function ClientDetail({ clientId }: ClientDetailProps) {
             <CardBody>
               <dl className="space-y-4">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                  <dt className="text-sm font-medium text-text-tertiary flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     Created
                   </dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                  <dd className="mt-1 text-sm text-text-primary">
                     {formatDate(client.createdAt)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  <dt className="text-sm font-medium text-text-tertiary">
                     Last Updated
                   </dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                  <dd className="mt-1 text-sm text-text-primary">
                     {formatDate(client.updatedAt)}
                   </dd>
                 </div>

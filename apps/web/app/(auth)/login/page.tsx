@@ -52,18 +52,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-background-subtle px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <h1 className="text-4xl font-bold text-text-primary mb-2">
             Soul KG CRM
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-base text-text-secondary">
             Sign in to your account
           </p>
         </div>
 
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle>Login</CardTitle>
           </CardHeader>
@@ -71,10 +71,10 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
                 <div
-                  className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+                  className="p-4 rounded-lg bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800"
                   role="alert"
                 >
-                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                  <p className="text-sm text-error-600 dark:text-error-400 font-medium">{error}</p>
                 </div>
               )}
 
@@ -82,6 +82,7 @@ export default function LoginPage() {
                 label="Email"
                 type="email"
                 placeholder="you@example.com"
+                id="email"
                 {...register('email')}
                 error={errors.email?.message}
                 autoComplete="email"
@@ -92,28 +93,30 @@ export default function LoginPage() {
                 label="Password"
                 type="password"
                 placeholder="••••••••"
+                id="password"
                 {...register('password')}
                 error={errors.password?.message}
                 autoComplete="current-password"
                 required
               />
 
-              <CardFooter className="flex-col gap-4">
+              <CardFooter className="flex-col gap-4 pt-4">
                 <Button
                   type="submit"
                   variant="primary"
                   fullWidth
                   isLoading={isLoading}
                   disabled={isLoading}
+                  size="lg"
                 >
                   Sign In
                 </Button>
 
-                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                <p className="text-sm text-text-secondary text-center">
                   Don't have an account?{' '}
                   <Link
                     href="/register"
-                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                    className="text-primary hover:text-primary-hover font-medium transition-colors duration-200"
                   >
                     Sign up
                   </Link>

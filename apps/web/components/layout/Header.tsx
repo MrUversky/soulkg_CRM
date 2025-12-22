@@ -28,12 +28,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-sm shadow-sm">
       <div className="flex h-16 items-center px-4 md:px-6">
         {/* Mobile menu button */}
         <button
           onClick={onMenuClick}
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="md:hidden p-2 rounded-lg hover:bg-surface-hover transition-colors duration-200"
           aria-label="Toggle menu"
         >
           <Menu className="h-6 w-6" />
@@ -41,7 +41,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center gap-2 ml-2 md:ml-0">
-          <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          <span className="text-xl font-bold text-text-primary">
             Soul KG CRM
           </span>
         </Link>
@@ -53,14 +53,14 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <div className="relative">
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="flex items-center gap-2 p-2 rounded-lg hover:bg-surface-hover transition-colors duration-200"
             aria-label="User menu"
             aria-expanded={showUserMenu}
           >
-            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
+            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium">
               {user?.firstName?.[0] || user?.email[0].toUpperCase()}
             </div>
-            <span className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="hidden md:block text-sm font-medium text-text-secondary">
               {user?.firstName || user?.email}
             </span>
           </button>
@@ -72,20 +72,20 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 onClick={() => setShowUserMenu(false)}
                 aria-hidden="true"
               />
-              <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 py-1 z-50">
-                <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-background border border-border py-1 z-50">
+                <div className="px-4 py-2 border-b border-border">
+                  <p className="text-sm font-medium text-text-primary">
                     {user?.firstName && user?.lastName
                       ? `${user.firstName} ${user.lastName}`
                       : user?.email}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-text-tertiary">
                     {user?.role}
                   </p>
                 </div>
                 <Link
                   href="/settings"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-text-secondary hover:bg-surface-hover transition-colors duration-200"
                   onClick={() => setShowUserMenu(false)}
                 >
                   <Settings className="h-4 w-4" />
@@ -93,7 +93,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-error-600 dark:text-error-400 hover:bg-surface-hover transition-colors duration-200"
                 >
                   <LogOut className="h-4 w-4" />
                   Logout

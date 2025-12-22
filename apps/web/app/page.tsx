@@ -19,18 +19,18 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background-subtle px-4">
       <div className="text-center max-w-2xl">
-        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-4">
           Soul KG CRM
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+        <p className="text-xl text-text-secondary mb-8">
           Multi-tenant CRM system with AI agents for tour sales automation
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
