@@ -158,8 +158,23 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
 
 /**
  * POST /api/users
- * Create new user in the organization
- * Only ADMIN can create users
+ * 
+ * Create a new user in the authenticated user's organization.
+ * Only ADMIN and SUPER_ADMIN roles can create users.
+ * Email must be unique within the organization.
+ * 
+ * @route POST /api/users
+ * @access Private (requires ADMIN or SUPER_ADMIN role)
+ * @body {string} email - User email address (required)
+ * @body {string} password - User password, min 8 characters (required)
+ * @body {string} [firstName] - User first name (optional)
+ * @body {string} [lastName] - User last name (optional)
+ * @body {string} [role=MANAGER] - User role (ADMIN or MANAGER, optional, default: MANAGER)
+ * @returns {Object} Created user object (without passwordHash)
+ * @throws {400} Validation error if input is invalid
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if user doesn't have ADMIN role
+ * @throws {409} Conflict if user with email already exists in organization
  */
 router.post('/', authenticateToken, requireRole('ADMIN', 'SUPER_ADMIN'), async (req: Request, res: Response) => {
   try {
@@ -234,8 +249,24 @@ router.post('/', authenticateToken, requireRole('ADMIN', 'SUPER_ADMIN'), async (
 
 /**
  * PUT /api/users/:id
- * Update user
- * Users can update their own profile (except role), ADMIN can update any user
+ * 
+ * Update user information.
+ * Users can update their own profile (except role).
+ * ADMIN and SUPER_ADMIN can update any user in their organization, including role.
+ * 
+ * @route PUT /api/users/:id
+ * @access Private (requires authentication)
+ * @param {string} id - User UUID
+ * @body {string} [email] - User email address (optional)
+ * @body {string} [firstName] - User first name (optional)
+ * @body {string} [lastName] - User last name (optional)
+ * @body {string} [role] - User role (ADMIN or MANAGER, optional, only ADMIN can change)
+ * @body {boolean} [isActive] - User active status (optional)
+ * @returns {Object} Updated user object (without passwordHash)
+ * @throws {400} Validation error if input is invalid
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if user doesn't have permission to update this user
+ * @throws {404} Not found if user doesn't exist or belongs to different organization
  */
 router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -335,8 +366,19 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
 
 /**
  * DELETE /api/users/:id
- * Deactivate user (soft delete by setting isActive = false)
- * Only ADMIN can deactivate users
+ * 
+ * Deactivate a user (soft delete by setting isActive = false).
+ * Only ADMIN and SUPER_ADMIN roles can deactivate users.
+ * Users cannot deactivate their own account.
+ * 
+ * @route DELETE /api/users/:id
+ * @access Private (requires ADMIN or SUPER_ADMIN role)
+ * @param {string} id - User UUID
+ * @returns {Object} Deactivated user object with success message
+ * @throws {400} Bad request if trying to deactivate own account
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if user doesn't have ADMIN role
+ * @throws {404} Not found if user doesn't exist or belongs to different organization
  */
 router.delete('/:id', authenticateToken, requireRole('ADMIN', 'SUPER_ADMIN'), async (req: Request, res: Response) => {
   try {

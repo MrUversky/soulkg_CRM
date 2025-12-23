@@ -33,7 +33,27 @@ const startImportSchema = z.object({
 
 /**
  * POST /api/import/whatsapp/start
- * Start WhatsApp data import
+ * 
+ * Start WhatsApp data import process.
+ * Initializes WhatsApp connection and returns QR code for authentication.
+ * Import runs in background (non-blocking).
+ * 
+ * @route POST /api/import/whatsapp/start
+ * @access Public (but requires organizationId in body)
+ * @body {string} organizationId - Organization UUID (required)
+ * @body {boolean} [importContacts=true] - Whether to import contacts (optional, default: true)
+ * @body {boolean} [importMessages=true] - Whether to import messages (optional, default: true)
+ * @body {boolean} [detectStatus=true] - Whether to detect client status (optional, default: true)
+ * @body {boolean} [skipDuplicates=true] - Whether to skip duplicate records (optional, default: true)
+ * @body {boolean} [dryRun=false] - Test run without saving data (optional, default: false)
+ * @returns {Object} Import status object
+ * @returns {string} importId - Import UUID for tracking
+ * @returns {string} status - Import status (RUNNING)
+ * @returns {string} qrCode - QR code string for WhatsApp authentication
+ * @returns {string} message - Status message
+ * @throws {400} Validation error if input is invalid
+ * @throws {503} Service unavailable if data import module is not available
+ * @throws {500} Internal server error if import fails to start
  */
 router.post('/whatsapp/start', async (req, res) => {
   if (!DataImportService) {
@@ -87,7 +107,20 @@ router.post('/whatsapp/start', async (req, res) => {
 
 /**
  * GET /api/import/whatsapp/:importId/status
- * Get import status
+ * 
+ * Get status of a WhatsApp data import process.
+ * Returns current status and progress information.
+ * Note: Status is currently stored in memory (TODO: persist in database).
+ * 
+ * @route GET /api/import/whatsapp/:importId/status
+ * @access Public
+ * @param {string} importId - Import UUID
+ * @returns {Object} Import status object
+ * @returns {string} importId - Import UUID
+ * @returns {string} status - Import status (RUNNING, COMPLETED, FAILED, CANCELLED)
+ * @returns {string} message - Status message
+ * @throws {404} Not found if import doesn't exist
+ * @throws {500} Internal server error if status retrieval fails
  */
 router.get('/whatsapp/:importId/status', async (req, res) => {
   try {
@@ -117,7 +150,19 @@ router.get('/whatsapp/:importId/status', async (req, res) => {
 
 /**
  * POST /api/import/whatsapp/:importId/cancel
- * Cancel import
+ * 
+ * Cancel an active WhatsApp data import process.
+ * Disconnects WhatsApp session and removes import from active imports.
+ * 
+ * @route POST /api/import/whatsapp/:importId/cancel
+ * @access Public
+ * @param {string} importId - Import UUID
+ * @returns {Object} Cancellation status object
+ * @returns {string} importId - Import UUID
+ * @returns {string} status - Import status (CANCELLED)
+ * @returns {string} message - Success message
+ * @throws {404} Not found if import doesn't exist
+ * @throws {500} Internal server error if cancellation fails
  */
 router.post('/whatsapp/:importId/cancel', async (req, res) => {
   try {

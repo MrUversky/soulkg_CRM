@@ -20,8 +20,23 @@ const updateOrganizationSchema = z.object({
 
 /**
  * GET /api/organizations
- * Get list of organizations for the authenticated user
- * Note: In MVP, users belong to one organization, but this endpoint supports future multi-org scenarios
+ * 
+ * Get list of organizations for the authenticated user.
+ * In MVP, users belong to one organization, but this endpoint supports future multi-org scenarios.
+ * Returns an array with the user's organization.
+ * 
+ * @route GET /api/organizations
+ * @access Private (requires authentication)
+ * @returns {Object} data - Array containing the user's organization object
+ * @returns {string} data[].id - Organization UUID
+ * @returns {string} data[].name - Organization name
+ * @returns {string} data[].slug - Organization slug
+ * @returns {string|null} data[].logo - Organization logo URL
+ * @returns {Object} data[].settings - Organization settings
+ * @returns {string} data[].createdAt - Organization creation timestamp (ISO string)
+ * @returns {string} data[].updatedAt - Organization update timestamp (ISO string)
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {404} Not found if user doesn't exist
  */
 router.get('/', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -70,8 +85,24 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 
 /**
  * GET /api/organizations/:id
- * Get organization by ID
- * Users can only access their own organization
+ * 
+ * Get organization details by ID.
+ * Users can only access their own organization.
+ * 
+ * @route GET /api/organizations/:id
+ * @access Private (requires authentication)
+ * @param {string} id - Organization UUID
+ * @returns {Object} Organization object
+ * @returns {string} id - Organization UUID
+ * @returns {string} name - Organization name
+ * @returns {string} slug - Organization slug
+ * @returns {string|null} logo - Organization logo URL
+ * @returns {Object} settings - Organization settings
+ * @returns {string} createdAt - Organization creation timestamp (ISO string)
+ * @returns {string} updatedAt - Organization update timestamp (ISO string)
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if user doesn't belong to this organization
+ * @throws {404} Not found if organization doesn't exist
  */
 router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -126,8 +157,29 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
 
 /**
  * PUT /api/organizations/:id
- * Update organization
- * Only ADMIN can update organization
+ * 
+ * Update organization information.
+ * Only ADMIN and SUPER_ADMIN roles can update organization.
+ * When name is updated, slug is automatically regenerated.
+ * 
+ * @route PUT /api/organizations/:id
+ * @access Private (requires ADMIN or SUPER_ADMIN role)
+ * @param {string} id - Organization UUID
+ * @body {string} [name] - Organization name (optional, regenerates slug if provided)
+ * @body {string} [logo] - Organization logo URL (optional, empty string to remove)
+ * @body {Object} [settings] - Organization settings object (optional)
+ * @returns {Object} Updated organization object
+ * @returns {string} id - Organization UUID
+ * @returns {string} name - Organization name
+ * @returns {string} slug - Organization slug (auto-generated from name)
+ * @returns {string|null} logo - Organization logo URL
+ * @returns {Object} settings - Organization settings
+ * @returns {string} createdAt - Organization creation timestamp (ISO string)
+ * @returns {string} updatedAt - Organization update timestamp (ISO string)
+ * @throws {400} Validation error if input is invalid
+ * @throws {401} Unauthorized if not authenticated
+ * @throws {403} Forbidden if user doesn't have ADMIN role or doesn't belong to organization
+ * @throws {409} Conflict if organization with this name already exists
  */
 router.put(
   '/:id',
@@ -230,5 +282,7 @@ router.put(
 );
 
 export default router;
+
+
 
 
