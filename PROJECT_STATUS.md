@@ -97,6 +97,12 @@
 - [x] Unit тесты написаны (JWT utilities, password utilities, auth middleware)
 - [x] README.md обновлен с инструкциями по Frontend
 - [x] JSDoc комментарии добавлены к auth routes
+- [x] Интернационализация (i18n) реализована с поддержкой русского и английского языков
+  - [x] Настроен next-intl с cookie-based подходом
+  - [x] Созданы файлы переводов (ru.json, en.json)
+  - [x] Локализованы все компоненты интерфейса
+  - [x] Реализован переключатель языка с mobile-friendly дизайном
+  - [x] Обновлено форматирование дат для использования текущей локали
 - [ ] JSDoc комментарии добавлены к остальным routes (clients, users, organizations)
 - [ ] Integration тесты для API routes
 - [ ] E2E тесты для Frontend (Playwright)
