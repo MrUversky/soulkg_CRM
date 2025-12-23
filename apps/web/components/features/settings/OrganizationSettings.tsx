@@ -18,6 +18,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslations } from 'next-intl';
 
 const organizationSchema = z.object({
   name: z.string().min(1, 'Organization name is required'),
@@ -29,6 +30,7 @@ type OrganizationFormData = z.infer<typeof organizationSchema>;
 export default function OrganizationSettings() {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations();
   const { user } = useAuth();
   const { data: organization, isLoading, error } = useOrganization(user?.organizationId || '');
   const updateMutation = useUpdateOrganization();
@@ -59,14 +61,14 @@ export default function OrganizationSettings() {
         },
       });
       toast({
-        title: "Success",
-        description: "Organization settings updated successfully!",
+        title: t('common.success'),
+        description: t('settings.organizationUpdated'),
         variant: "success",
       });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.response?.data?.error || "Failed to update organization. Please try again.",
+        title: t('common.error'),
+        description: error.response?.data?.error || t('settings.failedToUpdateOrganization'),
         variant: "error",
       });
     }
@@ -76,12 +78,12 @@ export default function OrganizationSettings() {
   useEffect(() => {
     if (error || (!isLoading && !organization)) {
       toast({
-        title: "Error",
-        description: "Failed to load organization settings.",
+        title: t('common.error'),
+        description: t('settings.failedToLoadSettings'),
         variant: "error",
       });
     }
-  }, [error, isLoading, organization, toast]);
+  }, [error, isLoading, organization, toast, t]);
 
   if (isLoading) {
     return (
@@ -97,7 +99,7 @@ export default function OrganizationSettings() {
         <CardContent>
           <div className="text-center py-12">
             <p className="text-error-600 dark:text-error-400">
-              Failed to load organization settings.
+              {t('settings.failedToLoadSettings')}
             </p>
           </div>
         </CardContent>
@@ -108,25 +110,25 @@ export default function OrganizationSettings() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-text-primary mb-4">Settings</h1>
+        <h1 className="text-3xl font-bold text-text-primary mb-4">{t('settings.title')}</h1>
         <p className="text-lg text-text-secondary">
-          Manage your organization settings
+          {t('settings.manageOrganizationSettings')}
         </p>
       </div>
 
       {/* Theme Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Appearance</CardTitle>
+          <CardTitle>{t('settings.appearance')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-base font-semibold text-text-primary mb-1">
-                Theme
+                {t('settings.theme')}
               </h3>
               <p className="text-sm text-text-secondary">
-                Choose your preferred theme
+                {t('settings.chooseTheme')}
               </p>
             </div>
             <ThemeToggle />
@@ -141,11 +143,11 @@ export default function OrganizationSettings() {
       <Card>
         <form onSubmit={handleSubmit(onSubmit)} className="block">
           <CardHeader>
-            <CardTitle>Organization Information</CardTitle>
+            <CardTitle>{t('settings.organizationInformation')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-8">
             <Input
-              label="Organization Name"
+              label={t('settings.organizationName')}
               placeholder="My Company"
               {...register('name')}
               error={errors.name?.message}
@@ -153,19 +155,19 @@ export default function OrganizationSettings() {
             />
 
             <Input
-              label="Logo URL"
+              label={t('settings.logoUrl')}
               type="url"
               placeholder="https://example.com/logo.png"
               {...register('logo')}
               error={errors.logo?.message}
-              helperText="URL to your organization logo"
+              helperText={t('settings.logoUrlHelper')}
             />
 
             <div className="pt-6 border-t border-border">
               <dl className="space-y-4">
                 <div>
                   <dt className="text-sm font-semibold text-text-tertiary mb-2">
-                    Organization ID
+                    {t('settings.organizationId')}
                   </dt>
                   <dd className="text-sm text-text-primary font-mono">
                     {organization.id}
@@ -173,7 +175,7 @@ export default function OrganizationSettings() {
                 </div>
                 <div>
                   <dt className="text-sm font-semibold text-text-tertiary mb-2">
-                    Slug
+                    {t('settings.slug')}
                   </dt>
                   <dd className="text-sm text-text-primary">
                     {organization.slug}
@@ -189,7 +191,7 @@ export default function OrganizationSettings() {
               isLoading={updateMutation.isPending}
               disabled={updateMutation.isPending}
             >
-              Save Changes
+              {t('settings.saveChanges')}
             </Button>
           </CardFooter>
         </form>

@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { formatDate } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { StickyNote, Plus, X, Tag, Trash2, Edit2 } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface NotesEditorProps {
   clientId: string;
@@ -24,6 +25,8 @@ interface NotesEditorProps {
 
 export default function NotesEditor({ clientId }: NotesEditorProps) {
   const { toast } = useToast();
+  const locale = useLocale();
+  const t = useTranslations();
   const { data: client, isLoading } = useClient(clientId);
   const updateClientMutation = useUpdateClient();
 
@@ -39,8 +42,8 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
   const handleAddNote = async () => {
     if (!newNoteContent.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please enter note content',
+        title: t('common.error'),
+        description: t('notes.pleaseEnterNote'),
         variant: 'error',
       });
       return;
@@ -71,16 +74,16 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
       });
 
       toast({
-        title: 'Success',
-        description: 'Note added successfully',
+        title: t('common.success'),
+        description: t('notes.noteAdded'),
         variant: 'success',
       });
 
       setNewNoteContent('');
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.response?.data?.error || 'Failed to add note',
+        title: t('common.error'),
+        description: error.response?.data?.error || t('notes.failedToAddNote'),
         variant: 'error',
       });
     }
@@ -119,8 +122,8 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
       });
 
       toast({
-        title: 'Success',
-        description: 'Note updated successfully',
+        title: t('common.success'),
+        description: t('notes.noteUpdated'),
         variant: 'success',
       });
 
@@ -128,15 +131,15 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
       setEditingNoteContent('');
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.response?.data?.error || 'Failed to update note',
+        title: t('common.error'),
+        description: error.response?.data?.error || t('notes.failedToUpdateNote'),
         variant: 'error',
       });
     }
   };
 
   const handleDeleteNote = async (noteId: string) => {
-    if (!confirm('Are you sure you want to delete this note?')) {
+    if (!confirm(t('notes.confirmDeleteNote'))) {
       return;
     }
 
@@ -160,14 +163,14 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
       });
 
       toast({
-        title: 'Success',
-        description: 'Note deleted successfully',
+        title: t('common.success'),
+        description: t('notes.noteDeleted'),
         variant: 'success',
       });
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.response?.data?.error || 'Failed to delete note',
+        title: t('common.error'),
+        description: error.response?.data?.error || t('notes.failedToDeleteNote'),
         variant: 'error',
       });
     }
@@ -176,8 +179,8 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
   const handleAddTag = async () => {
     if (!newTag.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please enter a tag',
+        title: t('common.error'),
+        description: t('notes.pleaseEnterTag'),
         variant: 'error',
       });
       return;
@@ -186,8 +189,8 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
     const tagToAdd = newTag.trim().toLowerCase();
     if (tags.includes(tagToAdd)) {
       toast({
-        title: 'Error',
-        description: 'Tag already exists',
+        title: t('common.error'),
+        description: t('notes.tagAlreadyExists'),
         variant: 'error',
       });
       return;
@@ -210,16 +213,16 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
       });
 
       toast({
-        title: 'Success',
-        description: 'Tag added successfully',
+        title: t('common.success'),
+        description: t('notes.tagAdded'),
         variant: 'success',
       });
 
       setNewTag('');
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.response?.data?.error || 'Failed to add tag',
+        title: t('common.error'),
+        description: error.response?.data?.error || t('notes.failedToAddTag'),
         variant: 'error',
       });
     }
@@ -245,14 +248,14 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
       });
 
       toast({
-        title: 'Success',
-        description: 'Tag removed successfully',
+        title: t('common.success'),
+        description: t('notes.tagRemoved'),
         variant: 'success',
       });
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.response?.data?.error || 'Failed to remove tag',
+        title: t('common.error'),
+        description: error.response?.data?.error || t('notes.failedToRemoveTag'),
         variant: 'error',
       });
     }
@@ -272,7 +275,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
       <div>
         <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Tag className="h-5 w-5" />
-          Tags ({tags.length})
+          {t('notes.tags', { count: tags.length })}
         </h3>
 
         {/* Add Tag Form */}
@@ -286,7 +289,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
                 handleAddTag();
               }
             }}
-            placeholder="Add a tag..."
+            placeholder={t('notes.addTag')}
             className="flex-1 w-full"
           />
           <Button
@@ -296,7 +299,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
             className="w-full sm:w-auto"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add
+            {t('notes.add')}
           </Button>
         </div>
 
@@ -306,7 +309,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
             <CardContent>
               <div className="text-center py-8">
                 <Tag className="h-10 w-10 mx-auto mb-3 text-text-tertiary" />
-                <p className="text-text-secondary text-sm">No tags yet</p>
+                <p className="text-text-secondary text-sm">{t('notes.noTags')}</p>
               </div>
             </CardContent>
           </Card>
@@ -335,7 +338,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
       <div>
         <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2 mb-4">
           <StickyNote className="h-5 w-5" />
-          Notes ({notes.length})
+          {t('notes.title', { count: notes.length })}
         </h3>
 
         {/* Add Note Form */}
@@ -345,7 +348,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
               <Input
                 value={newNoteContent}
                 onChange={(e) => setNewNoteContent(e.target.value)}
-                placeholder="Add a note..."
+                placeholder={t('notes.addNote')}
                 className="w-full"
               />
               <div className="flex justify-end">
@@ -355,7 +358,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
                   size="sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Note
+                  {t('notes.addNoteButton')}
                 </Button>
               </div>
             </div>
@@ -368,9 +371,9 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
             <CardContent>
               <div className="text-center py-12">
                 <StickyNote className="h-12 w-12 mx-auto mb-4 text-text-tertiary" />
-                <p className="text-text-secondary mb-2">No notes yet</p>
+                <p className="text-text-secondary mb-2">{t('notes.noNotes')}</p>
                 <p className="text-sm text-text-tertiary">
-                  Add notes to keep track of important information about this client
+                  {t('notes.noNotesDescription')}
                 </p>
               </div>
             </CardContent>
@@ -393,7 +396,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
                           disabled={updateClientMutation.isPending || !editingNoteContent.trim()}
                           size="sm"
                         >
-                          Save
+                          {t('notes.save')}
                         </Button>
                         <Button
                           variant="outline"
@@ -403,7 +406,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
                           }}
                           size="sm"
                         >
-                          Cancel
+                          {t('notes.cancel')}
                         </Button>
                       </div>
                     </div>
@@ -412,7 +415,7 @@ export default function NotesEditor({ clientId }: NotesEditorProps) {
                       <div className="flex-1 min-w-0 w-full">
                         <p className="text-sm sm:text-base text-text-primary whitespace-pre-wrap break-words">{note.content}</p>
                         <p className="text-xs text-text-tertiary mt-2">
-                          {formatDate(note.createdAt)}
+                          {formatDate(note.createdAt, locale)}
                         </p>
                       </div>
                       <div className="flex gap-2 self-start sm:self-auto">

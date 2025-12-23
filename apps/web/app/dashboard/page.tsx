@@ -10,9 +10,11 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useClients } from '@/lib/hooks/useClients';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { useTranslations } from 'next-intl';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const t = useTranslations();
   
   // Fetch clients for stats
   const { data: clientsData } = useClients({ page: 1, limit: 1000 });
@@ -28,10 +30,10 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight bg-gradient-to-br from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-          Welcome back{user?.firstName ? `, ${user.firstName}` : ''}!
+          {t('dashboard.welcomeBack')}{user?.firstName ? `, ${user.firstName}` : ''}!
         </h1>
         <p className="text-lg md:text-xl text-text-secondary leading-relaxed">
-          Here's what's happening with your CRM today.
+          {t('dashboard.whatsHappening')}
         </p>
       </div>
 
@@ -40,7 +42,7 @@ export default function DashboardPage() {
         <Card className="border-l-4 border-l-primary-500 hover:border-l-primary-600 transition-colors duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
-              Total Clients
+              {t('dashboard.totalClients')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2">
@@ -51,7 +53,7 @@ export default function DashboardPage() {
         <Card className="border-l-4 border-l-success-500 hover:border-l-success-600 transition-colors duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
-              New Leads
+              {t('dashboard.newLeads')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2">
@@ -62,7 +64,7 @@ export default function DashboardPage() {
         <Card className="border-l-4 border-l-warning-500 hover:border-l-warning-600 transition-colors duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
-              Qualified
+              {t('dashboard.qualified')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2">
@@ -73,7 +75,7 @@ export default function DashboardPage() {
         <Card className="border-l-4 border-l-secondary-500 hover:border-l-secondary-600 transition-colors duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
-              Sold
+              {t('dashboard.sold')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2">
@@ -85,7 +87,7 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Quick Actions</CardTitle>
+          <CardTitle className="text-2xl">{t('dashboard.quickActions')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -94,10 +96,10 @@ export default function DashboardPage() {
               className="group p-8 md:p-10 rounded-xl border-2 border-border/50 hover:border-primary/50 hover:bg-primary-light/50 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] block overflow-hidden"
             >
               <h3 className="font-bold text-lg md:text-xl text-text-primary mb-3 md:mb-4 group-hover:text-primary transition-colors duration-300">
-                Add New Client
+                {t('dashboard.addNewClient')}
               </h3>
               <p className="text-sm md:text-base text-text-secondary leading-relaxed">
-                Create a new client record
+                {t('dashboard.createNewClientRecord')}
               </p>
             </Link>
             <Link
@@ -105,10 +107,10 @@ export default function DashboardPage() {
               className="group p-8 md:p-10 rounded-xl border-2 border-border/50 hover:border-primary/50 hover:bg-primary-light/50 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] block overflow-hidden"
             >
               <h3 className="font-bold text-lg md:text-xl text-text-primary mb-3 md:mb-4 group-hover:text-primary transition-colors duration-300">
-                View All Clients
+                {t('dashboard.viewAllClients')}
               </h3>
               <p className="text-sm md:text-base text-text-secondary leading-relaxed">
-                Browse and manage clients
+                {t('dashboard.browseAndManageClients')}
               </p>
             </Link>
             {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
@@ -117,10 +119,10 @@ export default function DashboardPage() {
                 className="group p-8 md:p-10 rounded-xl border-2 border-border/50 hover:border-primary/50 hover:bg-primary-light/50 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] block overflow-hidden"
               >
                 <h3 className="font-bold text-lg md:text-xl text-text-primary mb-3 md:mb-4 group-hover:text-primary transition-colors duration-300">
-                  Manage Users
+                  {t('dashboard.manageUsers')}
                 </h3>
                 <p className="text-sm md:text-base text-text-secondary leading-relaxed">
-                  Add or edit users
+                  {t('dashboard.addOrEditUsers')}
                 </p>
               </Link>
             )}

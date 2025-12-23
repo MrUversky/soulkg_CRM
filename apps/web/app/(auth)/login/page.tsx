@@ -17,6 +17,8 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { useTranslations } from 'next-intl';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -28,8 +30,14 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const t = useTranslations();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const loginSchema = z.object({
+    email: z.string().email(t('auth.invalidEmail')),
+    password: z.string().min(1, t('auth.passwordRequired')),
+  });
 
   const {
     register,
@@ -46,37 +54,38 @@ export default function LoginPage() {
       await login(data);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.');
+      setError(err.message || t('auth.loginFailed'));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative px-6 py-16 overflow-hidden bg-background-subtle">
+    <div className="min-h-screen flex items-center justify-center relative px-4 sm:px-6 py-12 sm:py-16 overflow-hidden bg-background-subtle">
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 via-background to-secondary-50/50 dark:from-primary-950/30 dark:via-background dark:to-secondary-950/30" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.08)_0%,_transparent_50%)]" />
       
-      <div className="w-full max-w-md relative z-10">
-        {/* Theme toggle */}
-        <div className="absolute top-0 right-0">
+      <div className="w-full max-w-md relative z-10 pt-8 sm:pt-0">
+        {/* Theme toggle and Language switcher - Mobile friendly positioning */}
+        <div className="absolute top-2 right-2 sm:top-0 sm:right-0 flex items-center gap-1.5 sm:gap-2">
+          <LanguageSwitcher />
           <ThemeToggle />
         </div>
 
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-3 leading-tight bg-gradient-to-br from-primary-600 to-secondary-600 bg-clip-text text-transparent">
             Soul KG CRM
           </h1>
           <p className="text-lg text-text-secondary leading-relaxed">
-            Sign in to your account
+            {t('auth.signInToAccount')}
           </p>
         </div>
 
         <Card>
           <form onSubmit={handleSubmit(onSubmit)} className="block w-full">
             <CardHeader>
-              <CardTitle>Login</CardTitle>
+              <CardTitle>{t('auth.login')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {error && (
@@ -89,7 +98,7 @@ export default function LoginPage() {
               )}
 
               <Input
-                label="Email"
+                label={t('auth.email')}
                 type="email"
                 placeholder="you@example.com"
                 id="email"
@@ -100,7 +109,7 @@ export default function LoginPage() {
               />
 
               <Input
-                label="Password"
+                label={t('auth.password')}
                 type="password"
                 placeholder="••••••••"
                 id="password"
@@ -119,16 +128,16 @@ export default function LoginPage() {
                 disabled={isLoading}
                 size="lg"
               >
-                Sign In
+                {t('auth.signIn')}
               </Button>
 
               <p className="text-sm text-text-secondary text-center">
-                Don't have an account?{' '}
+                {t('auth.dontHaveAccount')}{' '}
                 <Link
                   href="/register"
                   className="text-primary hover:text-primary-hover font-medium transition-colors duration-200"
                 >
-                  Sign up
+                  {t('auth.signUp')}
                 </Link>
               </p>
             </CardFooter>

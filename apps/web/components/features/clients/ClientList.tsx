@@ -17,6 +17,7 @@ import { Search, Plus, Phone, Mail, User, LayoutGrid } from 'lucide-react';
 import { formatPhone, formatRelativeTime } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslations, useLocale } from 'next-intl';
 
 const STATUS_COLORS: Record<ClientStatus, string> = {
   NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
@@ -29,23 +30,26 @@ const STATUS_COLORS: Record<ClientStatus, string> = {
   CLOSED: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-300',
 };
 
-const STATUS_LABELS: Record<ClientStatus, string> = {
-  NEW_LEAD: 'New Lead',
-  QUALIFIED: 'Qualified',
-  WARMED: 'Warmed',
-  PROPOSAL_SENT: 'Proposal Sent',
-  NEGOTIATION: 'Negotiation',
-  SOLD: 'Sold',
-  SERVICE: 'Service',
-  CLOSED: 'Closed',
-};
-
 export default function ClientList() {
+  const t = useTranslations();
+  const locale = useLocale();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ClientStatus | ''>('');
   const limit = 20;
   const { toast } = useToast();
+
+  // Create STATUS_LABELS dynamically using translations
+  const STATUS_LABELS: Record<ClientStatus, string> = {
+    NEW_LEAD: t('clientStatus.NEW_LEAD'),
+    QUALIFIED: t('clientStatus.QUALIFIED'),
+    WARMED: t('clientStatus.WARMED'),
+    PROPOSAL_SENT: t('clientStatus.PROPOSAL_SENT'),
+    NEGOTIATION: t('clientStatus.NEGOTIATION'),
+    SOLD: t('clientStatus.SOLD'),
+    SERVICE: t('clientStatus.SERVICE'),
+    CLOSED: t('clientStatus.CLOSED'),
+  };
 
   // Восстановление позиции скролла при возврате
   useEffect(() => {
@@ -75,36 +79,33 @@ export default function ClientList() {
   useEffect(() => {
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to load clients. Please try again.",
+        title: t('clients.error'),
+        description: t('clients.failedToLoadClients'),
         variant: "error",
       });
     }
-  }, [error, toast]);
+  }, [error, toast, t]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-3 sm:mb-4 md:mb-6 leading-tight">Clients</h1>
-          <p className="text-sm sm:text-base lg:text-lg text-text-secondary leading-relaxed">
-            Manage your clients and track their journey through the sales funnel
-          </p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-3 sm:mb-4 md:mb-6 leading-tight">{t('clients.title')}</h1>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 flex-shrink-0">
           <Link href="/dashboard/clients/kanban" className="w-full sm:w-auto">
             <Button variant="outline" size="lg" className="w-full sm:w-auto">
               <LayoutGrid className="h-4 w-4 sm:h-5 sm:w-5 sm:mr-2" />
-              <span className="hidden sm:inline">Kanban View</span>
-              <span className="sm:hidden">Kanban</span>
+              <span className="hidden sm:inline">{t('clients.viewKanban')}</span>
+              <span className="sm:hidden">{t('clients.viewKanban')}</span>
             </Button>
           </Link>
           <Link href="/dashboard/clients/new" className="w-full sm:w-auto">
             <Button variant="default" size="lg" className="w-full sm:w-auto">
               <Plus className="h-4 w-4 sm:h-5 sm:w-5 sm:mr-2" />
-              <span className="hidden sm:inline">Add Client</span>
-              <span className="sm:hidden">Add</span>
+              <span className="hidden sm:inline">{t('clients.newClientButton')}</span>
+              <span className="sm:hidden">{t('common.add')}</span>
             </Button>
           </Link>
         </div>
@@ -118,7 +119,7 @@ export default function ClientList() {
               <div className="relative">
                 <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-text-muted" />
                 <Input
-                  placeholder="Search by name, phone, or email..."
+                  placeholder={t('clients.searchClients')}
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value);
@@ -137,7 +138,7 @@ export default function ClientList() {
                 }}
                 className="w-full h-10 sm:h-12 px-3 sm:px-4 py-2 text-sm sm:text-base border border-border rounded-lg sm:rounded-xl bg-background/50 backdrop-blur-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
               >
-                <option value="">All Statuses</option>
+                <option value="">{t('clients.allStatuses')}</option>
                 {Object.entries(STATUS_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>
                     {label}
@@ -162,7 +163,7 @@ export default function ClientList() {
           <CardContent>
             <div className="text-center py-12">
               <p className="text-error-600 dark:text-error-400">
-                Failed to load clients. Please try again.
+                {t('clients.failedToLoadClients')}
               </p>
             </div>
           </CardContent>
@@ -176,16 +177,16 @@ export default function ClientList() {
             <div className="text-center py-16">
               <User className="h-12 w-12 text-text-muted mx-auto mb-6" />
               <h3 className="text-lg font-medium text-text-primary mb-4">
-                No clients found
+                {t('clients.noClients')}
               </h3>
               <p className="text-text-secondary mb-6">
                 {search || statusFilter
-                  ? 'Try adjusting your filters'
-                  : 'Get started by adding your first client'}
+                  ? t('common.filter')
+                  : t('clients.noClientsDescription')}
               </p>
               {!search && !statusFilter && (
                 <Link href="/dashboard/clients/new">
-                  <Button variant="default">Add Client</Button>
+                  <Button variant="default">{t('clients.newClientButton')}</Button>
                 </Link>
               )}
             </div>
@@ -219,7 +220,7 @@ export default function ClientList() {
                             <h3 className="text-base sm:text-lg font-semibold text-text-primary truncate mb-1.5 sm:mb-2 group-hover:text-primary transition-colors duration-200">
                               {client.firstName || client.lastName
                                 ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
-                                : 'Unnamed Client'}
+                                : t('clients.unnamedClient')}
                             </h3>
                             <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-text-secondary">
                               <span className="flex items-center gap-1.5 sm:gap-2">
@@ -246,7 +247,7 @@ export default function ClientList() {
                           {STATUS_LABELS[client.status]}
                         </span>
                         <span className="text-xs text-text-muted whitespace-nowrap">
-                          Updated {formatRelativeTime(client.updatedAt)}
+                          {t('clients.updated')} {formatRelativeTime(client.updatedAt, locale)}
                         </span>
                       </div>
                     </div>
@@ -260,8 +261,8 @@ export default function ClientList() {
           {pagination && pagination.totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 pt-4">
               <p className="text-xs sm:text-sm text-text-secondary text-center sm:text-left">
-                Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, pagination.total)} of{' '}
-                {pagination.total} clients
+                {t('clients.showing')} {((page - 1) * limit) + 1} {t('clients.to')} {Math.min(page * limit, pagination.total)} {t('clients.of')}{' '}
+                {pagination.total} {t('clients.title').toLowerCase()}
               </p>
               <div className="flex gap-2 sm:gap-4">
                 <Button
@@ -271,7 +272,7 @@ export default function ClientList() {
                   disabled={page === 1}
                   className="flex-1 sm:flex-none"
                 >
-                  Previous
+                  {t('clients.previous')}
                 </Button>
                 <Button
                   variant="outline"
@@ -280,7 +281,7 @@ export default function ClientList() {
                   disabled={page === pagination.totalPages}
                   className="flex-1 sm:flex-none"
                 >
-                  Next
+                  {t('clients.next')}
                 </Button>
               </div>
             </div>

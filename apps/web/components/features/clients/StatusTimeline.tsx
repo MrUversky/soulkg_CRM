@@ -7,16 +7,19 @@
 'use client';
 
 import { useClientStatusHistory } from '@/lib/hooks/useClients';
+import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { StatusHistoryEntry, ClientStatus } from '@/types/client';
 import { cn } from '@/lib/utils';
 import { formatDate } from '@/lib/utils';
 import { Clock, User, Bot, ArrowRight } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface StatusTimelineProps {
   clientId: string;
 }
 
+// STATUS_COLORS is defined at module level so it can be used in TimelineItem
 const STATUS_COLORS: Record<ClientStatus, string> = {
   NEW_LEAD: 'bg-info-100 text-info-800 dark:bg-info-900 dark:text-info-300',
   QUALIFIED: 'bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-300',
@@ -28,19 +31,26 @@ const STATUS_COLORS: Record<ClientStatus, string> = {
   CLOSED: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-300',
 };
 
-const STATUS_LABELS: Record<ClientStatus, string> = {
-  NEW_LEAD: 'New Lead',
-  QUALIFIED: 'Qualified',
-  WARMED: 'Warmed',
-  PROPOSAL_SENT: 'Proposal Sent',
-  NEGOTIATION: 'Negotiation',
-  SOLD: 'Sold',
-  SERVICE: 'Service',
-  CLOSED: 'Closed',
-};
-
 export default function StatusTimeline({ clientId }: StatusTimelineProps) {
+  const t = useTranslations();
+  const locale = useLocale();
   const { data, isLoading } = useClientStatusHistory(clientId);
+
+  // Create STATUS_LABELS dynamically using translations
+  const STATUS_LABELS = useMemo<Record<ClientStatus, string>>(() => {
+    return {
+      NEW_LEAD: t('clientStatus.NEW_LEAD'),
+      QUALIFIED: t('clientStatus.QUALIFIED'),
+      WARMED: t('clientStatus.WARMED'),
+      PROPOSAL_SENT: t('clientStatus.PROPOSAL_SENT'),
+      NEGOTIATION: t('clientStatus.NEGOTIATION'),
+      SOLD: t('clientStatus.SOLD'),
+      SERVICE: t('clientStatus.SERVICE'),
+      CLOSED: t('clientStatus.CLOSED'),
+    };
+  }, [t]);
+  
+  const history = data?.data || [];
 
   if (isLoading) {
     return (
@@ -54,18 +64,16 @@ export default function StatusTimeline({ clientId }: StatusTimelineProps) {
     );
   }
 
-  const history = data?.data || [];
-
   if (history.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Status History</CardTitle>
+          <CardTitle>{t('statusTimeline.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-12 text-text-tertiary">
             <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No status changes recorded yet.</p>
+            <p>{t('statusTimeline.noStatusChanges')}</p>
           </div>
         </CardContent>
       </Card>
@@ -75,7 +83,7 @@ export default function StatusTimeline({ clientId }: StatusTimelineProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Status History</CardTitle>
+        <CardTitle>{t('statusTimeline.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="relative">
@@ -85,7 +93,13 @@ export default function StatusTimeline({ clientId }: StatusTimelineProps) {
           {/* Timeline items */}
           <div className="space-y-4 sm:space-y-6">
             {history.map((entry, index) => (
-              <TimelineItem key={entry.id} entry={entry} isFirst={index === 0} />
+              <TimelineItem 
+                key={entry.id} 
+                entry={entry} 
+                isFirst={index === 0} 
+                statusLabels={STATUS_LABELS}
+                statusColors={STATUS_COLORS}
+              />
             ))}
           </div>
         </div>
@@ -97,19 +111,26 @@ export default function StatusTimeline({ clientId }: StatusTimelineProps) {
 interface TimelineItemProps {
   entry: StatusHistoryEntry;
   isFirst: boolean;
+  statusLabels: Record<ClientStatus, string>;
+  statusColors: Record<ClientStatus, string>;
 }
 
-function TimelineItem({ entry, isFirst }: TimelineItemProps) {
+function TimelineItem({ entry, isFirst, statusLabels, statusColors }: TimelineItemProps) {
+  const t = useTranslations();
+  const locale = useLocale();
+  
   const changedByLabel =
     entry.changedBy === 'AI'
-      ? 'AI Assistant'
+      ? t('conversations.aiAgent')
       : entry.changedByUser
       ? `${entry.changedByUser.firstName || ''} ${entry.changedByUser.lastName || ''}`.trim() ||
         entry.changedByUser.email
-      : 'System';
+      : t('common.system');
 
-  const oldStatusLabel = entry.oldStatus ? STATUS_LABELS[entry.oldStatus] : 'None';
-  const newStatusLabel = STATUS_LABELS[entry.newStatus];
+  const oldStatusLabel = entry.oldStatus && statusLabels ? statusLabels[entry.oldStatus] : t('common.none');
+  const newStatusLabel = statusLabels?.[entry.newStatus] || entry.newStatus;
+  
+  // STATUS_COLORS is available at module level
 
   return (
     <div className="relative flex gap-2 sm:gap-4">
@@ -144,7 +165,7 @@ function TimelineItem({ entry, isFirst }: TimelineItemProps) {
             </div>
             <div className="text-xs text-text-tertiary flex items-center gap-1 flex-shrink-0">
               <Clock className="h-3 w-3" />
-              {formatDate(entry.createdAt)}
+              {formatDate(entry.createdAt, locale)}
             </div>
           </div>
 
@@ -155,7 +176,7 @@ function TimelineItem({ entry, isFirst }: TimelineItemProps) {
                 <span
                   className={cn(
                     'inline-flex items-center px-2 py-0.5 sm:py-1 rounded text-xs font-medium whitespace-nowrap',
-                    STATUS_COLORS[entry.oldStatus]
+                    statusColors[entry.oldStatus]
                   )}
                 >
                   {oldStatusLabel}
@@ -166,7 +187,7 @@ function TimelineItem({ entry, isFirst }: TimelineItemProps) {
             <span
               className={cn(
                 'inline-flex items-center px-2 py-0.5 sm:py-1 rounded text-xs font-medium whitespace-nowrap',
-                STATUS_COLORS[entry.newStatus]
+                statusColors[entry.newStatus]
               )}
             >
               {newStatusLabel}
@@ -176,7 +197,7 @@ function TimelineItem({ entry, isFirst }: TimelineItemProps) {
           {/* Reason */}
           {entry.reason && (
             <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border">
-              <div className="text-xs text-text-tertiary mb-1">Reason:</div>
+              <div className="text-xs text-text-tertiary mb-1">{t('statusTimeline.reason')}:</div>
               <div className="text-xs sm:text-sm text-text-primary break-words">{entry.reason}</div>
             </div>
           )}

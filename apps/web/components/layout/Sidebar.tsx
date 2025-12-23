@@ -17,42 +17,44 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '@/lib/contexts/auth-context';
+import { useTranslations } from 'next-intl';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const navigation = [
-  {
-    name: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
-  {
-    name: 'Clients',
-    href: '/dashboard/clients',
-    icon: Users,
-  },
-  {
-    name: 'Users',
-    href: '/dashboard/users',
-    icon: UserCheck,
-    adminOnly: true,
-  },
-  {
-    name: 'Settings',
-    href: '/dashboard/settings',
-    icon: Settings,
-    adminOnly: true,
-  },
-];
-
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const t = useTranslations();
 
-  const filteredNavigation = navigation.filter(
+  const navigationWithTranslations = [
+    {
+      name: t('navigation.dashboard'),
+      href: '/dashboard',
+      icon: LayoutDashboard,
+    },
+    {
+      name: t('navigation.clients'),
+      href: '/dashboard/clients',
+      icon: Users,
+    },
+    {
+      name: t('navigation.users'),
+      href: '/dashboard/users',
+      icon: UserCheck,
+      adminOnly: true,
+    },
+    {
+      name: t('navigation.settings'),
+      href: '/dashboard/settings',
+      icon: Settings,
+      adminOnly: true,
+    },
+  ];
+
+  const filteredNavigation = navigationWithTranslations.filter(
     (item) => !item.adminOnly || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN'
   );
 
@@ -84,12 +86,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Mobile header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 md:hidden">
             <span className="text-lg font-semibold text-text-primary">
-              Menu
+              {t('navigation.menu')}
             </span>
             <button
               onClick={onClose}
               className="p-2 rounded-xl hover:bg-surface-hover transition-all duration-200 hover:scale-105 active:scale-95"
-              aria-label="Close menu"
+              aria-label={t('sidebar.closeMenu')}
             >
               <X className="h-5 w-5 text-text-secondary" />
             </button>

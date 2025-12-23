@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { formatDate } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { Package, Calendar, Trash2, Plus, X } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface ProductsListProps {
   clientId: string;
@@ -29,15 +30,10 @@ const STATUS_COLORS: Record<ClientProductStatus, string> = {
   BOOKED: 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300',
 };
 
-const STATUS_LABELS: Record<ClientProductStatus, string> = {
-  INTERESTED: 'Interested',
-  PROPOSED: 'Proposed',
-  SELECTED: 'Selected',
-  BOOKED: 'Booked',
-};
-
 export default function ProductsList({ clientId }: ProductsListProps) {
   const { toast } = useToast();
+  const locale = useLocale();
+  const t = useTranslations();
   const { data, isLoading, error } = useClientProducts(clientId);
   const addProductMutation = useAddClientProduct();
   const removeProductMutation = useRemoveClientProduct();
@@ -47,11 +43,19 @@ export default function ProductsList({ clientId }: ProductsListProps) {
   const [status, setStatus] = useState<ClientProductStatus>('INTERESTED');
   const [notes, setNotes] = useState('');
 
+  // Create STATUS_LABELS dynamically using translations
+  const STATUS_LABELS: Record<ClientProductStatus, string> = {
+    INTERESTED: t('products.statusLabels.INTERESTED'),
+    PROPOSED: t('products.statusLabels.PROPOSED'),
+    SELECTED: t('products.statusLabels.SELECTED'),
+    BOOKED: t('products.statusLabels.BOOKED'),
+  };
+
   const handleAddProduct = async () => {
     if (!productId.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please enter a product ID',
+        title: t('common.error'),
+        description: t('products.pleaseEnterProductId'),
         variant: 'error',
       });
       return;
@@ -68,8 +72,8 @@ export default function ProductsList({ clientId }: ProductsListProps) {
       });
 
       toast({
-        title: 'Success',
-        description: 'Product added successfully',
+        title: t('common.success'),
+        description: t('products.productAdded'),
         variant: 'success',
       });
 
@@ -80,15 +84,15 @@ export default function ProductsList({ clientId }: ProductsListProps) {
       setShowAddForm(false);
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.response?.data?.error || 'Failed to add product',
+        title: t('common.error'),
+        description: error.response?.data?.error || t('products.failedToAddProduct'),
         variant: 'error',
       });
     }
   };
 
   const handleRemoveProduct = async (productId: string) => {
-    if (!confirm('Are you sure you want to remove this product?')) {
+    if (!confirm(t('products.confirmRemoveProduct'))) {
       return;
     }
 
@@ -99,14 +103,14 @@ export default function ProductsList({ clientId }: ProductsListProps) {
       });
 
       toast({
-        title: 'Success',
-        description: 'Product removed successfully',
+        title: t('common.success'),
+        description: t('products.productRemoved'),
         variant: 'success',
       });
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.response?.data?.error || 'Failed to remove product',
+        title: t('common.error'),
+        description: error.response?.data?.error || t('products.failedToRemoveProduct'),
         variant: 'error',
       });
     }
@@ -126,7 +130,7 @@ export default function ProductsList({ clientId }: ProductsListProps) {
         <CardContent>
           <div className="text-center py-12">
             <p className="text-error-600 dark:text-error-400 mb-6">
-              Failed to load products. Please try again.
+              {t('products.failedToLoadProducts')}
             </p>
           </div>
         </CardContent>
@@ -144,7 +148,7 @@ export default function ProductsList({ clientId }: ProductsListProps) {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4">
           <h3 className="text-base sm:text-lg font-semibold text-text-primary flex items-center gap-2">
             <Package className="h-4 w-4 sm:h-5 sm:w-5" />
-            Products ({products.length})
+            {t('products.title', { count: products.length })}
           </h3>
           {!showAddForm && (
             <Button
@@ -154,7 +158,7 @@ export default function ProductsList({ clientId }: ProductsListProps) {
               className="w-full sm:w-auto"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Add Product
+              {t('products.addProduct')}
             </Button>
           )}
         </div>
@@ -165,7 +169,7 @@ export default function ProductsList({ clientId }: ProductsListProps) {
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-text-primary">Add Product</h4>
+                  <h4 className="font-medium text-text-primary">{t('products.addProductForm')}</h4>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -182,18 +186,18 @@ export default function ProductsList({ clientId }: ProductsListProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Product ID
+                      {t('products.productId')}
                     </label>
                     <Input
                       value={productId}
                       onChange={(e) => setProductId(e.target.value)}
-                      placeholder="Enter product UUID"
+                      placeholder={t('products.productIdPlaceholder')}
                       className="w-full"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Status
+                      {t('products.status')}
                     </label>
                     <select
                       value={status}
@@ -210,12 +214,12 @@ export default function ProductsList({ clientId }: ProductsListProps) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-2">
-                    Notes (optional)
+                    {t('products.notesOptional')}
                   </label>
                   <Input
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Add notes about this product"
+                    placeholder={t('products.notesPlaceholder')}
                     className="w-full"
                   />
                 </div>
@@ -224,7 +228,7 @@ export default function ProductsList({ clientId }: ProductsListProps) {
                     onClick={handleAddProduct}
                     disabled={addProductMutation.isPending}
                   >
-                    {addProductMutation.isPending ? 'Adding...' : 'Add Product'}
+                    {addProductMutation.isPending ? t('products.adding') : t('products.addProduct')}
                   </Button>
                   <Button
                     variant="outline"
@@ -235,7 +239,7 @@ export default function ProductsList({ clientId }: ProductsListProps) {
                       setNotes('');
                     }}
                   >
-                    Cancel
+                    {t('products.cancel')}
                   </Button>
                 </div>
               </div>
@@ -249,9 +253,9 @@ export default function ProductsList({ clientId }: ProductsListProps) {
             <CardContent>
               <div className="text-center py-12">
                 <Package className="h-12 w-12 mx-auto mb-4 text-text-tertiary" />
-                <p className="text-text-secondary mb-2">No products added yet</p>
+                <p className="text-text-secondary mb-2">{t('products.noProducts')}</p>
                 <p className="text-sm text-text-tertiary">
-                  Add products that this client is interested in
+                  {t('products.noProductsDescription')}
                 </p>
               </div>
             </CardContent>
@@ -283,14 +287,14 @@ export default function ProductsList({ clientId }: ProductsListProps) {
                         )}
                         <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-text-tertiary">
                           <span>
-                            Price: {product.product.basePrice} {product.product.currency}
+                            {t('products.price')}: {product.product.basePrice} {product.product.currency}
                           </span>
-                          <span>Type: {product.product.type}</span>
-                          <span>Added: {formatDate(product.createdAt)}</span>
+                          <span>{t('products.type')}: {product.product.type}</span>
+                          <span>{t('products.added')}: {formatDate(product.createdAt, locale)}</span>
                         </div>
                         {product.notes && (
                           <p className="text-xs sm:text-sm text-text-secondary mt-2 italic">
-                            Note: {product.notes}
+                            {t('products.note')}: {product.notes}
                           </p>
                         )}
                       </div>
@@ -315,7 +319,7 @@ export default function ProductsList({ clientId }: ProductsListProps) {
       <div>
         <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Calendar className="h-5 w-5" />
-          Tours ({tours.length})
+          {t('products.tours.title', { count: tours.length })}
         </h3>
 
         {tours.length === 0 ? (
@@ -323,9 +327,9 @@ export default function ProductsList({ clientId }: ProductsListProps) {
             <CardContent>
               <div className="text-center py-12">
                 <Calendar className="h-12 w-12 mx-auto mb-4 text-text-tertiary" />
-                <p className="text-text-secondary mb-2">No tours added yet</p>
+                <p className="text-text-secondary mb-2">{t('products.tours.noTours')}</p>
                 <p className="text-sm text-text-tertiary">
-                  Tours will appear here when added
+                  {t('products.tours.noToursDescription')}
                 </p>
               </div>
             </CardContent>
@@ -352,21 +356,21 @@ export default function ProductsList({ clientId }: ProductsListProps) {
                       </div>
                       <div className="flex flex-wrap gap-4 text-sm text-text-tertiary mb-2">
                         <span>
-                          {formatDate(tour.tour.startDate)} - {formatDate(tour.tour.endDate)}
+                          {formatDate(tour.tour.startDate, locale)} - {formatDate(tour.tour.endDate, locale)}
                         </span>
                         {tour.tour.price && (
                           <span>
-                            Price: {tour.tour.price} {tour.tour.currency}
+                            {t('products.price')}: {tour.tour.price} {tour.tour.currency}
                           </span>
                         )}
                         {tour.participants && (
-                          <span>Participants: {tour.participants}</span>
+                          <span>{t('products.tours.participants')}: {tour.participants}</span>
                         )}
-                        <span>Status: {tour.tour.status}</span>
+                        <span>{t('products.tours.status')}: {tour.tour.status}</span>
                       </div>
                       {tour.notes && (
                         <p className="text-sm text-text-secondary mt-2 italic">
-                          Note: {tour.notes}
+                          {t('products.note')}: {tour.notes}
                         </p>
                       )}
                     </div>

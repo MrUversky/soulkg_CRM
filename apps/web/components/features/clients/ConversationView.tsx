@@ -15,27 +15,34 @@ import { Message, CommunicationChannel } from '@/types/client';
 import { cn } from '@/lib/utils';
 import { formatDate } from '@/lib/utils';
 import { Search, MessageSquare, Bot, User, Phone, Mail } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface ConversationViewProps {
   clientId: string;
 }
 
+// CHANNEL_ICONS is defined at module level so it can be used in MessageBubble
 const CHANNEL_ICONS: Record<CommunicationChannel, React.ReactNode> = {
   WHATSAPP: <Phone className="h-4 w-4" />,
   TELEGRAM: <MessageSquare className="h-4 w-4" />,
   EMAIL: <Mail className="h-4 w-4" />,
 };
 
-const CHANNEL_LABELS: Record<CommunicationChannel, string> = {
-  WHATSAPP: 'WhatsApp',
-  TELEGRAM: 'Telegram',
-  EMAIL: 'Email',
-};
-
 export default function ConversationView({ clientId }: ConversationViewProps) {
+  const t = useTranslations();
+  const locale = useLocale();
   const [selectedChannel, setSelectedChannel] = useState<CommunicationChannel | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [messagesLimit] = useState(50);
+
+  // Create CHANNEL_LABELS dynamically using translations
+  const CHANNEL_LABELS = useMemo<Record<CommunicationChannel, string>>(() => {
+    return {
+      WHATSAPP: 'WhatsApp',
+      TELEGRAM: 'Telegram',
+      EMAIL: 'Email',
+    };
+  }, []);
 
   // Fetch conversations to get channel info
   const { data: conversationsData, isLoading: conversationsLoading } = useClientConversations(clientId);
@@ -75,6 +82,8 @@ export default function ConversationView({ clientId }: ConversationViewProps) {
   }, [conversationsData]);
 
   const isLoading = conversationsLoading || messagesLoading;
+  const hasMessages = filteredMessages.length > 0;
+  const totalMessages = messagesData?.pagination.total || 0;
 
   if (isLoading) {
     return (
@@ -88,13 +97,10 @@ export default function ConversationView({ clientId }: ConversationViewProps) {
     );
   }
 
-  const hasMessages = filteredMessages.length > 0;
-  const totalMessages = messagesData?.pagination.total || 0;
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Conversation History</CardTitle>
+        <CardTitle>{t('conversations.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4 sm:space-y-6">
@@ -108,8 +114,8 @@ export default function ConversationView({ clientId }: ConversationViewProps) {
                 onClick={() => setSelectedChannel('ALL')}
                 className="text-xs sm:text-sm"
               >
-                <span className="hidden sm:inline">All Channels</span>
-                <span className="sm:hidden">All</span>
+                <span className="hidden sm:inline">{t('conversations.allChannels')}</span>
+                <span className="sm:hidden">{t('common.all')}</span>
               </Button>
               {availableChannels.map((channel) => (
                 <Button
@@ -132,7 +138,7 @@ export default function ConversationView({ clientId }: ConversationViewProps) {
                 <input
                   type="text"
                   id="message-search"
-                  placeholder="Search messages..."
+                  placeholder={t('conversations.searchMessages')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex h-10 sm:h-12 w-full rounded-lg sm:rounded-xl border border-input/50 bg-background/50 backdrop-blur-sm pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:border-primary-500 focus-visible:bg-background focus-visible:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] transition-all duration-300 ease-spring hover:border-primary/30 hover:bg-background/80"
@@ -145,22 +151,22 @@ export default function ConversationView({ clientId }: ConversationViewProps) {
           {hasMessages ? (
             <div className="space-y-3 sm:space-y-4">
               <div className="text-xs sm:text-sm text-text-tertiary">
-                Showing {filteredMessages.length} of {totalMessages} messages
+                {t('conversations.showingMessages', { count: filteredMessages.length, total: totalMessages })}
               </div>
               <div className="space-y-3 sm:space-y-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
                 {filteredMessages.map((message) => (
-                  <MessageBubble key={message.id} message={message} />
+                  <MessageBubble key={message.id} message={message} channelLabels={CHANNEL_LABELS} />
                 ))}
               </div>
             </div>
           ) : (
             <div className="text-center py-12 text-text-tertiary">
               {searchQuery || selectedChannel !== 'ALL' ? (
-                <p>No messages found matching your filters.</p>
+                <p>{t('common.noResults')}</p>
               ) : (
                 <div className="space-y-2">
                   <MessageSquare className="h-12 w-12 mx-auto text-text-tertiary opacity-50" />
-                  <p>No conversation history yet.</p>
+                  <p>{t('conversations.noMessagesDescription')}</p>
                 </div>
               )}
             </div>
@@ -173,24 +179,27 @@ export default function ConversationView({ clientId }: ConversationViewProps) {
 
 interface MessageBubbleProps {
   message: Message;
+  channelLabels: Record<CommunicationChannel, string>;
 }
 
-function MessageBubble({ message }: MessageBubbleProps) {
+function MessageBubble({ message, channelLabels }: MessageBubbleProps) {
+  const t = useTranslations();
+  const locale = useLocale();
   const isIncoming = message.direction === 'INCOMING';
   const isFromClient = message.sender === 'CLIENT';
   const isFromAI = message.sender === 'AI';
   const isFromHuman = message.sender === 'HUMAN';
 
   const senderLabel = isFromClient
-    ? 'Client'
+    ? t('conversations.client')
     : isFromAI
-    ? 'AI Assistant'
+    ? t('conversations.aiAgent')
     : isFromHuman && message.senderUser
-    ? `${message.senderUser.firstName || ''} ${message.senderUser.lastName || ''}`.trim() || 'User'
-    : 'User';
+    ? `${message.senderUser.firstName || ''} ${message.senderUser.lastName || ''}`.trim() || t('conversations.operator')
+    : t('conversations.operator');
 
   const channelIcon = CHANNEL_ICONS[message.conversation.channel];
-  const channelLabel = CHANNEL_LABELS[message.conversation.channel];
+  const channelLabel = channelLabels?.[message.conversation.channel] || message.conversation.channel;
 
   return (
     <div
@@ -212,14 +221,14 @@ function MessageBubble({ message }: MessageBubbleProps) {
             <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
           )}
           <span className="font-medium">{senderLabel}</span>
-          <span className="text-text-tertiary hidden sm:inline">via</span>
+          <span className="text-text-tertiary hidden sm:inline">{t('conversations.to')}</span>
           <div className="flex items-center gap-1 text-text-tertiary">
             {channelIcon}
             <span className="hidden sm:inline">{channelLabel}</span>
           </div>
         </div>
         <div className="text-xs sm:text-sm text-text-tertiary">
-          {formatDate(message.createdAt)}
+          {formatDate(message.createdAt, locale)}
         </div>
       </div>
 
@@ -232,7 +241,7 @@ function MessageBubble({ message }: MessageBubbleProps) {
       {message.translatedContent && message.translatedContent !== message.content && (
         <div className="mt-2 pt-2 border-t border-border">
           <div className="text-xs text-text-tertiary mb-1">
-            Translation ({message.language || 'auto'}):
+            {t('conversations.translation', { language: message.language || 'auto' })}
           </div>
           <div className="text-xs sm:text-sm text-text-secondary italic">
             {message.translatedContent}
@@ -243,7 +252,7 @@ function MessageBubble({ message }: MessageBubbleProps) {
       {/* Message Status */}
       {message.status && message.status !== 'SENT' && (
         <div className="text-xs text-text-tertiary">
-          Status: {message.status}
+          {t('conversations.messageStatus', { status: message.status })}
         </div>
       )}
     </div>

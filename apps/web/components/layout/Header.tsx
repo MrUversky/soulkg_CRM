@@ -12,7 +12,9 @@ import { useAuth } from '@/lib/contexts/auth-context';
 import { Menu, LogOut, User, Settings } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -22,6 +24,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const t = useTranslations();
 
   const handleLogout = async () => {
     await logout();
@@ -35,7 +38,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <button
           onClick={onMenuClick}
           className="md:hidden p-2 rounded-xl hover:bg-surface-hover transition-all duration-200 hover:scale-105 active:scale-95"
-          aria-label="Toggle menu"
+          aria-label={t('header.toggleMenu')}
         >
           <Menu className="h-6 w-6 text-text-secondary" />
         </button>
@@ -50,8 +53,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Theme toggle */}
-        <div className="mr-3">
+        {/* Theme toggle and Language switcher */}
+        <div className="flex items-center gap-2 mr-3">
+          <LanguageSwitcher />
           <ThemeToggle />
         </div>
 
@@ -60,7 +64,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
             className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-surface-hover transition-all duration-200 hover:scale-105 active:scale-95 group"
-            aria-label="User menu"
+            aria-label={t('header.userMenu')}
             aria-expanded={showUserMenu}
           >
             <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white text-sm font-semibold shadow-md shadow-primary/30 group-hover:shadow-lg group-hover:shadow-primary/40 transition-shadow duration-200">
@@ -95,14 +99,14 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   onClick={() => setShowUserMenu(false)}
                 >
                   <Settings className="h-4 w-4" />
-                  Settings
+                  {t('header.settings')}
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 px-5 py-4 text-sm text-error-600 dark:text-error-400 hover:bg-error-50 dark:hover:bg-error-950/30 transition-all duration-200"
                 >
                   <LogOut className="h-4 w-4" />
-                  Logout
+                  {t('header.logout')}
                 </button>
               </div>
             </>

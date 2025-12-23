@@ -28,10 +28,13 @@ export function formatPhone(phone: string): string {
 
 /**
  * Format date for display
+ * @param date - Date string or Date object
+ * @param locale - Locale code (e.g., 'ru', 'en'). Defaults to 'en-US'
  */
-export function formatDate(date: string | Date): string {
+export function formatDate(date: string | Date, locale: string = 'en-US'): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat('en-US', {
+  const localeCode = locale === 'ru' ? 'ru-RU' : 'en-US';
+  return new Intl.DateTimeFormat(localeCode, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -41,19 +44,39 @@ export function formatDate(date: string | Date): string {
 }
 
 /**
- * Format relative time (e.g., "2 hours ago")
+ * Format relative time (e.g., "2 hours ago" / "2 часа назад")
+ * @param date - Date string or Date object
+ * @param locale - Locale code (e.g., 'ru', 'en'). Defaults to 'en'
  */
-export function formatRelativeTime(date: string | Date): string {
+export function formatRelativeTime(date: string | Date, locale: string = 'en'): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
 
-  if (diffInSeconds < 60) return 'just now';
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  if (locale === 'ru') {
+    if (diffInSeconds < 60) return 'только что';
+    if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes} ${minutes === 1 ? 'минуту' : minutes < 5 ? 'минуты' : 'минут'} назад`;
+    }
+    if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours} ${hours === 1 ? 'час' : hours < 5 ? 'часа' : 'часов'} назад`;
+    }
+    if (diffInSeconds < 604800) {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days} ${days === 1 ? 'день' : days < 5 ? 'дня' : 'дней'} назад`;
+    }
+  } else {
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  }
   
-  return formatDate(d);
+  return formatDate(d, locale);
 }
+
+
 
 

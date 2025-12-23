@@ -15,6 +15,7 @@ import { Plus, Mail, User as UserIcon, Shield, UserCheck, Trash2 } from 'lucide-
 import { formatDate } from '@/lib/utils';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useToast } from '@/components/ui/use-toast';
+import { useLocale, useTranslations } from 'next-intl';
 
 const ROLE_COLORS = {
   SUPER_ADMIN: 'bg-secondary-100 text-secondary-800 dark:bg-secondary-900 dark:text-secondary-300',
@@ -22,33 +23,36 @@ const ROLE_COLORS = {
   MANAGER: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-300',
 };
 
-const ROLE_LABELS = {
-  SUPER_ADMIN: 'Super Admin',
-  ADMIN: 'Admin',
-  MANAGER: 'Manager',
-};
-
 export default function UserList() {
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
+  const locale = useLocale();
+  const t = useTranslations();
   const { data, isLoading, error } = useUsers();
   const deactivateMutation = useDeactivateUser();
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
 
   const users = data?.data || [];
 
+  // Create ROLE_LABELS dynamically using translations
+  const ROLE_LABELS = {
+    SUPER_ADMIN: t('users.roles.SUPER_ADMIN'),
+    ADMIN: t('users.roles.ADMIN'),
+    MANAGER: t('users.roles.MANAGER'),
+  };
+
   useEffect(() => {
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to load users. Please try again.",
+        title: t('common.error'),
+        description: t('users.failedToLoadUsers'),
         variant: "error",
       });
     }
-  }, [error, toast]);
+  }, [error, toast, t]);
 
   const handleDeactivate = async (id: string) => {
-    if (!confirm('Are you sure you want to deactivate this user?')) {
+    if (!confirm(t('users.confirmDeactivate'))) {
       return;
     }
 
@@ -56,14 +60,14 @@ export default function UserList() {
       setDeactivatingId(id);
       await deactivateMutation.mutateAsync(id);
       toast({
-        title: "Success",
-        description: "User deactivated successfully.",
+        title: t('common.success'),
+        description: t('users.userDeactivated'),
         variant: "success",
       });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.response?.data?.error || "Failed to deactivate user. Please try again.",
+        title: t('common.error'),
+        description: error.response?.data?.error || t('users.failedToDeactivate'),
         variant: "error",
       });
     } finally {
@@ -76,15 +80,15 @@ export default function UserList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary mb-6">Users</h1>
+          <h1 className="text-3xl font-bold text-text-primary mb-6">{t('users.title')}</h1>
           <p className="text-lg text-text-secondary">
-            Manage users in your organization
+            {t('users.manageUsers')}
           </p>
         </div>
         <Link href="/dashboard/users/new">
           <Button variant="default" size="lg">
             <Plus className="h-5 w-5 mr-2" />
-            Add User
+            {t('users.addUser')}
           </Button>
         </Link>
       </div>
@@ -102,7 +106,7 @@ export default function UserList() {
           <CardContent>
             <div className="text-center py-12">
               <p className="text-error-600 dark:text-error-400">
-                Failed to load users. Please try again.
+                {t('users.failedToLoadUsers')}
               </p>
             </div>
           </CardContent>
@@ -116,13 +120,13 @@ export default function UserList() {
             <div className="text-center py-16">
               <UserIcon className="h-12 w-12 text-text-tertiary mx-auto mb-6" />
               <h3 className="text-lg font-medium text-text-primary mb-4">
-                No users found
+                {t('users.noUsersFound')}
               </h3>
               <p className="text-text-secondary mb-6">
-                Get started by adding your first user
+                {t('users.getStartedAddingUser')}
               </p>
               <Link href="/dashboard/users/new">
-                <Button variant="default">Add User</Button>
+                <Button variant="default">{t('users.addUser')}</Button>
               </Link>
             </div>
           </CardContent>
@@ -156,7 +160,7 @@ export default function UserList() {
                         </span>
                         {!user.isActive && (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-error-100 text-error-800 dark:bg-error-900 dark:text-error-300">
-                            Inactive
+                            {t('users.inactive')}
                           </span>
                         )}
                       </div>
@@ -167,7 +171,7 @@ export default function UserList() {
                         </span>
                         {user.lastLoginAt && (
                           <span className="text-xs">
-                            Last login: {formatDate(user.lastLoginAt)}
+                            {t('users.lastLogin')}: {formatDate(user.lastLoginAt, locale)}
                           </span>
                         )}
                       </div>
@@ -176,7 +180,7 @@ export default function UserList() {
                   <div className="flex items-center gap-4">
                     <Link href={`/dashboard/users/${user.id}/edit`}>
                       <Button variant="outline" size="sm">
-                        Edit
+                        {t('users.edit')}
                       </Button>
                     </Link>
                     {user.id !== currentUser?.id && user.isActive && (
@@ -188,7 +192,7 @@ export default function UserList() {
                         disabled={deactivatingId === user.id}
                       >
                         <Trash2 className="h-4 w-4 mr-1" />
-                        Deactivate
+                        {t('users.deactivate')}
                       </Button>
                     )}
                   </div>

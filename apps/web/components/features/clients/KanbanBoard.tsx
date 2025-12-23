@@ -30,6 +30,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import KanbanCard from './KanbanCard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslations } from 'next-intl';
 
 const STATUS_ORDER: ClientStatus[] = [
   'NEW_LEAD',
@@ -42,17 +43,6 @@ const STATUS_ORDER: ClientStatus[] = [
   'CLOSED',
 ];
 
-const STATUS_LABELS: Record<ClientStatus, string> = {
-  NEW_LEAD: 'New Lead',
-  QUALIFIED: 'Qualified',
-  WARMED: 'Warmed',
-  PROPOSAL_SENT: 'Proposal Sent',
-  NEGOTIATION: 'Negotiation',
-  SOLD: 'Sold',
-  SERVICE: 'Service',
-  CLOSED: 'Closed',
-};
-
 interface KanbanBoardProps {
   search?: string;
   scrollRef?: RefObject<HTMLDivElement | null>;
@@ -60,6 +50,19 @@ interface KanbanBoardProps {
 
 export default function KanbanBoard({ search, scrollRef }: KanbanBoardProps) {
   const { toast } = useToast();
+  const t = useTranslations();
+
+  // Create STATUS_LABELS dynamically using translations
+  const STATUS_LABELS: Record<ClientStatus, string> = {
+    NEW_LEAD: t('clientStatus.NEW_LEAD'),
+    QUALIFIED: t('clientStatus.QUALIFIED'),
+    WARMED: t('clientStatus.WARMED'),
+    PROPOSAL_SENT: t('clientStatus.PROPOSAL_SENT'),
+    NEGOTIATION: t('clientStatus.NEGOTIATION'),
+    SOLD: t('clientStatus.SOLD'),
+    SERVICE: t('clientStatus.SERVICE'),
+    CLOSED: t('clientStatus.CLOSED'),
+  };
   const [activeId, setActiveId] = useState<string | null>(null);
   const updateStatusMutation = useUpdateClientStatus();
 
@@ -153,14 +156,14 @@ export default function KanbanBoard({ search, scrollRef }: KanbanBoardProps) {
         reason: 'Moved via Kanban board',
       });
       toast({
-        title: 'Success',
-        description: 'Client status updated successfully',
+        title: t('clients.success'),
+        description: t('clients.statusUpdated'),
         variant: 'success',
       });
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.response?.data?.error || 'Failed to update status',
+        title: t('clients.error'),
+        description: error.response?.data?.error || t('clients.failedToUpdateStatus'),
         variant: 'error',
       });
     }

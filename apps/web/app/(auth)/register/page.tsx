@@ -16,6 +16,9 @@ import { z } from 'zod';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
+import { useTranslations } from 'next-intl';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -34,8 +37,21 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const router = useRouter();
   const { register: registerUser } = useAuth();
+  const t = useTranslations();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const registerSchema = z.object({
+    email: z.string().email(t('auth.invalidEmail')),
+    password: z.string().min(8, t('auth.passwordMinLength')),
+    confirmPassword: z.string(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    organizationName: z.string().min(1, t('auth.organizationNameRequired')),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('auth.passwordsDontMatch'),
+    path: ['confirmPassword'],
+  });
 
   const {
     register,
@@ -58,32 +74,38 @@ export default function RegisterPage() {
       });
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(err.message || t('auth.registrationFailed'));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative px-6 py-16 overflow-hidden bg-background-subtle">
+    <div className="min-h-screen flex items-center justify-center relative px-4 sm:px-6 py-12 sm:py-16 overflow-hidden bg-background-subtle">
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 via-background to-secondary-50/50 dark:from-primary-950/30 dark:via-background dark:to-secondary-950/30" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.08)_0%,_transparent_50%)]" />
       
-      <div className="w-full max-w-md relative z-10">
-        <div className="text-center mb-12">
+      <div className="w-full max-w-md relative z-10 pt-8 sm:pt-0">
+        {/* Theme toggle and Language switcher - Mobile friendly positioning */}
+        <div className="absolute top-2 right-2 sm:top-0 sm:right-0 flex items-center gap-1.5 sm:gap-2">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
+        
+        <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-3 leading-tight bg-gradient-to-br from-primary-600 to-secondary-600 bg-clip-text text-transparent">
             Soul KG CRM
           </h1>
           <p className="text-lg text-text-secondary leading-relaxed">
-            Create your account
+            {t('auth.createAccount')}
           </p>
         </div>
 
         <Card>
           <form onSubmit={handleSubmit(onSubmit)} className="block">
             <CardHeader>
-              <CardTitle>Register</CardTitle>
+              <CardTitle>{t('auth.register')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {error && (
@@ -97,7 +119,7 @@ export default function RegisterPage() {
 
               <div className="grid grid-cols-2 gap-6">
                 <Input
-                  label="First Name"
+                  label={t('auth.firstName')}
                   placeholder="John"
                   id="firstName"
                   {...register('firstName')}
@@ -105,7 +127,7 @@ export default function RegisterPage() {
                 />
 
                 <Input
-                  label="Last Name"
+                  label={t('auth.lastName')}
                   placeholder="Doe"
                   id="lastName"
                   {...register('lastName')}
@@ -114,7 +136,7 @@ export default function RegisterPage() {
               </div>
 
               <Input
-                label="Email"
+                label={t('auth.email')}
                 type="email"
                 placeholder="you@example.com"
                 id="email"
@@ -125,7 +147,7 @@ export default function RegisterPage() {
               />
 
               <Input
-                label="Organization Name"
+                label={t('auth.organizationName')}
                 placeholder="My Company"
                 id="organizationName"
                 {...register('organizationName')}
@@ -134,19 +156,19 @@ export default function RegisterPage() {
               />
 
               <Input
-                label="Password"
+                label={t('auth.password')}
                 type="password"
                 placeholder="••••••••"
                 id="password"
                 {...register('password')}
                 error={errors.password?.message}
                 autoComplete="new-password"
-                helperText="Must be at least 8 characters"
+                helperText={t('auth.passwordMinLength')}
                 required
               />
 
               <Input
-                label="Confirm Password"
+                label={t('auth.confirmPassword')}
                 type="password"
                 placeholder="••••••••"
                 id="confirmPassword"
@@ -165,16 +187,16 @@ export default function RegisterPage() {
                 disabled={isLoading}
                 size="lg"
               >
-                Create Account
+                {t('auth.createAccountButton')}
               </Button>
 
               <p className="text-sm text-text-secondary text-center">
-                Already have an account?{' '}
+                {t('auth.haveAccount')}{' '}
                 <Link
                   href="/login"
                   className="text-primary hover:text-primary-hover font-medium transition-colors duration-200"
                 >
-                  Sign in
+                  {t('auth.signIn')}
                 </Link>
               </p>
             </CardFooter>

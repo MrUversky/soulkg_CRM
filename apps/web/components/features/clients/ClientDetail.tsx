@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import QuickActionsPanel from './QuickActionsPanel';
 import NotesEditor from './NotesEditor';
+import { useTranslations, useLocale } from 'next-intl';
 
 // Lazy load tab components for better performance
 const ConversationView = dynamic(() => import('./ConversationView'), {
@@ -57,16 +58,7 @@ const STATUS_COLORS: Record<ClientStatus, string> = {
   CLOSED: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-300',
 };
 
-const STATUS_LABELS: Record<ClientStatus, string> = {
-  NEW_LEAD: 'New Lead',
-  QUALIFIED: 'Qualified',
-  WARMED: 'Warmed',
-  PROPOSAL_SENT: 'Proposal Sent',
-  NEGOTIATION: 'Negotiation',
-  SOLD: 'Sold',
-  SERVICE: 'Service',
-  CLOSED: 'Closed',
-};
+// STATUS_LABELS will be created dynamically using translations
 
 interface ClientDetailProps {
   clientId: string;
@@ -76,10 +68,24 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const t = useTranslations();
+  const locale = useLocale();
   const { data: client, isLoading, error } = useClient(clientId);
   const updateStatusMutation = useUpdateClientStatus();
   const [selectedStatus, setSelectedStatus] = useState<ClientStatus | ''>('');
   const [activeTab, setActiveTab] = useState<'overview' | 'conversations' | 'products' | 'history'>('overview');
+
+  // Create STATUS_LABELS dynamically using translations
+  const STATUS_LABELS: Record<ClientStatus, string> = {
+    NEW_LEAD: t('clientStatus.NEW_LEAD'),
+    QUALIFIED: t('clientStatus.QUALIFIED'),
+    WARMED: t('clientStatus.WARMED'),
+    PROPOSAL_SENT: t('clientStatus.PROPOSAL_SENT'),
+    NEGOTIATION: t('clientStatus.NEGOTIATION'),
+    SOLD: t('clientStatus.SOLD'),
+    SERVICE: t('clientStatus.SERVICE'),
+    CLOSED: t('clientStatus.CLOSED'),
+  };
 
   // Определяем откуда пришли (kanban или list) из query параметра
   const from = searchParams.get('from') || 'list';
@@ -92,12 +98,12 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
   useEffect(() => {
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to load client. Please try again.",
+        title: t('clients.error'),
+        description: t('clients.failedToLoad'),
         variant: "error",
       });
     }
-  }, [error, toast]);
+  }, [error, toast, t]);
 
   const handleStatusChange = async (newStatus: ClientStatus) => {
     try {
@@ -106,15 +112,15 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
         status: newStatus,
       });
       toast({
-        title: "Success",
-        description: "Client status updated successfully.",
+        title: t('clients.success'),
+        description: t('clients.statusUpdated'),
         variant: "success",
       });
       setSelectedStatus('');
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.response?.data?.error || "Failed to update status. Please try again.",
+        title: t('clients.error'),
+        description: error.response?.data?.error || t('clients.failedToUpdateStatus'),
         variant: "error",
       });
     }
@@ -131,18 +137,18 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
   if (error || !client) {
     return (
       <Card>
-        <CardContent>
-          <div className="text-center py-12">
-            <p className="text-error-600 dark:text-error-400 mb-6">
-              Failed to load client. Please try again.
-            </p>
-            <Link href="/dashboard/clients">
-              <Button variant="outline">
-                Back to Clients
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
+            <CardContent>
+              <div className="text-center py-12">
+                <p className="text-error-600 dark:text-error-400 mb-6">
+                  {t('clients.failedToLoad')}
+                </p>
+                <Link href="/dashboard/clients">
+                  <Button variant="outline">
+                    {t('clients.backToClients')}
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
       </Card>
     );
   }
@@ -154,20 +160,20 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <Button variant="ghost" size="sm" onClick={handleBack}>
             <ArrowLeft className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Back</span>
+            <span className="hidden sm:inline">{t('clients.back')}</span>
           </Button>
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-text-primary truncate">
               {client.firstName || client.lastName
                 ? `${client.firstName || ''} ${client.lastName || ''}`.trim()
-                : 'Unnamed Client'}
+                : t('clients.unnamedClient')}
             </h1>
           </div>
         </div>
         <Link href={`/dashboard/clients/${clientId}/edit`} className="w-full sm:w-auto">
           <Button variant="default" className="w-full sm:w-auto">
             <Edit className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Edit</span>
+            <span className="hidden sm:inline">{t('clients.edit')}</span>
           </Button>
         </Link>
       </div>
@@ -184,7 +190,7 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
                 : 'border-transparent text-text-tertiary hover:text-text-primary hover:border-border'
             )}
           >
-            Overview
+            {t('clients.overview')}
           </button>
           <button
             onClick={() => setActiveTab('conversations')}
@@ -196,8 +202,8 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
             )}
           >
             <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Conversations</span>
-            <span className="sm:hidden">Chat</span>
+            <span className="hidden sm:inline">{t('clients.conversations')}</span>
+            <span className="sm:hidden">{t('clients.chat')}</span>
           </button>
           <button
             onClick={() => setActiveTab('products')}
@@ -209,7 +215,7 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
             )}
           >
             <Package className="h-3 w-3 sm:h-4 sm:w-4" />
-            Products
+            {t('clients.products')}
           </button>
           <button
             onClick={() => setActiveTab('history')}
@@ -221,7 +227,7 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
             )}
           >
             <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-            History
+            {t('clients.history')}
           </button>
         </div>
       </div>
@@ -233,14 +239,14 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
           <div className="xl:col-span-2 space-y-4 sm:space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
+                <CardTitle>{t('clients.contactInformation')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <dl className="space-y-6">
                   <div>
                     <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
                       <Phone className="h-4 w-4" />
-                      Phone
+                      {t('clients.phone')}
                     </dt>
                     <dd className="text-base text-text-primary">
                       {formatPhone(client.phone)}
@@ -250,7 +256,7 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
                     <div>
                       <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
                         <Mail className="h-4 w-4" />
-                        Email
+                        {t('clients.email')}
                       </dt>
                       <dd className="text-base text-text-primary">
                         {client.email}
@@ -260,7 +266,7 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
                   {client.preferredLanguage && (
                     <div>
                       <dt className="text-sm font-semibold text-text-tertiary mb-2">
-                        Preferred Language
+                        {t('clients.preferredLanguage')}
                       </dt>
                       <dd className="text-base text-text-primary">
                         {client.preferredLanguage.toUpperCase()}
@@ -274,13 +280,13 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
             {/* Status History */}
             <Card>
               <CardHeader>
-                <CardTitle>Status</CardTitle>
+                <CardTitle>{t('clients.status')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-text-primary mb-3">
-                      Current Status
+                      {t('clients.currentStatus')}
                     </label>
                     <div className="flex items-center gap-4">
                       <span
@@ -295,7 +301,7 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-text-primary mb-3">
-                      Change Status
+                      {t('clients.changeStatus')}
                     </label>
                     <div className="flex flex-wrap gap-3">
                       {(Object.keys(STATUS_LABELS) as ClientStatus[]).map((status) => (
@@ -324,25 +330,25 @@ function ClientDetailContent({ clientId }: ClientDetailProps) {
             <QuickActionsPanel client={client} />
             <Card>
               <CardHeader>
-                <CardTitle>Details</CardTitle>
+                <CardTitle>{t('clients.details')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <dl className="space-y-4 sm:space-y-6">
                   <div>
                     <dt className="text-sm font-semibold text-text-tertiary flex items-center gap-3 mb-2">
                       <Calendar className="h-4 w-4" />
-                      Created
+                      {t('clients.created')}
                     </dt>
                     <dd className="text-sm text-text-primary">
-                      {formatDate(client.createdAt)}
+                      {formatDate(client.createdAt, locale)}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-sm font-semibold text-text-tertiary mb-2">
-                      Last Updated
+                      {t('clients.lastUpdated')}
                     </dt>
                     <dd className="text-sm text-text-primary">
-                      {formatDate(client.updatedAt)}
+                      {formatDate(client.updatedAt, locale)}
                     </dd>
                   </div>
                 </dl>
