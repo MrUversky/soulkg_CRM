@@ -52,6 +52,7 @@
 |-----|-----|
 | **Текущая задача** | `CURRENT_TASK.md` |
 | **Шаблон задачи** | `TASK_TEMPLATE.md` |
+| **Будущие задачи** | `FUTURE_TASKS.md` |
 | **Статус проекта** | `PROJECT_STATUS.md` (корень проекта) |
 | **TODO list** | Cursor TODO list (`todo_write`) |
 | **Архив задач** | `archive/` |
