@@ -66,12 +66,13 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 via-background to-secondary-50/50 dark:from-primary-950/30 dark:via-background dark:to-secondary-950/30" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.08)_0%,_transparent_50%)]" />
       
+      {/* Theme toggle and Language switcher - Mobile friendly positioning */}
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-1.5 sm:gap-2 z-20">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+      
       <div className="w-full max-w-md relative z-10 pt-8 sm:pt-0">
-        {/* Theme toggle and Language switcher - Mobile friendly positioning */}
-        <div className="absolute top-2 right-2 sm:top-0 sm:right-0 flex items-center gap-1.5 sm:gap-2">
-          <LanguageSwitcher />
-          <ThemeToggle />
-        </div>
 
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-3 leading-tight bg-gradient-to-br from-primary-600 to-secondary-600 bg-clip-text text-transparent">
