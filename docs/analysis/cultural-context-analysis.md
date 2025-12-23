@@ -156,3 +156,5 @@ Consider that in UAE, people from many countries live there.
 4. Есть ли возможность собирать данные о клиентах явно (опрос при первом контакте)?
 
 
+
+
