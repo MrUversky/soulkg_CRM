@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/lib/contexts/theme-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { Toaster } from "@/components/ui/Toaster";
 import { NextIntlClientProvider } from 'next-intl';
-import { defaultLocale } from '@/i18n/routing';
+import { defaultLocale, locales, type Locale } from '@/i18n/routing';
 import { cookies } from 'next/headers';
 
 const inter = Inter({
@@ -16,7 +16,12 @@ const inter = Inter({
 
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies();
-  const locale = (cookieStore.get('NEXT_LOCALE')?.value || defaultLocale) as 'ru' | 'en';
+  const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value;
+  
+  // Validate locale against supported locales array
+  const locale: Locale = (cookieLocale && locales.includes(cookieLocale as Locale))
+    ? (cookieLocale as Locale)
+    : defaultLocale;
   
   return {
     title: "Soul KG CRM",
@@ -33,9 +38,14 @@ export default async function RootLayout({
 }>) {
   // Get locale from cookie or use default
   const cookieStore = await cookies();
-  const locale = (cookieStore.get('NEXT_LOCALE')?.value || defaultLocale) as 'ru' | 'en';
+  const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value;
   
-  // Load messages for the locale
+  // Validate locale against supported locales array to prevent loading non-existent JSON files
+  const locale: Locale = (cookieLocale && locales.includes(cookieLocale as Locale))
+    ? (cookieLocale as Locale)
+    : defaultLocale;
+  
+  // Load messages for the validated locale
   const messages = (await import(`@/messages/${locale}.json`)).default;
 
   return (
