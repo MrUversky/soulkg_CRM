@@ -4,8 +4,14 @@
  * Extracts data from WhatsApp Web using whatsapp-web.js
  */
 
-import { Client, LocalAuth, Message as WhatsAppMessage } from 'whatsapp-web.js';
+import { Message as WhatsAppMessage, type Client } from 'whatsapp-web.js';
 import { BaseExtractor } from './base-extractor';
+import {
+  createWhatsAppClient,
+  extractPhoneFromWhatsAppId,
+  normalizePhoneNumber,
+  isIndividualChat,
+} from '@soul-kg-crm/shared';
 import type {
   ExtractedContact,
   ExtractedMessage,
@@ -30,33 +36,14 @@ export class WhatsAppExtractor extends BaseExtractor {
   constructor(options: WhatsAppExtractorOptions) {
     super();
 
-    // Initialize WhatsApp client with session management
-    // Using best practices to avoid blocking:
-    // - LocalAuth for session persistence
-    // - Headless mode with proper args
-    // - Rate limiting between requests
-    this.client = new Client({
-      authStrategy: new LocalAuth({
-        clientId: `org-${options.organizationId}`,
-        dataPath: options.sessionPath || `.whatsapp-sessions/org-${options.organizationId}`,
-      }),
-      puppeteer: {
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--disable-gpu',
-        ],
-      },
-      webVersionCache: {
-        type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1017054665.html',
-      },
-    });
+    // Initialize WhatsApp client with session management using shared utilities
+    // Mode 'import' ensures different clientId and dataPath than integration
+    // This prevents session conflicts between import and integration
+    this.client = createWhatsAppClient(
+      options.organizationId,
+      'import',
+      options.sessionPath
+    );
 
     this.setupEventHandlers();
   }
@@ -95,12 +82,12 @@ export class WhatsAppExtractor extends BaseExtractor {
       console.log('WhatsApp client authenticated');
     });
 
-    this.client.on('auth_failure', (msg) => {
+    this.client.on('auth_failure', (msg: string) => {
       console.error('WhatsApp authentication failure:', msg);
       this.isReady = false;
     });
 
-    this.client.on('disconnected', (reason) => {
+    this.client.on('disconnected', (reason: string) => {
       console.log('WhatsApp client disconnected:', reason);
       this.isReady = false;
     });
@@ -114,23 +101,32 @@ export class WhatsAppExtractor extends BaseExtractor {
       return;
     }
 
+    console.log('   Initializing WhatsApp client...');
     await this.client.initialize();
+    console.log('   Client initialized, waiting for authentication...');
     
     // Wait for ready state
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
-        reject(new Error('WhatsApp client initialization timeout'));
-      }, 60000); // 60 seconds timeout
+        reject(new Error('WhatsApp client initialization timeout (120 seconds). If you need to scan QR code, use getQRCode() first.'));
+      }, 120000); // 120 seconds timeout
 
       this.client.once('ready', () => {
+        console.log('   ✅ WhatsApp client is ready!');
         clearTimeout(timeout);
         resolve();
       });
 
-      this.client.once('auth_failure', (msg) => {
+      this.client.once('authenticated', () => {
+        console.log('   ✅ WhatsApp client authenticated');
+      });
+
+      this.client.once('auth_failure', (msg: string) => {
         clearTimeout(timeout);
         reject(new Error(`Authentication failed: ${msg}`));
       });
+
+      // QR code handling is done in getQRCode() method
     });
   }
 
@@ -139,7 +135,7 @@ export class WhatsAppExtractor extends BaseExtractor {
    */
   async getQRCode(): Promise<string | null> {
     return new Promise((resolve) => {
-      this.client.once('qr', (qr) => {
+      this.client.once('qr', (qr: string) => {
         resolve(qr);
       });
 
@@ -191,13 +187,17 @@ export class WhatsAppExtractor extends BaseExtractor {
 
         // Extract phone number from chat ID (format: 996XXXXXXXXX@c.us)
         const chatId = chat.id._serialized;
-        const phoneMatch = chatId.match(/^(\d+)@c\.us$/);
-        if (!phoneMatch) {
-          continue; // Skip if format doesn't match
+        
+        // Skip if not individual chat (use shared utility)
+        if (!isIndividualChat(chatId)) {
+          continue;
         }
 
-        const phoneDigits = phoneMatch[1];
-        const phone = this.normalizePhoneNumber(phoneDigits);
+        // Use shared utility to extract and normalize phone number
+        const phone = extractPhoneFromWhatsAppId(chatId);
+        
+        // Extract digits for validation
+        const phoneDigits = phone.replace(/\D/g, '');
 
         // Skip system contacts (WhatsApp, Status, etc.) with invalid phone numbers
         if (phone === '+0' || phoneDigits === '0' || phone.length < 8) {
@@ -221,7 +221,8 @@ export class WhatsAppExtractor extends BaseExtractor {
           await this.rateLimit();
           
           // Use getContactById with chat ID (more reliable than chat.getContact())
-          const contactId = chatId.replace('@c.us', '');
+          // Extract digits from WhatsApp ID (remove @c.us suffix)
+          const contactId = chatId.replace(/@c\.us$/, '');
           const contact = await this.client.getContactById(contactId).catch(() => null);
           
           if (contact) {
@@ -281,25 +282,33 @@ export class WhatsAppExtractor extends BaseExtractor {
         // If not found by ID, try to find by phone number
         await this.rateLimit();
         const chats = await this.client.getChats();
-        const normalizedPhone = this.normalizePhoneNumber(contactId);
-        const phoneDigits = normalizedPhone.replace(/\D/g, '');
+        // Normalize phone number using shared utility
+        const normalizedPhone = normalizePhoneNumber(contactId);
 
         // Find chat by phone number (using chat ID matching - most reliable)
         for (const c of chats) {
           if (c.isGroup) continue;
           
-          // Extract phone from chat ID directly (most reliable method)
+          // Extract phone from chat ID directly using shared utility
           const chatId = c.id._serialized;
-          const chatPhoneMatch = chatId.match(/^(\d+)@c\.us$/);
-          if (chatPhoneMatch) {
-            const chatPhoneDigits = chatPhoneMatch[1];
-            const chatPhone = this.normalizePhoneNumber(chatPhoneDigits);
+          
+          // Skip if not individual chat
+          if (!isIndividualChat(chatId)) {
+            continue;
+          }
+          
+          try {
+            // Use shared utility to extract and normalize phone number
+            const chatPhone = extractPhoneFromWhatsAppId(chatId);
             
-            // Match by normalized phone or digits
-            if (chatPhone === normalizedPhone || chatPhoneDigits === phoneDigits) {
+            // Match by normalized phone
+            if (chatPhone === normalizedPhone) {
               chat = c;
               break;
             }
+          } catch {
+            // Skip invalid chat IDs
+            continue;
           }
         }
 
@@ -356,31 +365,7 @@ export class WhatsAppExtractor extends BaseExtractor {
     }
   }
 
-  /**
-   * Normalize phone number to format +996XXXXXXXXX
-   */
-  private normalizePhoneNumber(phone: string): string {
-    // Remove all non-digit characters
-    const digits = phone.replace(/\D/g, '');
-
-    // Handle WhatsApp format (usually includes country code)
-    if (digits.startsWith('996')) {
-      return `+${digits}`;
-    }
-    if (digits.startsWith('0') && digits.length === 10) {
-      return `+996${digits.slice(1)}`;
-    }
-    if (digits.length === 9) {
-      return `+996${digits}`;
-    }
-
-    // If already has +, return as is
-    if (phone.startsWith('+')) {
-      return phone;
-    }
-
-    return `+${digits}`;
-  }
+  // normalizePhoneNumber method removed - now using shared utility from @soul-kg-crm/shared/utils/phone
 
   /**
    * Determine message type
